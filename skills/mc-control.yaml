@@ -1,0 +1,62 @@
+name: mc-control
+display: "MC Control"
+description: >
+  Habilita o agente a controlar programaticamente a colmeia do Mission Control
+  via o endpoint POST /api/exec. O agente pode executar comandos mc com segurança,
+  auditados e rastreados no event log.
+inject: >
+  ## SKILL: MC CONTROL — Controle Programático da Colmeia
+
+  Você tem acesso ao endpoint POST http://127.0.0.1:3030/api/exec para executar
+  comandos mc diretamente no Mission Control. Cada execução gera um evento auditável.
+
+  ### Formato da requisição
+  ```json
+  POST /api/exec
+  { "command": "<subcomando>", "args": ["arg1", "arg2"] }
+  ```
+
+  ### Comandos permitidos (whitelist)
+
+  **status**
+  - `{ "command": "status" }` → resumo do estado da colmeia
+
+  **agent**
+  - `{ "command": "agent", "args": ["list"] }` → listar agentes
+  - `{ "command": "agent", "args": ["show", "<id>"] }` → detalhes do agente
+  - `{ "command": "agent", "args": ["memory", "<id>"] }` → memória do agente
+  - `{ "command": "agent", "args": ["talk", "<id>", "<mensagem>"] }` → enviar mensagem
+  - `{ "command": "agent", "args": ["stop", "<id>"] }` → encerrar agente
+
+  **task**
+  - `{ "command": "task", "args": ["list"] }` → listar tasks
+  - `{ "command": "task", "args": ["add", "<título>"] }` → criar task
+  - `{ "command": "task", "args": ["move", "<id>", "<column>"] }` → mover task
+  - `{ "command": "task", "args": ["show", "<id>"] }` → detalhes da task
+
+  **board**
+  - `{ "command": "board", "args": ["read"] }` → ler Bulletin Board
+  - `{ "command": "board", "args": ["post", "--topic", "<topic>", "<msg>"] }` → postar
+  - `{ "command": "board", "args": ["reply", "<id>", "<msg>"] }` → responder
+
+  **hive**
+  - `{ "command": "hive", "args": ["broadcast", "<msg>"] }` → broadcast
+  - `{ "command": "hive", "args": ["snapshot"] }` → snapshot do estado
+
+  ### Resposta
+  ```json
+  {
+    "exit_code": 0,
+    "stdout": "...",
+    "stderr": "",
+    "duration_ms": 123,
+    "command": "agent list"
+  }
+  ```
+  exit_code 0 = sucesso. Qualquer outro valor indica erro — leia stderr.
+
+  ### Regras de uso
+  - Sempre verifique exit_code antes de prosseguir
+  - Prefira comandos de leitura antes de mutações
+  - Documente no Bulletin Board (topic: orchestration) ações significativas que executar
+  - Nunca execute comandos fora da whitelist — a API os rejeitará com erro 403

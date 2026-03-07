@@ -5,6 +5,45 @@
 
 ---
 
+## [Sprint 8] — Argenta Orchestrator + Memória Episódica + Organic Growth ✅
+**data:** 2026-03-07 · **sprint:** 8.0–8.4 · **domínio:** backend · infra · frontend · docs
+
+### S8.0 — Start Infrastructure + Boot Scene
+- `start.mjs` — orquestrador de processos (ui→loop, kill gracioso, banner ANSI colorido)
+- `start-mc.bat` — launcher Windows kiosk (Chrome/Edge `--app --start-fullscreen`)
+- Welcoming boot screen: scanlines, logo ASCII animado, checklist de subsistemas em tempo real, progress bar, fade dramático
+- `npm start` mapeado em package.json
+
+### S8.1 — POST /api/exec + Skill mc-control
+- `POST /api/exec` — executa mc commands via subprocess com whitelist de segurança (status/agent/task/board/hive/chat)
+- Cada execução gera evento auditável em `ops/events.jsonl`
+- `skills/mc-control.yaml` — skill injetável com mapa completo de comandos para Argenta usar
+
+### S8.2 — Memória Episódica Híbrida (Ollama + Qdrant)
+- `memory/episodic.mjs` — Ollama embedding-gemma (localhost:11434) + Qdrant (localhost:6333)
+- Cria coleção `hmc_episodic` automaticamente · graceful degradation: Qdrant offline → cache local JSON
+- Sync automático ao reconectar · busca local por cosine similarity como fallback
+- `upsertSession()` disparado ao fechar chat (`DELETE /chat/:key`)
+- `GET /api/hive/agents/:id/memory?q=texto` → busca semântica nas memórias do agente
+
+### S8.3 — Organic Growth (Auto + Manual)
+- Auto-growth: task→done bumpa atributo do agente (domain→attr, priority→+1/2/3 pts, cap 100)
+- `wsBroadcast character_updated` com payload de crescimento · flash visual "+N ATTR" no card
+- ACP UI: seção `// Crescimento` com botões +/− por atributo (STR/INT/WIS/DEX/VIT/CHA)
+- `onCharacterUpdated()` WS handler conectado · `charactersData` atualizado em tempo real
+
+### Impacto
+Argenta controla a colmeia programaticamente. Memórias persistem como vetores pesquisáveis.
+Agentes crescem organicamente pelo uso. Colmeia viva, autônoma e evolutiva.
+
+### Arquivos
+`start.mjs` · `start-mc.bat` · `package.json` · `ui/index.html` · `ui/server.mjs` · `memory/episodic.mjs` · `skills/mc-control.yaml` · `hive/memory/cache/`
+
+### Status
+✅ entregue · 2026-03-07 · aguardando aprovação
+
+---
+
 ## [Sprint 7.5] — docs: Scribe Review Final ✅
 **data:** 2026-03-07
 **sprint:** 7.5
@@ -32,7 +71,7 @@
 
 ### Status
 ✅ Sprint 7 entregue e auditado · 2026-03-07
-Aguardando aprovação explícita do usuário para marcar Sprint 7 como APROVADO.
+✅ **APROVADO pelo usuário · 2026-03-07**
 
 ---
 

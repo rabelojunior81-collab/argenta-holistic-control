@@ -1155,6 +1155,177 @@
     .ctx-item.danger:hover { background: rgba(214,107,107,0.1); }
     .ctx-sep { border-bottom: 1px solid var(--glass-border); margin: 3px 0; }
 
+    /* ── Welcoming Boot Scene ────────────────────────────────────────────── */
+    #boot-screen {
+      position: fixed; inset: 0; z-index: 99999;
+      background: #0a0c08;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      overflow: hidden;
+      transition: opacity 0.8s ease;
+    }
+    #boot-screen.fade-out { opacity: 0; pointer-events: none; }
+    #boot-screen.hidden   { display: none; }
+
+    /* scanline overlay */
+    #boot-screen::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent, transparent 2px,
+        rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none; z-index: 1;
+      animation: scanlines 8s linear infinite;
+    }
+    @keyframes scanlines {
+      0%   { background-position: 0 0; }
+      100% { background-position: 0 100px; }
+    }
+
+    /* noise grain */
+    #boot-screen::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.35; pointer-events: none; z-index: 0;
+    }
+
+    .boot-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0; width: min(720px, 90vw);
+    }
+
+    .boot-logo {
+      font-size: clamp(9px, 1.1vw, 13px);
+      line-height: 1.18;
+      color: var(--olive-500);
+      letter-spacing: 0.02em;
+      white-space: pre;
+      text-align: center;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: bootLogoIn 0.6s ease forwards;
+      animation-delay: 0.2s;
+    }
+    @keyframes bootLogoIn {
+      from { opacity: 0; filter: blur(4px) brightness(3); }
+      to   { opacity: 1; filter: blur(0) brightness(1); }
+    }
+
+    .boot-title {
+      font-size: clamp(18px, 2.5vw, 28px);
+      font-weight: 700; letter-spacing: 0.18em;
+      color: var(--accent-lime);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      opacity: 0;
+      animation: bootTitleIn 0.5s ease forwards;
+      animation-delay: 0.7s;
+      text-shadow: 0 0 30px rgba(196,214,107,0.6), 0 0 60px rgba(196,214,107,0.2);
+    }
+    @keyframes bootTitleIn {
+      from { opacity: 0; letter-spacing: 0.4em; }
+      to   { opacity: 1; letter-spacing: 0.18em; }
+    }
+
+    .boot-subtitle {
+      font-size: 11px; letter-spacing: 0.25em;
+      color: var(--text-muted); text-transform: uppercase;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeIn 0.4s ease forwards;
+      animation-delay: 1.0s;
+    }
+
+    .boot-divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeIn 0.4s ease forwards;
+      animation-delay: 1.1s;
+    }
+
+    .boot-checks {
+      width: 100%; display: flex; flex-direction: column; gap: 7px;
+      margin-bottom: 32px;
+    }
+
+    .boot-check {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 11px; letter-spacing: 0.06em;
+      color: var(--text-muted);
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .boot-check.visible { opacity: 1; transform: translateX(0); }
+
+    .boot-check-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      background: var(--text-muted);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .boot-check-dot.ok   { background: var(--accent-lime); box-shadow: 0 0 8px var(--accent-lime); }
+    .boot-check-dot.warn { background: var(--accent-orange); box-shadow: 0 0 8px var(--accent-orange); }
+    .boot-check-dot.err  { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+    .boot-check-dot.spin {
+      background: var(--accent-gold);
+      animation: bootSpin 0.6s linear infinite;
+    }
+    @keyframes bootSpin {
+      0%   { box-shadow: 0 0 4px var(--accent-gold); }
+      50%  { box-shadow: 0 0 12px var(--accent-gold), 0 0 24px rgba(212,198,107,0.3); }
+      100% { box-shadow: 0 0 4px var(--accent-gold); }
+    }
+
+    .boot-check-label { flex: 1; }
+    .boot-check-status {
+      font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-muted); min-width: 60px; text-align: right;
+      transition: color 0.3s ease;
+    }
+    .boot-check-status.ok   { color: var(--accent-lime); }
+    .boot-check-status.warn { color: var(--accent-orange); }
+    .boot-check-status.err  { color: var(--accent-red); }
+
+    .boot-bar-wrap {
+      width: 100%; height: 2px;
+      background: rgba(164,175,127,0.1);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeIn 0.3s ease forwards;
+      animation-delay: 1.3s;
+    }
+    .boot-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--olive-600), var(--accent-lime));
+      width: 0%;
+      transition: width 0.25s ease;
+      box-shadow: 0 0 8px var(--accent-lime);
+    }
+
+    .boot-ready {
+      font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent-lime); text-align: center;
+      opacity: 0; transition: opacity 0.5s ease;
+    }
+    .boot-ready.visible { opacity: 1; }
+    .boot-version {
+      position: absolute; bottom: 24px; right: 32px;
+      font-size: 9px; letter-spacing: 0.1em; color: var(--text-muted);
+      opacity: 0; animation: fadeIn 0.4s ease forwards; animation-delay: 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
     /* ── Help Panel ──────────────────────────────────────────────────────── */
     .help-overlay {
       position: fixed; inset: 0; z-index: 9000;
@@ -1318,6 +1489,62 @@
   </style>
 </head>
 <body>
+
+<!-- ── Boot / Welcoming Screen ─────────────────────────────────────────────── -->
+<div id="boot-screen">
+  <div class="boot-content">
+
+    <pre class="boot-logo">
+ ███╗   ███╗██╗███████╗███████╗██╗ ██████╗ ███╗  ██╗
+ ████╗ ████║██║██╔════╝██╔════╝██║██╔═══██╗████╗ ██║
+ ██╔████╔██║██║███████╗███████╗██║██║   ██║██╔██╗██║
+ ██║╚██╔╝██║██║╚════██║╚════██║██║██║   ██║██║╚████║
+ ██║ ╚═╝ ██║██║███████║███████║██║╚██████╔╝██║ ╚███║
+ ╚═╝     ╚═╝╚═╝╚══════╝╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚══╝
+    </pre>
+
+    <div class="boot-title">CONTROL</div>
+    <div class="boot-subtitle">Argenta Fênix · Hive Orchestration Platform</div>
+
+    <div class="boot-divider"></div>
+
+    <div class="boot-checks" id="boot-checks">
+      <div class="boot-check" id="bc-server">
+        <span class="boot-check-dot spin" id="bc-server-dot"></span>
+        <span class="boot-check-label">Servidor HTTP/WebSocket</span>
+        <span class="boot-check-status" id="bc-server-st">init...</span>
+      </div>
+      <div class="boot-check" id="bc-kilo">
+        <span class="boot-check-dot" id="bc-kilo-dot"></span>
+        <span class="boot-check-label">Kilo Code Engine</span>
+        <span class="boot-check-status" id="bc-kilo-st">aguardando</span>
+      </div>
+      <div class="boot-check" id="bc-hive">
+        <span class="boot-check-dot" id="bc-hive-dot"></span>
+        <span class="boot-check-label">Hive Store · Agentes</span>
+        <span class="boot-check-status" id="bc-hive-st">aguardando</span>
+      </div>
+      <div class="boot-check" id="bc-loop">
+        <span class="boot-check-dot" id="bc-loop-dot"></span>
+        <span class="boot-check-label">Ralph Loop</span>
+        <span class="boot-check-status" id="bc-loop-st">aguardando</span>
+      </div>
+      <div class="boot-check" id="bc-ws">
+        <span class="boot-check-dot" id="bc-ws-dot"></span>
+        <span class="boot-check-label">WebSocket · Canal em Tempo Real</span>
+        <span class="boot-check-status" id="bc-ws-st">aguardando</span>
+      </div>
+    </div>
+
+    <div class="boot-bar-wrap">
+      <div class="boot-bar" id="boot-bar"></div>
+    </div>
+
+    <div class="boot-ready" id="boot-ready">✓ Sistema Pronto — Iniciando Dashboard</div>
+  </div>
+
+  <div class="boot-version" id="boot-version">HMC v1.0 · Sprint 8</div>
+</div>
 
 <!-- Header -->
 <header>
@@ -1699,6 +1926,11 @@
     <!-- Skills checklist -->
     <div class="acp-section-hdr" style="margin-top:8px">// Skills</div>
     <div id="acp-skills-list" style="display:flex;flex-wrap:wrap;gap:5px;padding:4px 0"></div>
+
+    <!-- Crescimento orgânico de atributos -->
+    <div class="acp-section-hdr" style="margin-top:8px">// Crescimento</div>
+    <div id="acp-growth-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:4px 0"></div>
+    <div id="acp-growth-log" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);margin-top:4px;min-height:14px"></div>
 
     <div class="modal-actions" style="margin-top:12px;flex-wrap:wrap;gap:6px">
       <button class="btn" onclick="closeModal('modal-acp')">Fechar</button>
@@ -2319,6 +2551,11 @@ function connectWS() {
       case 'bus_updated':
         bbLoad();
         break;
+      case 'character_updated':
+        // Re-render character data + organic growth flash
+        onCharacterUpdated(msg.payload);
+        fetch(`${API}/characters`).then(r => r.json()).then(d => { if (d) charactersData = d; }).catch(() => {});
+        break;
       case 'agent_autoclosed':
         // Show a subtle notification and refresh hive
         fetch(`${API}/hive/agents`).then(r => r.json()).then(h => {
@@ -2476,9 +2713,10 @@ async function openAgentControl(agentId) {
     ? `[${lastMsg.role}] ${(lastMsg.text ?? '').slice(0, 70)}`
     : 'sem atividade registrada';
 
-  // Soul + Skills
+  // Soul + Skills + Growth
   acpPopulateSouls(agt.soul);
   acpPopulateSkills(agt.skills);
+  acpRenderGrowth(char, agt.chatKey);
   // Reset soul editor state
   const soulEditor = document.getElementById('acp-soul-editor');
   if (soulEditor) soulEditor.style.display = 'none';
@@ -2622,6 +2860,78 @@ function acpToggleSkill(el, skillName) {
 function acpGetSelectedSkills() {
   return Array.from(document.querySelectorAll('#acp-skills-list .acp-skill-chip.active'))
     .map(el => el.dataset.skill);
+}
+
+// ── Organic Growth — ACP UI ───────────────────────────────────────────────────
+
+const ATTRS = ['STR','INT','WIS','DEX','VIT','CHA'];
+const ATTR_LABEL = { STR:'Força', INT:'Intelecto', WIS:'Sabedoria', DEX:'Destreza', VIT:'Vitalidade', CHA:'Carisma' };
+
+function acpRenderGrowth(char, agentSlug) {
+  const grid = document.getElementById('acp-growth-grid');
+  const log  = document.getElementById('acp-growth-log');
+  if (!grid) return;
+  if (!char?.attributes) {
+    grid.innerHTML = `<span style="font-size:10px;color:var(--text-muted);grid-column:span 3">sem ficha disponível</span>`;
+    return;
+  }
+  grid.innerHTML = ATTRS.map(attr => {
+    const v = char.attributes[attr] ?? 50;
+    const color = v >= 85 ? 'var(--accent-lime)' : v >= 65 ? 'var(--accent-green)' : v >= 45 ? 'var(--accent-orange)' : 'var(--accent-red)';
+    return `<div style="background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);padding:6px 8px;border-radius:2px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);letter-spacing:0.08em">${attr}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:${color};line-height:1.2">${v}</div>
+      <div style="display:flex;gap:3px;margin-top:4px">
+        <button class="btn" onclick="acpBumpAttr('${agentSlug}','${attr}',-1)"
+          style="flex:1;padding:1px 0;font-size:10px">−</button>
+        <button class="btn btn-lime" onclick="acpBumpAttr('${agentSlug}','${attr}',1)"
+          style="flex:1;padding:1px 0;font-size:10px">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  if (log) log.textContent = '';
+}
+
+async function acpBumpAttr(agentSlug, attr, delta) {
+  if (!agentSlug) return;
+  const log = document.getElementById('acp-growth-log');
+  try {
+    const patch = { attributes: {} };
+    // Carrega valor atual
+    const curr = await fetch(`${API}/characters/${encodeURIComponent(agentSlug)}`).then(r => r.json());
+    const prev  = curr?.attributes?.[attr] ?? 50;
+    patch.attributes[attr] = Math.max(0, Math.min(100, prev + delta));
+    await fetch(`${API}/characters/${encodeURIComponent(agentSlug)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    });
+    // Re-abre o ACP para atualizar os valores
+    if (acpAgent) await openAgentControl(acpAgent.id);
+    if (log) {
+      log.style.color = delta > 0 ? 'var(--accent-lime)' : 'var(--accent-orange)';
+      log.textContent = `${attr} ${prev} → ${patch.attributes[attr]} (${delta > 0 ? '+' : ''}${delta})`;
+    }
+  } catch (e) {
+    if (log) { log.style.color = 'var(--accent-red)'; log.textContent = `erro: ${e.message}`; }
+  }
+}
+
+// Reagir ao evento character_updated vindo do WS (growth automático)
+function onCharacterUpdated(payload) {
+  if (!payload) return;
+  const growth = payload.growth;
+  if (!growth) return;
+  // Feedback visual breve no card do agente
+  const cards = document.querySelectorAll(`.agent-card[data-agent="${CSS.escape(payload.agent)}"]`);
+  cards.forEach(card => {
+    const flash = document.createElement('div');
+    flash.style.cssText = `position:absolute;top:4px;right:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent-lime);animation:fadeIn 0.3s ease;pointer-events:none;z-index:10`;
+    flash.textContent = `+${growth.bump} ${growth.attr}`;
+    card.style.position = 'relative';
+    card.appendChild(flash);
+    setTimeout(() => flash.remove(), 2500);
+  });
 }
 
 // ── Spawn Zambia ─────────────────────────────────────────────────────────────
@@ -3807,6 +4117,110 @@ async function executeDelete() {
   await loadData();
 }
 
+// ── Boot / Welcoming Scene ────────────────────────────────────────────────────
+
+const BOOT_CHECKS = [
+  { id: 'server', label: 'Servidor HTTP/WebSocket', delay: 0    },
+  { id: 'kilo',   label: 'Kilo Code Engine',        delay: 500  },
+  { id: 'hive',   label: 'Hive Store · Agentes',    delay: 900  },
+  { id: 'loop',   label: 'Ralph Loop',               delay: 1300 },
+  { id: 'ws',     label: 'WebSocket',                delay: 1700 },
+];
+const BOOT_TOTAL_DURATION = 3800;  // ms até fade out
+
+function bootSetCheck(id, state, label) {
+  const el    = document.getElementById(`bc-${id}`);
+  const dot   = document.getElementById(`bc-${id}-dot`);
+  const st    = document.getElementById(`bc-${id}-st`);
+  if (!el) return;
+  el.classList.add('visible');
+  dot.className = `boot-check-dot ${state}`;
+  st.textContent  = label;
+  st.className    = `boot-check-status ${state}`;
+}
+
+function bootProgress(pct) {
+  const bar = document.getElementById('boot-bar');
+  if (bar) bar.style.width = `${pct}%`;
+}
+
+async function runBootSequence() {
+  const screen = document.getElementById('boot-screen');
+  if (!screen) return;
+
+  // Pequena pausa inicial para deixar fontes carregarem
+  await new Promise(r => setTimeout(r, 300));
+
+  // Mostra o check de servidor imediatamente (já estamos rodando)
+  bootProgress(5);
+  bootSetCheck('server', 'spin', 'init...');
+  await new Promise(r => setTimeout(r, 400));
+  bootSetCheck('server', 'ok', 'OK :3030');
+  bootProgress(20);
+
+  // Verifica Kilo via fetch
+  await new Promise(r => setTimeout(r, 500));
+  bootSetCheck('kilo', 'spin', 'checando...');
+  bootProgress(38);
+  try {
+    const r = await fetch(`${API}/state`);
+    const d = await r.json();
+    const kiloOk = d.kilo_serve?.healthy;
+    bootSetCheck('kilo', kiloOk ? 'ok' : 'warn', kiloOk ? 'OK :4096' : 'offline');
+  } catch {
+    bootSetCheck('kilo', 'warn', 'offline');
+  }
+  bootProgress(54);
+
+  // Verifica Hive (conta agentes)
+  await new Promise(r => setTimeout(r, 400));
+  bootSetCheck('hive', 'spin', 'carregando...');
+  bootProgress(62);
+  try {
+    const r = await fetch(`${API}/hive/agents`);
+    const d = await r.json();
+    const n = d.agents?.length ?? 0;
+    bootSetCheck('hive', 'ok', `${n} agente${n !== 1 ? 's' : ''}`);
+  } catch {
+    bootSetCheck('hive', 'warn', 'erro');
+  }
+  bootProgress(74);
+
+  // Loop status
+  await new Promise(r => setTimeout(r, 400));
+  bootSetCheck('loop', 'spin', 'verificando...');
+  bootProgress(82);
+  try {
+    const r = await fetch(`${API}/state`);
+    const d = await r.json();
+    const loopOk = d.ralph_loop?.status === 'ok' || d.ralph_loop?.running;
+    bootSetCheck('loop', loopOk ? 'ok' : 'warn', loopOk ? 'ativo' : 'standby');
+  } catch {
+    bootSetCheck('loop', 'warn', 'standby');
+  }
+  bootProgress(90);
+
+  // WS (só confirma depois de conectar)
+  await new Promise(r => setTimeout(r, 400));
+  bootSetCheck('ws', 'spin', 'conectando...');
+  await new Promise(r => setTimeout(r, 500));
+  const wsLive = document.getElementById('ws-pill')?.classList.contains('live');
+  bootSetCheck('ws', wsLive ? 'ok' : 'warn', wsLive ? 'live' : 'aguardando');
+  bootProgress(100);
+
+  // Ready!
+  await new Promise(r => setTimeout(r, 350));
+  const ready = document.getElementById('boot-ready');
+  if (ready) ready.classList.add('visible');
+
+  await new Promise(r => setTimeout(r, 900));
+
+  // Fade out e remove
+  screen.classList.add('fade-out');
+  await new Promise(r => setTimeout(r, 850));
+  screen.classList.add('hidden');
+}
+
 // ── Help Panel ────────────────────────────────────────────────────────────────
 
 function openHelp() {
@@ -3938,6 +4352,9 @@ loadState();
 loadData();
 setInterval(loadState, 10000);
 setInterval(loadData,   8000);
+
+// Boot sequence — dispara na abertura
+runBootSequence();
 </script>
 </body>
 </html>

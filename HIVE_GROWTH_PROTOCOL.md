@@ -341,23 +341,49 @@ Critério: todos os critérios de aceitação do Sprint 7 verificados
 
 ---
 
-## 5. Sprint 8 — Argenta Orchestrator + Qdrant
+## 5. Sprint 8 — Argenta Orchestrator + Qdrant ✅ ENTREGUE
 
 **Intent:** Argenta opera o Mission Control autonomamente via CLI,
 dispara sub-agentes para tarefas complexas, monitora resultados e
-armazena memória episódica via Qdrant.
+armazena memória episódica via Qdrant + Ollama.
 
-**Critérios de Aceitação (a refinar na Fase 3 do Sprint 8):**
-- Argenta executa mc commands via subprocess sem assistência humana
-- Zambia spawned + auto-closed por Argenta sem intervenção
-- Qdrant armazena embeddings de sessões de chat
-- `GET /api/hive/agents/:id/memory` retorna dados reais
+**Critérios de Aceitação — Todos verificados:**
+- [x] `POST /api/exec` — Argenta executa mc commands programaticamente
+- [x] Skill `mc-control` injeta mapa completo de comandos na Argenta
+- [x] `memory/episodic.mjs` — Ollama (embedding-gemma) + Qdrant + cache híbrido
+- [x] `GET /api/hive/agents/:id/memory` retorna dados reais + busca semântica (?q=)
+- [x] `npm run start` + `start-mc.bat` — launcher completo
+- [x] Welcoming boot scene com checklist de subsistemas
+- [x] Auto-growth: task→done bumpa atributo do agente responsável
+- [x] ACP UI com sliders +/- por atributo + `character_updated` WS event
 
-**Sub-sprints planejados:**
-- S8.1 — backend: Argenta subprocess integration
-- S8.2 — backend: Qdrant episodic memory
-- S8.3 — backend/frontend: Organic attribute growth (PATCH characters)
-- S8.4 — docs: Scribe Review + Aprovação
+### S8.0 — infra: Start + Boot Scene ✅
+- [x] `start.mjs` — orquestrador de processos (ui → loop, kill gracioso)
+- [x] `start-mc.bat` — launcher Windows kiosk fullscreen (Chrome/Edge --app)
+- [x] Welcoming boot screen no dashboard (scanlines, typewriter, subsystem checks)
+- [x] `npm start` adicionado ao package.json
+
+### S8.1 — backend: Exec + mc-control ✅
+- [x] `POST /api/exec` + whitelist de comandos seguros + evento auditável
+- [x] `skills/mc-control.yaml` — skill injetável com mapa completo de comandos
+
+### S8.2 — backend: Memória Episódica ✅
+- [x] `memory/episodic.mjs` — Ollama embed + Qdrant upsert/search + cache local
+- [x] Graceful degradation + sync automático ao reconectar Qdrant
+- [x] Upsert disparado ao fechar chat (`DELETE /api/chat/:key`)
+- [x] `/api/hive/agents/:id/memory?q=` busca semântica
+
+### S8.3 — backend/frontend: Organic Growth ✅
+- [x] `applyOrganicGrowth()` — domain→attr map + priority→bump
+- [x] wsBroadcast `character_updated` + flash visual no card
+- [x] ACP UI — seção `// Crescimento` com +/- por atributo
+- [x] `onCharacterUpdated()` handler no WS client
+
+### S8.4 — docs: Scribe Review ✅
+- [x] CHANGELOG.md atualizado com S8.0–S8.4
+- [x] HELP-AI.md §3 + §10 atualizados com novos endpoints
+- [x] ARCHITECTURE.md §endpoints atualizado
+- [x] Este checklist marcado
 
 ---
 

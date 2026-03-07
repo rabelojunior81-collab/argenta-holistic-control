@@ -31,7 +31,13 @@ import { readFile, writeFile,
          appendFile, stat,
          readdir }                 from "node:fs/promises";
 import { existsSync }              from "node:fs";
+import { spawn }                   from "node:child_process";
 import yaml                        from "js-yaml";
+import {
+  initEpisodic, upsertSession,
+  queryMemory,  syncPendingCache,
+  getStats as getEpisodicStats,
+} from "../memory/episodic.mjs";
 import { fileURLToPath }           from "node:url";
 import { dirname, join }           from "node:path";
 import { randomUUID, createHash }  from "node:crypto";
@@ -472,6 +478,66 @@ async function loadCharacters() {
   return chars;
 }
 
+// ── Organic Growth ────────────────────────────────────────────────────────────
+// Mapeia domain → atributo que cresce
+const DOMAIN_ATTR = {
+  execution:   "STR",
+  planning:    "WIS",
+  research:    "INT",
+  audit:       "INT",
+  review:      "DEX",
+  reasoning:   "WIS",
+  synthesis:   "CHA",
+  creative:    "CHA",
+  quick:       "DEX",
+  local:       "VIT",
+  debug:       "INT",
+  investigation: "INT",
+  orchestration: "CHA",
+  knowledge:   "WIS",
+};
+const PRIORITY_BUMP = { high: 3, medium: 2, low: 1 };
+
+async function applyOrganicGrowth(task) {
+  const agentSlug = task.agent;
+  if (!agentSlug) return;
+  const chars = await loadCharacters();
+  const char  = chars[agentSlug];
+  if (!char) return;
+
+  const attr  = DOMAIN_ATTR[task.domain] ?? "VIT";
+  const bump  = PRIORITY_BUMP[task.priority] ?? 1;
+  const cap   = 100;
+
+  char.attributes        = char.attributes ?? {};
+  const prev             = char.attributes[attr] ?? 50;
+  char.attributes[attr]  = Math.min(cap, prev + bump);
+
+  const charFile = join(CHARACTERS, `${agentSlug}.yaml`);
+  if (!existsSync(charFile)) return;
+  const updatedYaml = yaml.dump(char, { lineWidth: 120 });
+  await writeFile(charFile, updatedYaml, "utf8");
+
+  wsBroadcast("character_updated", {
+    agent:   agentSlug,
+    growth:  { attr, prev, next: char.attributes[attr], bump, task_id: task.id },
+  });
+
+  const evt = {
+    event:    "organic_growth",
+    ts:       new Date().toISOString(),
+    agent:    agentSlug,
+    attr,
+    bump,
+    from:     prev,
+    to:       char.attributes[attr],
+    task_id:  task.id,
+    priority: task.priority,
+    domain:   task.domain,
+  };
+  await appendFile(EVENTS, JSON.stringify(evt) + "\n");
+}
+
 function json(res, data, code = 200) {
   res.writeHead(code, {
     "Content-Type": "application/json",
@@ -560,10 +626,18 @@ const server = createServer(async (req, res) => {
       const prev = task.status;
       if (b.status)   task.status   = b.status;
       if (b.priority) task.priority = b.priority;
+      if (b.title)    task.title    = b.title;
+      if (b.agent)    task.agent    = b.agent;
       task.updated = new Date().toISOString();
       task.events.push({ ts: new Date().toISOString(), from: prev, to: task.status });
       await saveJSON(KANBAN, db);
       wsBroadcast("task_updated", task);
+
+      // ── Organic growth: task concluída → bump atributo do agente ──
+      if (task.status === "done" && prev !== "done" && task.agent) {
+        applyOrganicGrowth(task).catch(() => {});
+      }
+
       return json(res, task);
     }
 
@@ -928,9 +1002,20 @@ const server = createServer(async (req, res) => {
     return json(res, { stopped: true, chatKey, kiloCancelled });
   }
 
-  // ── Chat: limpar sessão ──
+  // ── Chat: limpar sessão + upsert memória episódica ──
   if (path.match(/^\/api\/chat\/(.+)$/) && method === "DELETE") {
     const chatKey = path.match(/^\/api\/chat\/(.+)$/)[1];
+    const chat    = chatSessions.get(chatKey);
+    // Persiste memória antes de limpar
+    if (chat?.messages?.length > 2) {
+      const db  = await loadHive();
+      const agt = db.agents.find(a => a.chatKey === chatKey);
+      upsertSession(agt?.id ?? chatKey, chat.messages, {
+        sessionId:  chat.sessionId,
+        agent_name: agt?.name ?? chatKey,
+        chatKey,
+      }).catch(e => console.error("[episodic] upsert falhou:", e.message));
+    }
     chatSessions.delete(chatKey);
     return json(res, { cleared: true, chatKey });
   }
@@ -1048,19 +1133,31 @@ const server = createServer(async (req, res) => {
     const db  = await loadHive();
     const agt = db.agents.find(a => a.id === memoryMatch[1]);
     if (!agt) return err(res, "agent not found", 404);
-    const summaryPath = join(ROOT, "hive/memory", `${agt.id}.md`);
+    const summaryPath   = join(ROOT, "hive/memory", `${agt.id}.md`);
     const summaryExists = existsSync(summaryPath);
-    const chat  = chatSessions.get(agt.chatKey);
+    const chat          = chatSessions.get(agt.chatKey);
+    const query         = url.searchParams.get("q");
+
+    // Busca semântica se ?q= fornecido
+    let semantic = null;
+    if (query) {
+      semantic = await queryMemory(agt.id, query, 5);
+    }
+
+    const episodicStats = await getEpisodicStats();
+
     return json(res, {
-      agent_id:       agt.id,
-      name:           agt.name,
-      summary_file:   `hive/memory/${agt.id}.md`,
-      summary_exists: summaryExists,
-      summary:        summaryExists ? await readFile(summaryPath, "utf8") : null,
-      message_count:  chat?.messages?.length ?? 0,
-      last_message:   chat?.messages?.at(-1) ?? null,
-      stats:          agt.stats,
-      qdrant_collection: agt.memory?.qdrant_collection ?? null,
+      agent_id:          agt.id,
+      name:              agt.name,
+      summary_file:      `hive/memory/${agt.id}.md`,
+      summary_exists:    summaryExists,
+      summary:           summaryExists ? await readFile(summaryPath, "utf8") : null,
+      message_count:     chat?.messages?.length ?? 0,
+      last_message:      chat?.messages?.at(-1) ?? null,
+      stats:             agt.stats,
+      qdrant_collection: process.env.QDRANT_COLLECTION ?? "hmc_episodic",
+      episodic:          episodicStats,
+      semantic_results:  semantic,
     });
   }
 
@@ -1272,6 +1369,50 @@ const server = createServer(async (req, res) => {
     }
   }
 
+  // ── Exec — controle programático via mc CLI ──
+  if (path === "/api/exec" && method === "POST") {
+    const b = await body(req);
+
+    // Whitelist de comandos seguros
+    const EXEC_WHITELIST = new Set([
+      "status", "agent", "task", "board", "hive", "chat",
+    ]);
+
+    const cmd = (b.command ?? "").trim().split(/\s+/)[0];
+    if (!cmd || !EXEC_WHITELIST.has(cmd)) {
+      return err(res, `comando '${cmd}' não permitido. Whitelist: ${[...EXEC_WHITELIST].join(", ")}`, 403);
+    }
+
+    // Constrói args: [cmd, ...args]
+    const extraArgs = Array.isArray(b.args) ? b.args.map(String) : [];
+    const allArgs   = [cmd, ...extraArgs];
+
+    const t0 = Date.now();
+    const result = await new Promise((resolve) => {
+      const child = spawn("node", [join(ROOT, "cli/mc.mjs"), ...allArgs], {
+        cwd: ROOT, env: { ...process.env, MC_URL: `http://127.0.0.1:${PORT}` },
+      });
+      let stdout = "", stderr = "";
+      child.stdout.on("data", d => { stdout += d.toString(); });
+      child.stderr.on("data", d => { stderr += d.toString(); });
+      child.on("close", code => resolve({ exit_code: code ?? 0, stdout, stderr }));
+      setTimeout(() => { child.kill(); resolve({ exit_code: 124, stdout, stderr: "timeout" }); }, 15000);
+    });
+
+    const duration_ms = Date.now() - t0;
+    const execEvent = {
+      event: "exec",
+      ts: new Date().toISOString(),
+      command: allArgs.join(" "),
+      exit_code: result.exit_code,
+      duration_ms,
+    };
+    await appendFile(EVENTS, JSON.stringify(execEvent) + "\n");
+    wsBroadcast("event", execEvent);
+
+    return json(res, { ...result, duration_ms, command: allArgs.join(" ") });
+  }
+
   // ── Health ──
   if (path === "/api/health" && method === "GET") {
     const kilo  = await kiloHealth();
@@ -1309,6 +1450,7 @@ server.on("error", (e) => {
 (async () => {
   await loadChatSessions();
   await syncNativeAgentStatus(); // sincroniza estado inicial
+  initEpisodic().catch(e => console.warn("[episodic] init falhou (não crítico):", e.message));
   server.listen(PORT, "127.0.0.1", () => {
     console.log(`[ui] Mission Control → http://127.0.0.1:${PORT}`);
     console.log(`[ui] WebSocket       → ws://127.0.0.1:${PORT}`);
