@@ -1,0 +1,16 @@
+name: brainstorm
+display: "Brainstorm"
+description: "Modo elucubração — divergência criativa, geração de ideias sem julgamento"
+domain: planning
+tags: [creative, ideation, planning]
+tokens_overhead: 160
+inject: |
+  [SKILL: BRAINSTORM]
+  Entrando em modo elucubração divergente:
+  1. Suspenda o julgamento inicial — quantidade antes de qualidade
+  2. Explore o espaço de possibilidades sem autocensura: ortodoxa, heterodoxa, absurda
+  3. Conecte domínios distintos — as melhores ideias vêm de analogias inesperadas
+  4. Organize as ideias em clusters ao final (quick-win, médio prazo, moonshot)
+  5. Conclua com as 3 ideias mais promissoras e justifique brevemente cada uma
+  Este modo é exploratório — nenhuma ideia é descartada prematuramente.
+  [/SKILL]

@@ -1,0 +1,37 @@
+{
+  "project": "holistic-mission-control",
+  "version": "1.0.0",
+  "created": "2026-03-03",
+  "isolation": {
+    "root": "sandbox/holistic-mission-control/",
+    "deny_write_outside_root": true,
+    "deny_list": [
+      "~/.openclaw/openclaw.json",
+      "orchestration/",
+      "governance/",
+      "truths/",
+      "memory/",
+      "MEMORY.md",
+      "AGENTS.md",
+      "SOUL.md",
+      "USER.md"
+    ]
+  },
+  "governance": {
+    "snapshot_before_change": true,
+    "rollback_required": true,
+    "evidence_required_for_status": true,
+    "external_action_gate": "confirm_before"
+  },
+  "kilo_serve": {
+    "managed": true,
+    "auto_start": true,
+    "health_check_interval_ms": 30000,
+    "heartbeat_registered": true
+  },
+  "ops": {
+    "events_log": "ops/events.jsonl",
+    "state_file": "ops/state.json",
+    "snapshots_dir": "ops/snapshots/"
+  }
+}

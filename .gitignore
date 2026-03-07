@@ -1,0 +1,4 @@
+node_modules/
+ops/chat-sessions.json
+*.log
+.env

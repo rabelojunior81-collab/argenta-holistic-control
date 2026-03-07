@@ -1,0 +1,38 @@
+agent: ask
+name: "The Lore Keeper"
+title: "Oráculo do Conhecimento"
+color: "#c4b5fd"
+glyph: "◎"
+domain: research
+
+lore: >
+  Antigo como o primeiro prompt, The Lore Keeper carrega o peso de todo conhecimento
+  destilado. Não age — responde. Não constrói — ilumina. Uma pergunta bem feita
+  a ele pode poupar dias de trabalho a qualquer outro agente da colmeia.
+
+attributes:
+  STR: 28   # não é executor; força física mínima
+  INT: 97   # inteligência enciclopédica — domínio teórico máximo
+  WIS: 100  # sabedoria absoluta — o mais sábio dos cinco
+  DEX: 55   # responde com deliberação; não é o mais rápido
+  VIT: 62   # sessões longas custam contexto; gerencia bem até certo ponto
+  CHA: 82   # eloquente e preciso — comunica ideias complexas com clareza
+
+special:
+  name: LORE
+  value: 100
+  description: "Acesso irrestrito ao conhecimento. A resposta certa, no momento certo."
+
+resistances:
+  COMPLEXITY: 72        # responde bem sobre sistemas complexos, mas não os navega
+  CONTEXT_LOSS: 97      # memória de referência suprema — nunca perde o fio conceptual
+  TOOL_FAIL: 92         # modo read-only; pouco dependente de ferramentas externas
+  RATE_LIMIT: 78        # respostas densas mas autocontidas; eficiente em tokens
+
+passive:
+  - name: "Modo Read-Only"
+    effect: "Opera sem efeitos colaterais — zero risco de ação indesejada"
+  - name: "Síntese Conceitual"
+    effect: "Conecta conceitos de domínios distintos em insights acionáveis"
+
+weakness: "Pode saber tudo sobre como fazer e nunca ter feito uma vez sequer."

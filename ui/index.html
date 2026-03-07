@@ -1,0 +1,3414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mission Control — Argenta Fênix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --olive-50: #f5f7f3;
+      --olive-100: #e8ece3;
+      --olive-200: #d4dcc9;
+      --olive-300: #b8c4a5;
+      --olive-400: #9aab7f;
+      --olive-500: #808f5c;
+      --olive-600: #6a754a;
+      --olive-700: #555e3b;
+      --olive-800: #434930;
+      --olive-900: #373c28;
+      --olive-950: #1c1f14;
+
+      --glass-bg: rgba(67, 73, 48, 0.25);
+      --glass-border: rgba(164, 175, 127, 0.3);
+      --glass-highlight: rgba(184, 196, 165, 0.15);
+
+      --text-primary: #e8ece3;
+      --text-secondary: #b8c4a5;
+      --text-muted: #808f5c;
+
+      --accent-green:  #9aab7f;
+      --accent-lime:   #c4d66b;
+      --accent-gold:   #d4c66b;
+      --accent-orange: #d6a86b;
+      --accent-red:    #d66b6b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--olive-950) 0%, var(--olive-900) 25%, var(--olive-800) 50%, var(--olive-900) 75%, var(--olive-950) 100%);
+      min-height: 100vh;
+      height: 100vh;
+      color: var(--text-primary);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(128,143,92,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(154,171,127,0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 60%, rgba(196,214,107,0.08) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────────── */
+    header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-primary);
+    }
+    .header-title span { color: var(--accent-lime); }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .status-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-ok   { background: var(--accent-lime);   box-shadow: 0 0 6px var(--accent-lime); }
+    .dot-warn { background: var(--accent-orange);  box-shadow: 0 0 6px var(--accent-orange); }
+    .dot-err  { background: var(--accent-red);     box-shadow: 0 0 6px var(--accent-red); }
+
+    .ws-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      padding: 3px 8px;
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .ws-pill.live {
+      border-color: var(--accent-lime);
+      color: var(--accent-lime);
+      background: rgba(196,214,107,0.08);
+    }
+
+    /* ── Stats bar ──────────────────────────────────────────────────────────── */
+    .stats-bar {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+
+    .stat-item {
+      padding: 10px 20px;
+      border-right: 1px solid var(--glass-border);
+      text-align: center;
+    }
+    .stat-item:last-child { border-right: none; }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent-lime);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 4px;
+    }
+
+    /* ── Workspace ──────────────────────────────────────────────────────────── */
+    .workspace {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 240px 1fr 300px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Panel base ─────────────────────────────────────────────────────────── */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--glass-border);
+      overflow: hidden;
+      background: rgba(28, 31, 20, 0.4);
+    }
+    .panel:last-child { border-right: none; }
+
+    .panel-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      flex-shrink: 0;
+    }
+
+    .panel-hdr-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-secondary);
+    }
+
+    .panel-hdr-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .panel-body { flex: 1; overflow-y: auto; }
+
+    /* ── Agent cards ────────────────────────────────────────────────────────── */
+    .agent-card {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--glass-border);
+      cursor: pointer;
+      transition: background 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .agent-card:hover { background: var(--glass-highlight); }
+    .agent-card.active {
+      border-left-color: var(--accent-lime);
+      background: rgba(196,214,107,0.05);
+    }
+
+    .agent-domain {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .agent-desc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-secondary);
+      margin: 3px 0;
+      line-height: 1.4;
+    }
+
+    .agent-task-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--accent-lime);
+      background: rgba(196,214,107,0.1);
+      border: 1px solid rgba(196,214,107,0.25);
+      padding: 2px 6px;
+      margin-top: 4px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .agent-idle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    /* ── Center ─────────────────────────────────────────────────────────────── */
+    .center-col {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid var(--glass-border);
+    }
+
+    /* Add task bar */
+    .add-bar {
+      display: flex;
+      gap: 6px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      flex-shrink: 0;
+    }
+
+    input, select, textarea {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      padding: 5px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent-green);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+    select option { background: var(--olive-900); }
+
+    .add-bar input  { flex: 1; }
+    .add-bar select { flex-shrink: 0; width: 105px; }
+
+    .btn {
+      border: 1px solid var(--glass-border);
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 5px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: var(--glass-highlight); border-color: var(--accent-green); color: var(--text-primary); }
+    .btn-primary { background: var(--accent-green); border-color: var(--accent-green); color: var(--olive-950); font-weight: 600; }
+    .btn-primary:hover { background: var(--accent-lime); border-color: var(--accent-lime); }
+    .btn-lime    { background: rgba(196,214,107,0.15); border-color: var(--accent-lime); color: var(--accent-lime); }
+    .btn-lime:hover { background: var(--accent-lime); color: var(--olive-950); }
+    .btn-red     { background: rgba(214,107,107,0.15); border-color: var(--accent-red); color: var(--accent-red); }
+    .btn-red:hover { background: var(--accent-red); color: #fff; }
+
+    /* Kanban */
+    .kanban-wrap { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    .kanban-board { display: flex; gap: 8px; padding: 12px; overflow-x: auto; flex: 1; }
+
+    .k-col { flex: 0 0 158px; display: flex; flex-direction: column; }
+
+    .k-col-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .k-col-count {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      padding: 0 5px;
+      font-size: 9px;
+    }
+
+    .task-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .task-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-lime));
+      transform: scaleX(0);
+      transition: transform 0.2s;
+    }
+    .task-card:hover { border-color: var(--accent-green); transform: translateY(-1px); }
+    .task-card:hover::before { transform: scaleX(1); }
+
+    .task-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .task-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-primary);
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+
+    .task-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      padding: 1px 5px;
+      border: 1px solid;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tag-domain  { border-color: rgba(154,171,127,0.4); color: var(--accent-green); background: rgba(154,171,127,0.1); }
+    .tag-high    { border-color: rgba(214,107,107,0.4); color: var(--accent-red);   background: rgba(214,107,107,0.1); }
+    .tag-medium  { border-color: rgba(212,198,107,0.4); color: var(--accent-gold);  background: rgba(212,198,107,0.1); }
+    .tag-low     { border-color: rgba(154,171,127,0.3); color: var(--text-muted);   background: rgba(154,171,127,0.05); }
+    .tag-manual  { border-color: rgba(196,214,107,0.4); color: var(--accent-lime);  background: rgba(196,214,107,0.08); }
+
+    /* Dispatch panel */
+    .dispatch-panel {
+      border-top: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      padding: 12px 14px;
+      flex-shrink: 0;
+    }
+
+    .dispatch-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+
+    textarea { resize: none; height: 44px; }
+
+    .dispatch-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .dispatch-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ── Events ─────────────────────────────────────────────────────────────── */
+    .event-feed { flex: 1; overflow-y: auto; }
+
+    .ev-row {
+      padding: 7px 16px;
+      border-bottom: 1px solid var(--glass-border);
+      transition: background 0.15s;
+    }
+    .ev-row:hover { background: var(--glass-highlight); }
+    .ev-row.flash { animation: ev-flash 0.8s ease; }
+    @keyframes ev-flash {
+      from { background: rgba(196,214,107,0.12); }
+      to   { background: transparent; }
+    }
+
+    .ev-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+
+    .ev-ts {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    .ev-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent-lime);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ev-detail {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Bulletin Board ─────────────────────────────────────────────────────── */
+    .bb-toolbar {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-bottom: 1px solid var(--glass-border);
+      background: rgba(30,35,20,0.6); flex-shrink: 0;
+    }
+    .bb-toolbar select, .bb-toolbar input {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      color: var(--text-primary); font-family: 'JetBrains Mono',monospace;
+      font-size: 9px; padding: 3px 6px; border-radius: 3px;
+    }
+    .bb-toolbar select:focus, .bb-toolbar input:focus { outline: 1px solid var(--accent-lime); }
+    .bb-toolbar label { font-size: 9px; color: var(--text-muted); }
+
+    .bb-feed { flex: 1; overflow-y: auto; }
+
+    .bb-msg {
+      padding: 8px 12px; border-bottom: 1px solid var(--glass-border);
+      cursor: pointer; transition: background 0.12s;
+    }
+    .bb-msg:hover { background: var(--glass-highlight); }
+    .bb-msg.has-thread { border-left: 2px solid var(--accent-lime); }
+    .bb-msg.flash { animation: ev-flash 0.8s ease; }
+
+    .bb-msg-hdr {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;
+    }
+    .bb-topic {
+      font-family: 'JetBrains Mono',monospace; font-size: 8px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 1px 5px; border-radius: 2px;
+    }
+    .bb-topic-orchestration  { background: rgba(196,214,107,0.15); color: #c4d66b; }
+    .bb-topic-debug          { background: rgba(248,113,113,0.15); color: #f87171; }
+    .bb-topic-brainstorm     { background: rgba(129,140,248,0.15); color: #818cf8; }
+    .bb-topic-task-result    { background: rgba(52,211,153,0.15);  color: #34d399; }
+    .bb-topic-request-skill  { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    .bb-topic-request-agent  { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    .bb-topic-heartbeat      { background: rgba(100,200,100,0.10); color: #6cc66c; }
+    .bb-topic-memory         { background: rgba(196,181,253,0.15); color: #c4b5fd; }
+    .bb-topic-alert          { background: rgba(248,113,113,0.25); color: #ff7070; }
+    .bb-topic-default        { background: rgba(100,100,100,0.15); color: #888; }
+
+    .bb-from { font-family: 'JetBrains Mono',monospace; font-size: 9px; color: var(--accent-lime); font-weight: 600; }
+    .bb-arrow { font-size: 9px; color: var(--text-muted); }
+    .bb-to   { font-family: 'JetBrains Mono',monospace; font-size: 9px; color: var(--text-secondary); }
+    .bb-ts   { font-family: 'JetBrains Mono',monospace; font-size: 9px; color: var(--text-muted); margin-left: auto; }
+
+    .bb-content {
+      font-size: 10px; color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .bb-content.expanded { white-space: pre-wrap; overflow: visible; }
+
+    .bb-footer {
+      display: flex; align-items: center; gap: 8px; margin-top: 4px;
+    }
+    .bb-reply-count { font-size: 9px; color: var(--text-muted); }
+    .bb-reply-count.has-replies { color: var(--accent-lime); cursor: pointer; }
+
+    .bb-replies {
+      padding: 4px 0 0 12px;
+      border-left: 1px solid var(--glass-border);
+      display: none;
+    }
+    .bb-replies.open { display: block; }
+    .bb-reply-item {
+      padding: 4px 0; border-bottom: 1px solid rgba(100,100,100,0.12);
+    }
+    .bb-reply-item:last-child { border-bottom: none; }
+    .bb-reply-hdr { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+    .bb-reply-from { font-size: 9px; color: var(--accent-lime); font-weight: 600; }
+    .bb-reply-ts   { font-size: 9px; color: var(--text-muted); }
+    .bb-reply-text { font-size: 10px; color: var(--text-secondary); white-space: pre-wrap; }
+
+    /* compose form inside bus panel */
+    .bb-compose {
+      border-top: 1px solid var(--glass-border); flex-shrink: 0;
+      background: rgba(20,24,14,0.8); padding: 8px 12px;
+    }
+    .bb-compose.hidden { display: none; }
+    .bb-compose-row { display: flex; gap: 6px; margin-bottom: 5px; align-items: center; }
+    .bb-compose-row label { font-size: 9px; color: var(--text-muted); min-width: 32px; }
+    .bb-compose-row select, .bb-compose-row input {
+      flex: 1; background: var(--glass-bg); border: 1px solid var(--glass-border);
+      color: var(--text-primary); font-family: 'JetBrains Mono',monospace;
+      font-size: 9px; padding: 3px 6px; border-radius: 3px;
+    }
+    .bb-compose textarea {
+      width: 100%; box-sizing: border-box; resize: vertical;
+      min-height: 54px; max-height: 120px;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      color: var(--text-primary); font-family: 'JetBrains Mono',monospace;
+      font-size: 10px; padding: 5px 8px; border-radius: 3px; margin-bottom: 5px;
+    }
+    .bb-compose textarea:focus, .bb-compose-row select:focus, .bb-compose-row input:focus {
+      outline: 1px solid var(--accent-lime);
+    }
+    .bb-compose-actions { display: flex; justify-content: flex-end; gap: 6px; }
+
+    /* ── Spawn Zambia Modal ─────────────────────────────────────────────────── */
+    #modal-spawn .modal { max-width: 490px; }
+    .spawn-field {
+      display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px;
+    }
+    .spawn-field label {
+      font-family: 'JetBrains Mono',monospace; font-size: 9px;
+      color: var(--text-muted); letter-spacing: 0.07em; text-transform: uppercase;
+    }
+    .spawn-field input, .spawn-field select, .spawn-field textarea {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      color: var(--text-primary); font-family: 'JetBrains Mono',monospace;
+      font-size: 10px; padding: 5px 8px; border-radius: 3px;
+    }
+    .spawn-field textarea { min-height: 60px; max-height: 100px; resize: vertical; }
+    .spawn-field input:focus, .spawn-field select:focus, .spawn-field textarea:focus {
+      outline: 1px solid var(--accent-lime);
+    }
+    .spawn-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .spawn-toggle { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono',monospace; font-size: 9px; color: var(--text-muted); margin-bottom: 5px; cursor: pointer; }
+    .spawn-toggle input[type=checkbox] { accent-color: var(--accent-lime); cursor: pointer; }
+
+    /* ── Hive lineage ────────────────────────────────────────────────────────── */
+    .hive-children { padding-left: 12px; border-left: 1px solid rgba(164,175,127,0.18); margin-left: 6px; }
+    .hive-child-card { position: relative; }
+    .hive-child-card::before {
+      content: ''; position: absolute; left: -13px; top: 50%;
+      width: 8px; height: 1px; background: rgba(164,175,127,0.25);
+    }
+
+    /* ── Modals ─────────────────────────────────────────────────────────────── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,15,10,0.8);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: linear-gradient(135deg, var(--olive-900), var(--olive-800));
+      border: 1px solid var(--glass-border);
+      padding: 24px;
+      width: 560px;
+      max-width: 95vw;
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+
+    .modal h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .modal-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .modal-body { flex: 1; overflow-y: auto; }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      justify-content: flex-end;
+    }
+
+    pre.result-pre {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 320px;
+      overflow-y: auto;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    /* ── Scrollbars ─────────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 3px; height: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--glass-border); }
+
+    /* ── Chat Overlay ────────────────────────────────────────────────────────── */
+    .chat-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,15,10,0.85);
+      z-index: 400;
+      backdrop-filter: blur(6px);
+      align-items: stretch;
+      justify-content: flex-end;
+    }
+    .chat-overlay.open { display: flex; }
+
+    .chat-panel {
+      width: min(680px, 100vw);
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(160deg, var(--olive-900) 0%, var(--olive-950) 100%);
+      border-left: 1px solid var(--glass-border);
+      box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+      animation: slideIn 0.22s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(40px); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      flex-shrink: 0;
+    }
+
+    .chat-agent-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-lime);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .chat-header-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-muted);
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent-lime);
+      box-shadow: 0 0 6px var(--accent-lime);
+      flex-shrink: 0;
+    }
+    .chat-status-dot.idle  { background: var(--text-muted); box-shadow: none; }
+    .chat-status-dot.think { background: var(--accent-gold); box-shadow: 0 0 6px var(--accent-gold); animation: pulse 1s infinite; }
+    .chat-status-dot.err   { background: var(--accent-red);  box-shadow: 0 0 6px var(--accent-red); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-bubble {
+      max-width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .chat-bubble.user  { align-self: flex-end; }
+    .chat-bubble.agent { align-self: flex-start; }
+
+    .chat-bubble-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+    .chat-bubble.user .chat-bubble-meta { text-align: right; }
+
+    .chat-bubble-body {
+      padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid;
+    }
+    .chat-bubble.user .chat-bubble-body {
+      background: rgba(196,214,107,0.1);
+      border-color: rgba(196,214,107,0.3);
+      color: var(--text-primary);
+    }
+    .chat-bubble.agent .chat-bubble-body {
+      background: var(--glass-bg);
+      border-color: var(--glass-border);
+      color: var(--text-secondary);
+    }
+
+    .chat-bubble-img {
+      max-width: 240px;
+      max-height: 180px;
+      border: 1px solid var(--glass-border);
+      margin-bottom: 4px;
+      object-fit: contain;
+    }
+
+    .chat-thinking-bubble {
+      align-self: flex-start;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent-gold);
+      padding: 8px 14px;
+      border: 1px solid rgba(212,198,107,0.2);
+      background: rgba(212,198,107,0.05);
+      animation: pulse 1.2s infinite;
+    }
+
+    .chat-auth-banner {
+      align-self: stretch;
+      border: 1px solid rgba(212,198,107,0.4);
+      background: rgba(212,198,107,0.08);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chat-auth-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--accent-gold);
+      flex: 1;
+    }
+
+    .chat-footer {
+      border-top: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      padding: 10px 14px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chat-queue-bar {
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--accent-gold);
+      align-items: center;
+      gap: 8px;
+    }
+    .chat-queue-bar.has-queue { display: flex; }
+
+    .chat-attach-previews {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .attach-thumb {
+      position: relative;
+      width: 48px; height: 48px;
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .attach-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .attach-thumb-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7px;
+      color: var(--text-muted);
+      position: absolute;
+      bottom: 2px; left: 2px; right: 2px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .attach-thumb-remove {
+      position: absolute;
+      top: 1px; right: 1px;
+      background: rgba(214,107,107,0.8);
+      color: #fff;
+      font-size: 9px;
+      width: 12px; height: 12px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    .chat-input-row textarea {
+      flex: 1;
+      height: 60px;
+      resize: none;
+    }
+
+    .chat-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* Queue modal */
+    .queue-modal {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 4px);
+      left: 14px;
+      right: 14px;
+      background: var(--olive-900);
+      border: 1px solid var(--glass-border);
+      padding: 10px;
+      z-index: 10;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .queue-modal.open { display: block; }
+
+    .queue-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--glass-border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+    .queue-item span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Chat header selects ────────────────────────────────────────────── */
+    .chat-sel {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      padding: 2px 4px;
+      outline: none;
+      cursor: pointer;
+      max-width: 130px;
+      flex-shrink: 1;
+      min-width: 0;
+    }
+    .chat-sel:focus { border-color: var(--accent-lime); }
+    .chat-sel-sep { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); flex-shrink: 0; }
+
+    /* ── Event rows ─────────────────────────────────────────────────────── */
+    .ev-row { cursor: pointer; transition: background 0.12s; }
+    .ev-row:hover { background: rgba(154,171,127,0.07); }
+
+    /* ── Event detail modal ──────────────────────────────────────────────── */
+    .ev-detail-pre {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 360px;
+      overflow-y: auto;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    /* ── Auth modal ─────────────────────────────────────────────────────── */
+    #modal-auth .modal {
+      border-color: rgba(212,198,107,0.5);
+      box-shadow: 0 0 40px rgba(212,198,107,0.15), 0 30px 60px rgba(0,0,0,0.5);
+    }
+    #modal-auth .modal h3 { color: var(--accent-gold); }
+    .auth-modal-body {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: rgba(212,198,107,0.05);
+      border: 1px solid rgba(212,198,107,0.2);
+      padding: 14px;
+      max-height: 280px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+
+    /* ── Kanban selected ─────────────────────────────────────────────────── */
+    .task-card.selected {
+      border-color: var(--accent-lime) !important;
+      box-shadow: 0 0 8px rgba(196,214,107,0.2);
+    }
+
+    /* ── Switchboard chat target ─────────────────────────────────────────── */
+    .dp-target-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--accent-lime);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Character Chart (Diablo-style) ─────────────────────────────────── */
+    #modal-character .modal {
+      max-width: 480px;
+      border-color: rgba(164,175,127,0.4);
+      background: linear-gradient(160deg, rgba(18,20,13,0.98) 0%, rgba(38,42,27,0.98) 100%);
+      box-shadow: 0 0 60px rgba(154,171,127,0.12), 0 30px 60px rgba(0,0,0,0.8);
+    }
+    .cc-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 14px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .cc-glyph { font-size: 38px; line-height: 1; filter: drop-shadow(0 0 10px currentColor); }
+    .cc-name { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .cc-title { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 3px; }
+    .cc-lore { font-size: 10.5px; line-height: 1.65; color: var(--text-muted); font-style: italic; margin-bottom: 14px; padding: 10px 12px; background: rgba(0,0,0,0.25); border-left: 2px solid var(--glass-border); }
+    .cc-section-title { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 7px; }
+    .cc-attr-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .cc-attr-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; width: 28px; color: var(--text-secondary); flex-shrink: 0; }
+    .cc-attr-bar-bg { flex: 1; height: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+    .cc-attr-bar-fill { height: 100%; transition: width 0.5s ease; }
+    .cc-attr-val { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); width: 24px; text-align: right; flex-shrink: 0; }
+    .cc-special-box { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(196,214,107,0.06); border: 1px solid rgba(196,214,107,0.22); }
+    .cc-special-name { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 0.1em; color: var(--accent-lime); flex-shrink: 0; text-shadow: 0 0 12px rgba(196,214,107,0.5); }
+    .cc-special-desc { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+    .cc-special-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--accent-lime); margin-left: auto; flex-shrink: 0; }
+    .cc-res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+    .cc-res-item { background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 6px 8px; }
+    .cc-res-name { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .cc-res-bar-bg { height: 3px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); overflow: hidden; margin-bottom: 3px; }
+    .cc-res-bar-fill { height: 100%; transition: width 0.5s ease; }
+    .cc-res-val { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; color: var(--text-secondary); }
+    .cc-passive { font-size: 10px; line-height: 1.5; color: var(--text-secondary); padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .cc-passive:last-child { border-bottom: none; }
+    .cc-passive-name { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--accent-gold); }
+    .cc-weakness { font-size: 10px; color: var(--accent-red); font-style: italic; margin-top: 12px; padding: 8px 10px; background: rgba(214,107,107,0.06); border-left: 2px solid rgba(214,107,107,0.3); }
+    .agent-card { position: relative; }
+    .agent-char-btn {
+      position: absolute; top: 6px; right: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 8px;
+      padding: 2px 5px; background: rgba(0,0,0,0.5);
+      border: 1px solid var(--glass-border); color: var(--text-muted);
+      cursor: pointer; opacity: 0; transition: opacity 0.15s; line-height: 1.4;
+    }
+    .agent-card:hover .agent-char-btn { opacity: 1; }
+
+    /* ── Hive Panel cards ───────────────────────────────────────────────── */
+    .hive-card { display: flex; align-items: center; gap: 9px; padding: 8px 12px; margin-bottom: 4px; background: var(--glass-bg); border: 1px solid var(--glass-border); cursor: pointer; transition: all 0.15s; position: relative; }
+    .hive-card:hover { border-color: var(--accent-green); background: var(--glass-highlight); }
+    .hive-card.hive-active { border-color: rgba(196,214,107,0.5); }
+    .hive-card.hive-zombie { border-color: rgba(214,107,107,0.4); opacity: 0.75; }
+    .hive-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .hive-dot-idle   { background: var(--text-muted); }
+    .hive-dot-active { background: var(--accent-lime); box-shadow: 0 0 6px var(--accent-lime); animation: pulse 1.5s infinite; }
+    .hive-dot-zombie { background: var(--accent-red); box-shadow: 0 0 4px var(--accent-red); }
+    .hive-dot-done   { background: var(--accent-green); }
+    .hive-dot-blocked { background: var(--accent-orange); }
+    .hive-glyph { font-size: 15px; line-height: 1; flex-shrink: 0; }
+    .hive-info { flex: 1; min-width: 0; }
+    .hive-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hive-sub  { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hive-badge { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; padding: 1px 5px; border: 1px solid var(--glass-border); color: var(--text-muted); flex-shrink: 0; }
+    .hive-badge-native { border-color: rgba(154,171,127,0.35); color: var(--accent-green); }
+    .hive-badge-zambia { border-color: rgba(196,214,107,0.35); color: var(--accent-lime); }
+    .hive-sep { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); padding: 8px 12px 4px; border-top: 1px solid var(--glass-border); margin-top: 4px; }
+
+    /* ── Agent Control Panel (ACP) ──────────────────────────────────────── */
+    #modal-acp .modal { max-width: 470px; }
+    .acp-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); }
+    .acp-glyph { font-size: 28px; line-height: 1; filter: drop-shadow(0 0 8px currentColor); flex-shrink: 0; }
+    .acp-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+    .acp-id   { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; color: var(--text-muted); margin-top: 3px; letter-spacing: 0.09em; }
+    .acp-type-badge { font-family: 'JetBrains Mono', monospace; font-size: 8px; padding: 2px 7px; border: 1px solid currentColor; margin-left: auto; flex-shrink: 0; }
+    .acp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .acp-field label { font-family: 'JetBrains Mono', monospace; font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 4px; }
+    .acp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 10px 0; }
+    .acp-stat { background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 6px 4px; text-align: center; }
+    .acp-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text-primary); }
+    .acp-stat-lbl { font-family: 'JetBrains Mono', monospace; font-size: 7px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 2px; }
+    .acp-last { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--text-muted); font-style: italic; padding: 7px 10px; background: rgba(0,0,0,0.2); border-left: 2px solid var(--glass-border); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 6px 0; }
+    .acp-soul { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); margin: 4px 0 8px; }
+    .acp-section-hdr {
+      font-family: 'JetBrains Mono',monospace; font-size: 9px; font-weight: 700;
+      color: var(--accent-lime); letter-spacing: 0.1em; text-transform: uppercase;
+      margin: 8px 0 4px; border-bottom: 1px solid rgba(164,175,127,0.15); padding-bottom: 3px;
+    }
+    .acp-skill-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 7px; border-radius: 2px; cursor: pointer;
+      font-family: 'JetBrains Mono',monospace; font-size: 9px;
+      border: 1px solid var(--glass-border); transition: all 0.15s;
+      background: var(--glass-bg); color: var(--text-muted); user-select: none;
+    }
+    .acp-skill-chip.active {
+      background: rgba(164,175,127,0.15); border-color: var(--accent-lime);
+      color: var(--accent-lime);
+    }
+    .acp-skill-chip:hover { border-color: var(--accent-lime); color: var(--text-primary); }
+
+    /* ── Task Preview Modal (clique no card → ver antes de abrir chat) ──── */
+    #modal-task-preview .modal { max-width: 400px; }
+    .tp-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); }
+    .tp-glyph { font-size: 30px; line-height: 1; filter: drop-shadow(0 0 8px currentColor); flex-shrink: 0; }
+    .tp-agent-name { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+    .tp-agent-title { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: var(--text-muted); letter-spacing: 0.13em; text-transform: uppercase; margin-top: 3px; }
+    .tp-badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 7px; border: 1px solid currentColor; margin-left: auto; flex-shrink: 0; }
+    .tp-task-box { background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 10px 12px; margin-bottom: 10px; }
+    .tp-task-id { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: var(--text-muted); margin-bottom: 4px; }
+    .tp-task-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-primary); line-height: 1.45; word-break: break-word; }
+    .tp-meta-row { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); padding: 6px 0; border-top: 1px solid var(--glass-border); }
+    .tp-meta-val { color: var(--text-secondary); }
+    .tp-meta-sep { color: var(--text-muted); }
+    .tp-history-hint { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: var(--accent-gold); margin-top: 4px; }
+
+    /* ── Drag & Drop ─────────────────────────────────────────────────────── */
+    .task-card[draggable="true"] { cursor: grab; }
+    .task-card[draggable="true"]:active { cursor: grabbing; }
+    .task-card.dragging { opacity: 0.35; outline: 1px dashed var(--accent-lime); }
+    .k-col { transition: background 0.15s, border 0.15s; border: 1px solid transparent; }
+    .k-col.drag-over { background: rgba(196,214,107,0.05); border: 1px dashed rgba(196,214,107,0.3); }
+
+    /* ── Delete button on task card ──────────────────────────────────────── */
+    .task-del-btn {
+      position: absolute; top: 5px; right: 5px; z-index: 2;
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      padding: 1px 5px; line-height: 1.5;
+      background: rgba(214,107,107,0.18); border: 1px solid rgba(214,107,107,0.35);
+      color: var(--accent-red); cursor: pointer;
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .task-card:hover .task-del-btn { opacity: 1; }
+    .task-del-btn:hover { background: rgba(214,107,107,0.35) !important; }
+
+    /* ── Context menu ────────────────────────────────────────────────────── */
+    #ctx-menu {
+      position: fixed; z-index: 9999;
+      background: linear-gradient(160deg, rgba(18,20,13,0.98) 0%, rgba(38,42,27,0.98) 100%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+      min-width: 175px; display: none; padding: 4px 0;
+    }
+    #ctx-menu.open { display: block; }
+    .ctx-label { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); padding: 5px 14px 2px; }
+    .ctx-item { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 6px 14px; color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: background 0.1s; }
+    .ctx-item:hover { background: var(--glass-highlight); color: var(--text-primary); }
+    .ctx-item.danger { color: var(--accent-red); }
+    .ctx-item.danger:hover { background: rgba(214,107,107,0.1); }
+    .ctx-sep { border-bottom: 1px solid var(--glass-border); margin: 3px 0; }
+
+    /* ── Delete confirmation overlay ─────────────────────────────────────── */
+    #confirm-delete {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+    }
+    #confirm-delete.open { display: flex; }
+    .confirm-box {
+      background: linear-gradient(160deg, rgba(20,12,12,0.99) 0%, rgba(40,22,22,0.99) 100%);
+      border: 1px solid rgba(214,107,107,0.45);
+      box-shadow: 0 0 50px rgba(214,107,107,0.15), 0 24px 48px rgba(0,0,0,0.8);
+      padding: 26px 28px; max-width: 380px; width: 90%;
+    }
+    .confirm-box h4 { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent-red); margin-bottom: 10px; letter-spacing: 0.05em; }
+    .confirm-box p { font-size: 11px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+    .confirm-task-prev { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-secondary); background: rgba(0,0,0,0.35); padding: 8px 12px; margin-bottom: 18px; border-left: 2px solid rgba(214,107,107,0.45); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="header-title">MISSION <span>CONTROL</span> // ARGENTA FÊNIX</div>
+  <div class="header-status">
+    <div class="status-chip">
+      <span class="dot dot-err" id="dot-kilo"></span>
+      <span id="lbl-kilo">kilo-serve</span>
+    </div>
+    <div class="status-chip">
+      <span class="dot dot-warn" id="dot-loop"></span>
+      <span id="lbl-loop">ralph-loop</span>
+    </div>
+    <div class="ws-pill" id="ws-pill">WS: OFF</div>
+  </div>
+</header>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-value" id="s-tasks">0</div>
+    <div class="stat-label">Tasks</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="s-pending">0</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="s-active">0</div>
+    <div class="stat-label">Active</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="s-events">0</div>
+    <div class="stat-label">Events</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="s-agents">0</div>
+    <div class="stat-label">Agentes</div>
+  </div>
+</div>
+
+<!-- Workspace -->
+<div class="workspace">
+
+  <!-- LEFT: Hive Panel -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <span class="panel-hdr-title">Hive</span>
+      <span class="panel-hdr-count" id="agent-count">—</span>
+      <button class="btn btn-lime" onclick="openSpawnModal()" style="padding:2px 8px;font-size:9px;margin-left:auto">⚡ Spawn</button>
+    </div>
+    <div class="panel-body" id="agent-list"></div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center-col">
+
+    <!-- Add task -->
+    <div class="add-bar">
+      <input id="inp-title" placeholder="Título da task..." />
+      <select id="inp-domain">
+        <option value="execution">execution</option>
+        <option value="planning">planning</option>
+        <option value="research">research</option>
+        <option value="audit">audit</option>
+        <option value="review">review</option>
+        <option value="reasoning">reasoning</option>
+        <option value="synthesis">synthesis</option>
+        <option value="creative">creative</option>
+        <option value="quick">quick</option>
+        <option value="local">local</option>
+      </select>
+      <select id="inp-priority" style="width:80px">
+        <option value="high">high</option>
+        <option value="medium" selected>med</option>
+        <option value="low">low</option>
+      </select>
+      <button class="btn btn-primary" onclick="addTask()">+ Add</button>
+    </div>
+
+    <!-- Kanban -->
+    <div class="kanban-wrap">
+      <div class="panel-hdr">
+        <span class="panel-hdr-title">Kanban</span>
+        <span class="panel-hdr-count" id="task-count">—</span>
+      </div>
+      <div class="kanban-board" id="kanban-board"></div>
+    </div>
+
+    <!-- Dispatch manual -->
+    <div class="dispatch-panel">
+      <div class="dispatch-label">// Disparo Manual → Kilo Code</div>
+      <div class="g2">
+        <select id="dp-agent"></select>
+        <select id="dp-domain" onchange="domainChanged()"></select>
+      </div>
+      <div class="g2">
+        <select id="dp-provider" onchange="providerChanged()"></select>
+        <select id="dp-model"></select>
+      </div>
+      <textarea id="dp-prompt" placeholder="Prompt direto para o modelo via Kilo..."></textarea>
+      <div class="dispatch-footer">
+        <button class="btn btn-lime" onclick="dispatchManual()" id="dp-btn">⚡ Dispatch</button>
+        <button class="btn" id="dp-chat-btn" onclick="dpSendToAgent()" style="display:none">→ chat</button>
+        <span class="dispatch-status" id="dp-status"></span>
+        <span class="dp-target-label" id="dp-target-label"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Bulletin Board -->
+  <div class="panel" style="display:flex;flex-direction:column;overflow:hidden">
+    <div class="panel-hdr">
+      <span class="panel-hdr-title">Bulletin Board</span>
+      <span class="panel-hdr-count" id="bb-count">—</span>
+      <button class="btn btn-lime" onclick="bbToggleCompose()" style="padding:2px 8px;font-size:9px;margin-left:auto">+ Post</button>
+    </div>
+    <div class="bb-toolbar">
+      <label>Tópico</label>
+      <select id="bb-filter-topic" onchange="bbLoad()">
+        <option value="">Todos</option>
+        <option value="orchestration">orchestration</option>
+        <option value="debug">debug</option>
+        <option value="brainstorm">brainstorm</option>
+        <option value="task-result">task-result</option>
+        <option value="request-skill">request-skill</option>
+        <option value="request-agent">request-agent</option>
+        <option value="heartbeat">heartbeat</option>
+        <option value="memory">memory</option>
+        <option value="alert">alert</option>
+      </select>
+      <label>De</label>
+      <input id="bb-filter-from" placeholder="agente..." style="width:80px" oninput="bbLoad()">
+      <button class="btn" onclick="bbLoad()" style="padding:2px 6px;font-size:9px">↺</button>
+    </div>
+    <div class="bb-feed" id="bb-feed"></div>
+    <div class="bb-compose hidden" id="bb-compose">
+      <div class="bb-compose-row">
+        <label>De</label>
+        <input id="bb-from" value="human">
+        <label style="margin-left:6px">Para</label>
+        <input id="bb-to" value="broadcast">
+      </div>
+      <div class="bb-compose-row">
+        <label>Tópico</label>
+        <select id="bb-topic">
+          <option value="brainstorm">brainstorm</option>
+          <option value="orchestration">orchestration</option>
+          <option value="debug">debug</option>
+          <option value="task-result">task-result</option>
+          <option value="request-skill">request-skill</option>
+          <option value="request-agent">request-agent</option>
+          <option value="memory">memory</option>
+          <option value="alert">alert</option>
+        </select>
+        <label style="margin-left:6px">Thread</label>
+        <input id="bb-thread" placeholder="msg-id (opcional)">
+      </div>
+      <textarea id="bb-content" placeholder="Mensagem..."></textarea>
+      <div class="bb-compose-actions">
+        <button class="btn" onclick="bbToggleCompose()">Cancelar</button>
+        <button class="btn btn-lime" onclick="bbPost()">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Chat Overlay -->
+<div class="chat-overlay" id="chat-overlay">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <span class="chat-status-dot idle" id="chat-dot"></span>
+      <span class="chat-agent-name" id="chat-agent-label">—</span>
+      <select id="chat-prov" class="chat-sel" onchange="chatProvChanged()"></select>
+      <span class="chat-sel-sep">/</span>
+      <select id="chat-mod" class="chat-sel" style="max-width:200px"></select>
+      <button class="btn" id="chat-stop-btn" onclick="stopChat()" style="padding:3px 10px;font-size:9px">⏹ STOP</button>
+      <button class="btn" onclick="closeChat()" style="padding:3px 10px;font-size:9px">✕</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-footer" style="position:relative">
+      <div class="queue-modal" id="chat-queue-modal"></div>
+      <div class="chat-queue-bar" id="chat-queue-bar">
+        <span id="chat-queue-label">Fila: 0 msgs</span>
+        <button class="btn" onclick="toggleQueueModal()" style="padding:1px 6px;font-size:9px">ver</button>
+        <button class="btn btn-red" onclick="clearQueue()" style="padding:1px 6px;font-size:9px">limpar</button>
+      </div>
+      <div class="chat-attach-previews" id="chat-attach-previews"></div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" placeholder="Digite ou cole (Ctrl+V para imagem)..."></textarea>
+        <div class="chat-actions">
+          <button class="btn" onclick="triggerFileAttach()" title="Anexar arquivo" style="padding:4px 8px;font-size:11px">📎</button>
+          <button class="btn btn-lime" onclick="sendChatMessage()" id="chat-send-btn" style="padding:4px 8px;font-size:11px">↵</button>
+        </div>
+      </div>
+      <input type="file" id="chat-file-input" multiple accept="image/*,video/*,text/*,.md,.json,.yaml,.js,.ts,.py,.txt" style="display:none" onchange="handleFileSelect(event)">
+    </div>
+  </div>
+</div>
+
+<!-- Event detail modal -->
+<div class="overlay" id="modal-event">
+  <div class="modal">
+    <h3 id="me-title">// Evento</h3>
+    <div class="modal-sub" id="me-sub"></div>
+    <div class="modal-body">
+      <pre class="ev-detail-pre" id="me-body"></pre>
+    </div>
+    <div class="modal-actions">
+      <button class="btn"         onclick="closeModal('modal-event')">Fechar</button>
+      <button class="btn btn-red" onclick="deleteEvent()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Authorization request modal -->
+<div class="overlay" id="modal-auth">
+  <div class="modal">
+    <h3>⚠ Autorização Requerida</h3>
+    <div class="modal-sub" id="ma-sub">O agente está aguardando sua resposta</div>
+    <div class="modal-body">
+      <div class="auth-modal-body" id="ma-body"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn"         onclick="closeModal('modal-auth')">Ignorar</button>
+      <button class="btn btn-red"  onclick="chatAuthorize(false)">✗ Recusar</button>
+      <button class="btn btn-lime" onclick="chatAuthorize(true)">✓ Autorizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Spawn Zambia Modal -->
+<div class="overlay" id="modal-spawn">
+  <div class="modal" style="max-width:490px">
+    <h3 style="color:var(--accent-lime)">⚡ Spawn Zambia</h3>
+    <div class="modal-sub">Criar sub-agente especializado com identidade própria</div>
+
+    <div class="spawn-row-2" style="margin-top:14px">
+      <div class="spawn-field">
+        <label>Nome</label>
+        <input id="sp-name" placeholder="Zambia-001">
+      </div>
+      <div class="spawn-field">
+        <label>Parent (agente pai)</label>
+        <select id="sp-parent">
+          <option value="">— sem parent —</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="spawn-field">
+      <label>Missão</label>
+      <textarea id="sp-mission" placeholder="Descreva a missão específica deste agente..."></textarea>
+    </div>
+
+    <div class="spawn-row-2">
+      <div class="spawn-field">
+        <label>Alma (soul)</label>
+        <select id="sp-soul">
+          <option value="">— nenhuma —</option>
+        </select>
+      </div>
+      <div class="spawn-field">
+        <label>Domain</label>
+        <select id="sp-domain">
+          <option value="execution">execution</option>
+          <option value="planning">planning</option>
+          <option value="debug">debug</option>
+          <option value="research">research</option>
+          <option value="audit">audit</option>
+          <option value="review">review</option>
+          <option value="synthesis">synthesis</option>
+          <option value="creative">creative</option>
+          <option value="quick">quick</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="spawn-row-2">
+      <div class="spawn-field">
+        <label>Provider</label>
+        <select id="sp-provider" onchange="spProvChanged()"></select>
+      </div>
+      <div class="spawn-field">
+        <label>Model</label>
+        <select id="sp-model"></select>
+      </div>
+    </div>
+
+    <div class="acp-section-hdr">// Skills</div>
+    <div id="sp-skills-list" style="display:flex;flex-wrap:wrap;gap:5px;padding:4px 0;margin-bottom:8px"></div>
+
+    <div class="spawn-toggle">
+      <input type="checkbox" id="sp-autostart" checked>
+      <span>Abrir chat após spawn</span>
+    </div>
+    <div class="spawn-toggle">
+      <input type="checkbox" id="sp-autoclose">
+      <span>Auto-encerrar após conclusão (auto_close)</span>
+    </div>
+
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn" onclick="closeModal('modal-spawn')">Cancelar</button>
+      <button class="btn btn-lime" onclick="spawnZambia()">⚡ Spawn</button>
+    </div>
+  </div>
+</div>
+
+<!-- Agent Control Panel (ACP) -->
+<div class="overlay" id="modal-acp">
+  <div class="modal" style="max-width:470px">
+    <div class="acp-header">
+      <span class="acp-glyph" id="acp-glyph">◈</span>
+      <div style="flex:1;min-width:0">
+        <div class="acp-name" id="acp-name"></div>
+        <div class="acp-id" id="acp-id"></div>
+      </div>
+      <span class="acp-type-badge" id="acp-type-badge">native</span>
+    </div>
+    <div class="acp-soul" id="acp-soul"></div>
+    <div class="acp-row">
+      <div class="acp-field">
+        <label>Status</label>
+        <select id="acp-status" style="font-size:10px">
+          <option value="idle">idle</option>
+          <option value="in_progress">in_progress</option>
+          <option value="blocked">blocked</option>
+          <option value="zombie">zombie</option>
+          <option value="done">done</option>
+        </select>
+      </div>
+      <div class="acp-field">
+        <label>Domain</label>
+        <select id="acp-domain" style="font-size:10px">
+          <option value="execution">execution</option>
+          <option value="planning">planning</option>
+          <option value="debug">debug</option>
+          <option value="research">research</option>
+          <option value="audit">audit</option>
+          <option value="review">review</option>
+          <option value="synthesis">synthesis</option>
+          <option value="creative">creative</option>
+          <option value="quick">quick</option>
+        </select>
+      </div>
+    </div>
+    <div class="acp-row">
+      <div class="acp-field">
+        <label>Provider</label>
+        <select id="acp-provider" style="font-size:10px" onchange="acpProvChanged()"></select>
+      </div>
+      <div class="acp-field">
+        <label>Model</label>
+        <select id="acp-model" style="font-size:10px"></select>
+      </div>
+    </div>
+    <div class="acp-stats">
+      <div class="acp-stat"><div class="acp-stat-val" id="acp-msgs">0</div><div class="acp-stat-lbl">Msgs</div></div>
+      <div class="acp-stat"><div class="acp-stat-val" id="acp-tokens">0</div><div class="acp-stat-lbl">Tokens</div></div>
+      <div class="acp-stat"><div class="acp-stat-val" id="acp-cost">$0</div><div class="acp-stat-lbl">Custo</div></div>
+      <div class="acp-stat"><div class="acp-stat-val" id="acp-hb">—</div><div class="acp-stat-lbl">Pulso</div></div>
+    </div>
+    <div class="acp-last" id="acp-last">sem atividade registrada</div>
+
+    <!-- Soul selector -->
+    <div class="acp-section-hdr">// Alma</div>
+    <div class="acp-row" style="align-items:flex-start;gap:6px">
+      <select id="acp-soul-sel" style="font-size:10px;flex:1" onchange="acpSoulChanged()">
+        <option value="">— nenhuma —</option>
+      </select>
+      <button class="btn" onclick="acpToggleSoulEditor()" style="padding:2px 7px;font-size:9px" id="acp-soul-edit-btn">✏ ver</button>
+    </div>
+    <div id="acp-soul-editor" style="display:none;margin-top:6px">
+      <textarea id="acp-soul-text" style="width:100%;box-sizing:border-box;min-height:80px;max-height:150px;resize:vertical;background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-secondary);font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 8px;border-radius:3px" readonly></textarea>
+    </div>
+
+    <!-- Skills checklist -->
+    <div class="acp-section-hdr" style="margin-top:8px">// Skills</div>
+    <div id="acp-skills-list" style="display:flex;flex-wrap:wrap;gap:5px;padding:4px 0"></div>
+
+    <div class="modal-actions" style="margin-top:12px;flex-wrap:wrap;gap:6px">
+      <button class="btn" onclick="closeModal('modal-acp')">Fechar</button>
+      <button class="btn" onclick="acpCharChart()" id="acp-char-btn">◈ Chart</button>
+      <button class="btn btn-lime" onclick="acpOpenChat()" id="acp-chat-btn">💬 Chat</button>
+      <button class="btn btn-red" onclick="acpStop()" id="acp-stop-btn">⏹ Stop</button>
+      <button class="btn btn-primary" onclick="acpSave()">Salvar</button>
+      <button class="btn" onclick="acpTerminate()" id="acp-term-btn" style="color:var(--accent-red);border-color:rgba(214,107,107,0.3)">Encerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task Preview Modal (clique em card do kanban) -->
+<div class="overlay" id="modal-task-preview">
+  <div class="modal" style="max-width:400px">
+    <div class="tp-header">
+      <span class="tp-glyph" id="tp-glyph">◈</span>
+      <div style="flex:1;min-width:0">
+        <div class="tp-agent-name" id="tp-agent-name"></div>
+        <div class="tp-agent-title" id="tp-agent-title"></div>
+      </div>
+      <span class="tp-badge" id="tp-badge"></span>
+    </div>
+    <div class="tp-task-box">
+      <div class="tp-task-id" id="tp-task-id"></div>
+      <div class="tp-task-title" id="tp-task-title"></div>
+    </div>
+    <div class="tp-meta-row">
+      <span style="color:var(--text-muted)">provider</span>
+      <span class="tp-meta-val" id="tp-provider"></span>
+      <span class="tp-meta-sep">/</span>
+      <span class="tp-meta-val" id="tp-model"></span>
+    </div>
+    <div class="tp-history-hint" id="tp-history-hint" style="display:none">● sessão com histórico</div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn" onclick="closeModal('modal-task-preview')">Fechar</button>
+      <button class="btn" onclick="tpOpenDetails()" id="tp-details-btn">📋 Detalhes</button>
+      <button class="btn btn-lime" onclick="tpOpenChat()" id="tp-chat-btn" style="display:none">💬 Abrir Chat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Context menu (right-click on task card) -->
+<div id="ctx-menu">
+  <div class="ctx-label" id="ctx-task-id"></div>
+  <div class="ctx-item" id="ctx-chat-item" onclick="ctxChat()">💬 Abrir chat</div>
+  <div class="ctx-item" id="ctx-char-item" onclick="ctxChar()">◈ Character Chart</div>
+  <div class="ctx-item" onclick="ctxDetails()">📋 Ver detalhes</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-label">Mover para</div>
+  <div class="ctx-item" onclick="ctxMove('pending')">○ Pending</div>
+  <div class="ctx-item" onclick="ctxMove('in_progress')">▶ In Progress</div>
+  <div class="ctx-item" onclick="ctxMove('blocked')">⊘ Blocked</div>
+  <div class="ctx-item" onclick="ctxMove('review')">◉ Review</div>
+  <div class="ctx-item" onclick="ctxMove('done')">✓ Done</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-label">Prioridade</div>
+  <div class="ctx-item" onclick="ctxPriority('high')">↑ Alta</div>
+  <div class="ctx-item" onclick="ctxPriority('medium')">→ Média</div>
+  <div class="ctx-item" onclick="ctxPriority('low')">↓ Baixa</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" onclick="ctxCopy()">⎘ Copiar título</div>
+  <div class="ctx-item danger" onclick="ctxDelete()">✕ Excluir task</div>
+</div>
+
+<!-- Delete confirmation overlay -->
+<div id="confirm-delete">
+  <div class="confirm-box">
+    <h4>⚠ Confirmar Exclusão</h4>
+    <p>Esta ação é irreversível. A task será removida do kanban permanentemente.</p>
+    <div class="confirm-task-prev" id="confirm-task-preview"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="cancelDelete()">Cancelar</button>
+      <button class="btn btn-red" onclick="executeDelete()">✕ Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Character Chart modal -->
+<div class="overlay" id="modal-character">
+  <div class="modal" style="max-width:480px;background:linear-gradient(160deg,rgba(18,20,13,0.98) 0%,rgba(38,42,27,0.98) 100%);border-color:rgba(164,175,127,0.4)">
+    <div class="cc-header">
+      <span class="cc-glyph" id="cc-glyph"></span>
+      <div style="flex:1">
+        <div class="cc-name" id="cc-name"></div>
+        <div class="cc-title" id="cc-title"></div>
+      </div>
+    </div>
+    <div class="cc-lore" id="cc-lore"></div>
+    <div class="cc-section-title">// Atributos Base</div>
+    <div id="cc-attrs"></div>
+    <div class="cc-section-title">// Habilidade Especial</div>
+    <div id="cc-special"></div>
+    <div class="cc-section-title">// Resistências</div>
+    <div class="cc-res-grid" id="cc-res"></div>
+    <div class="cc-section-title">// Skills Ativas</div>
+    <div id="cc-skills" style="display:flex;flex-wrap:wrap;gap:5px;min-height:18px"></div>
+    <div class="cc-section-title">// Passivas</div>
+    <div id="cc-passives"></div>
+    <div class="cc-weakness" id="cc-weakness"></div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn" onclick="closeModal('modal-character')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task modal -->
+<div class="overlay" id="modal-task">
+  <div class="modal">
+    <h3 id="mt-title"></h3>
+    <div class="modal-sub" id="mt-sub"></div>
+    <div class="modal-body">
+      <select id="mt-status">
+        <option value="pending">pending</option>
+        <option value="in_progress">in_progress</option>
+        <option value="blocked">blocked</option>
+        <option value="review">review</option>
+        <option value="done">done</option>
+      </select>
+      <pre class="result-pre" id="mt-result" style="display:none"></pre>
+    </div>
+    <div class="modal-actions">
+      <button class="btn"         onclick="closeModal('modal-task')">Fechar</button>
+      <button class="btn btn-red" onclick="removeTask()">Remover</button>
+      <button class="btn btn-primary" onclick="moveTask()">Mover</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dispatch result modal -->
+<div class="overlay" id="modal-dispatch">
+  <div class="modal">
+    <h3>// Resultado do Dispatch</h3>
+    <div class="modal-sub" id="md-meta"></div>
+    <div class="modal-body">
+      <pre class="result-pre" id="md-result">aguardando resposta...</pre>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-dispatch')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'http://127.0.0.1:3030/api';
+const STATUSES = ['pending','in_progress','blocked','review','done'];
+let selectedTask = null;
+let ws = null;
+let dispatchBuf = {};
+
+// State compartilhado entre renders
+let matrixMap      = {};   // domain → { agent, providerID, modelID }
+let providersData  = [];   // [{ id, displayName, models[] }]
+let charactersData = {};   // agentName → character YAML data
+let skillsData     = {};   // skillName → skill YAML data
+let soulsData      = {};   // soulName → soul YAML data
+let tasksCache     = {};   // taskId → task (para drag, ctx menu, delete)
+let hiveAgents     = [];   // agentes do hive (native + zambias)
+let acpAgent       = null; // agente aberto no ACP modal
+let initialized    = false;
+
+// Task preview modal
+let previewTask    = null;
+
+// Drag & drop
+let draggedTaskId  = null;
+
+// Context menu
+let ctxTask        = null;
+
+// Delete confirm
+let pendingDeleteId = null;
+
+// Chat / kanban state
+let chatState          = { providerID: '', modelID: '', agentName: '' };
+let selectedKanbanTask = null;
+let currentEventTs     = null;   // para o modal de evento
+const evData           = new Map(); // ts → event object
+
+const KILO_AGENTS = new Set(['code','plan','debug','orchestrator','ask']);
+
+// ── WebSocket ─────────────────────────────────────────────────────────────────
+
+function connectWS() {
+  try { ws = new WebSocket('ws://127.0.0.1:3030'); } catch { return; }
+  ws.onopen = () => {
+    const p = document.getElementById('ws-pill');
+    p.textContent = 'WS: LIVE'; p.classList.add('live');
+  };
+  ws.onclose = () => {
+    const p = document.getElementById('ws-pill');
+    p.textContent = 'WS: OFF'; p.classList.remove('live');
+    setTimeout(connectWS, 3000);
+  };
+  ws.onmessage = ({ data }) => {
+    let msg; try { msg = JSON.parse(data); } catch { return; }
+    switch (msg.type) {
+      case 'event':        prependEvent(msg.payload); break;
+      case 'state':        renderChips(msg.payload); break;
+      case 'task_added':
+      case 'task_updated':
+      case 'task_removed': loadData(); break;
+      case 'dispatch_chunk':
+        dispatchBuf[msg.payload.task_id] = (dispatchBuf[msg.payload.task_id] ?? '') + msg.payload.chunk;
+        document.getElementById('md-result').textContent = dispatchBuf[msg.payload.task_id];
+        break;
+      case 'dispatch_done':
+        document.getElementById('dp-btn').disabled = false;
+        document.getElementById('dp-status').textContent = `✓ ${msg.payload.latency_ms}ms`;
+        document.getElementById('md-result').textContent = msg.payload.result ?? '(sem conteúdo)';
+        document.getElementById('md-meta').textContent = `latência: ${msg.payload.latency_ms}ms`;
+        delete dispatchBuf[msg.payload.task_id];
+        setKanbanLive(msg.payload.task_id, null);
+        loadData();
+        break;
+      case 'dispatch_error':
+        document.getElementById('dp-btn').disabled = false;
+        document.getElementById('dp-status').textContent = `✗ ${msg.payload.error}`;
+        document.getElementById('md-result').textContent = `ERRO: ${msg.payload.error}`;
+        setKanbanLive(msg.payload.task_id, '✗ erro');
+        break;
+      // ── Chat events ──
+      case 'chat_user':
+        if (activeChatKey === msg.payload.chatKey) {
+          appendChatBubble('user', msg.payload.text, msg.payload.parts, msg.payload.ts);
+        }
+        break;
+      case 'chat_thinking':
+        if (activeChatKey === msg.payload.chatKey) {
+          appendThinkingBubble();
+          updateChatDot('think');
+        }
+        break;
+      case 'chat_response':
+        if (activeChatKey === msg.payload.chatKey) {
+          removeThinkingBubble();
+          appendChatBubble('agent', msg.payload.text, msg.payload.parts, msg.payload.ts);
+          updateChatDot('idle');
+          chatActive = false;
+          flushQueue();
+        }
+        break;
+      case 'chat_stopped':
+        if (activeChatKey === msg.payload.chatKey) {
+          removeThinkingBubble();
+          const stEl = document.createElement('div');
+          stEl.className = 'chat-thinking-bubble';
+          stEl.style.color = 'var(--accent-orange)';
+          stEl.style.animation = 'none';
+          stEl.textContent = '⏹ Parado pelo usuário';
+          document.getElementById('chat-messages').appendChild(stEl);
+          updateChatDot('idle');
+          chatActive = false;
+          chatQueue = [];
+          updateQueueBar();
+        }
+        break;
+      case 'hive_updated':
+        fetch(`${API}/hive/agents`).then(r => r.json()).then(h => {
+          if (Array.isArray(h)) { hiveAgents = h; renderHivePanel(hiveAgents, tasksCache ? Object.values(tasksCache) : []); }
+        }).catch(() => {});
+        break;
+      case 'bus_message':
+        // If no thread filter active, prepend to board
+        if (!document.getElementById('bb-filter-topic')?.value &&
+            !document.getElementById('bb-filter-from')?.value) {
+          bbPrepend(msg.payload);
+        }
+        break;
+      case 'bus_updated':
+        bbLoad();
+        break;
+      case 'agent_autoclosed':
+        // Show a subtle notification and refresh hive
+        fetch(`${API}/hive/agents`).then(r => r.json()).then(h => {
+          if (Array.isArray(h)) { hiveAgents = h; renderHivePanel(hiveAgents, tasksCache ? Object.values(tasksCache) : []); }
+        }).catch(() => {});
+        break;
+      case 'chat_error':
+        if (activeChatKey === msg.payload.chatKey) {
+          removeThinkingBubble();
+          const errEl = document.createElement('div');
+          errEl.className = 'chat-thinking-bubble';
+          errEl.style.color = 'var(--accent-red)';
+          errEl.style.animation = 'none';
+          errEl.textContent = `✗ Erro: ${msg.payload.error}`;
+          document.getElementById('chat-messages').appendChild(errEl);
+          updateChatDot('err');
+          chatActive = false;
+        }
+        break;
+    }
+  };
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function renderChips(state) {
+  const kiloOk = state.kilo_serve?.ok;
+  const loopOk = state.status === 'running';
+  setDot('dot-kilo', kiloOk ? 'ok' : 'err');
+  setDot('dot-loop', loopOk ? 'ok' : 'warn');
+  document.getElementById('lbl-kilo').textContent = `kilo-serve ${kiloOk ? '✓' : '✗'}`;
+  document.getElementById('lbl-loop').textContent = `ralph-loop ${loopOk ? '✓' : '○'}`;
+}
+
+function renderStats(tasks, kiloAgents, events) {
+  document.getElementById('s-tasks').textContent   = tasks.length;
+  document.getElementById('s-pending').textContent = tasks.filter(t => t.status === 'pending').length;
+  document.getElementById('s-active').textContent  = tasks.filter(t => t.status === 'in_progress').length;
+  document.getElementById('s-events').textContent  = events.length;
+  document.getElementById('s-agents').textContent  = kiloAgents.length;
+}
+
+// ── Hive Panel ────────────────────────────────────────────────────────────────
+
+const HIVE_STATUS_DOT = {
+  idle: 'idle', in_progress: 'active', zombie: 'zombie', done: 'done', blocked: 'blocked',
+};
+
+function renderHivePanel(agents, tasks) {
+  document.getElementById('agent-count').textContent = agents.length;
+
+  const activeTasks = tasks.filter(t => t.status === 'in_progress');
+
+  const native  = agents.filter(a => a.type === 'native');
+  const zambias = agents.filter(a => a.type !== 'native');
+
+  const cardHtml = (a) => {
+    const char      = charactersData[a.chatKey];
+    const glyph     = char?.glyph ?? (a.type === 'native' ? '◈' : '⬡');
+    const glyphColor = char?.color ?? 'var(--accent-green)';
+    const activeTask = activeTasks.find(t => t.chatKey === a.chatKey || t.agent === a.chatKey);
+    const dotCls    = `hive-dot hive-dot-${HIVE_STATUS_DOT[a.status] ?? 'idle'}`;
+    const cardCls   = `hive-card ${a.status === 'in_progress' ? 'hive-active' : ''} ${a.status === 'zombie' ? 'hive-zombie' : ''}`;
+    const subText   = activeTask ? `▶ #${activeTask.id} ${esc(activeTask.title.slice(0,22))}` : (a.mission ? esc(a.mission.slice(0,28)) : `${a.domain ?? ''} · idle`);
+    return `
+    <div class="${cardCls}" onclick="openAgentControl('${esc(a.id)}')">
+      <span class="${dotCls}"></span>
+      <span class="hive-glyph" style="color:${glyphColor}">${glyph}</span>
+      <div class="hive-info">
+        <div class="hive-name">${esc(char?.name ?? a.name ?? a.chatKey)}</div>
+        <div class="hive-sub">${subText}</div>
+      </div>
+      <span class="hive-badge hive-badge-${a.type}">${a.type}</span>
+    </div>`;
+  };
+
+  // Build lineage tree: native agents with their zambia children
+  const zambiasByParent = {};
+  for (const z of zambias) {
+    const key = z.parent ?? '__orphan__';
+    if (!zambiasByParent[key]) zambiasByParent[key] = [];
+    zambiasByParent[key].push(z);
+  }
+
+  let html = '';
+  for (const n of native) {
+    html += cardHtml(n);
+    const children = zambiasByParent[n.id] ?? [];
+    if (children.length > 0) {
+      html += `<div class="hive-children">`;
+      html += children.map(z => `<div class="hive-child-card">${cardHtml(z)}</div>`).join('');
+      html += `</div>`;
+    }
+  }
+
+  const orphans = zambiasByParent['__orphan__'] ?? [];
+  if (orphans.length > 0) {
+    html += `<div class="hive-sep">Zambias (${orphans.length})</div>`;
+    html += orphans.map(cardHtml).join('');
+  }
+
+  document.getElementById('agent-list').innerHTML = html;
+}
+
+// ── Agent Control Panel (ACP) ─────────────────────────────────────────────────
+
+async function openAgentControl(agentId) {
+  let agt;
+  try {
+    agt = await fetch(`${API}/hive/agents/${encodeURIComponent(agentId)}`).then(r => r.json());
+  } catch { return; }
+  if (!agt || agt.error) return;
+  acpAgent = agt;
+
+  const char = agt.character ?? charactersData[agt.chatKey];
+  const glyphEl = document.getElementById('acp-glyph');
+  glyphEl.textContent = char?.glyph ?? '◈';
+  glyphEl.style.color = char?.color ?? 'var(--accent-lime)';
+
+  document.getElementById('acp-name').textContent       = char ? `${char.name}` : (agt.name ?? agt.chatKey);
+  document.getElementById('acp-name').style.color       = char?.color ?? 'var(--text-primary)';
+  document.getElementById('acp-id').textContent         = `${agt.id} · chatKey: ${agt.chatKey}`;
+  const parentName = agt.parent ? (hiveAgents.find(a => a.id === agt.parent)?.name ?? agt.parent) : null;
+  document.getElementById('acp-soul').textContent = [
+    `soul: ${agt.soul ?? '—'}`,
+    `domain: ${agt.domain ?? '—'}`,
+    parentName ? `parent: ${parentName}` : null,
+    agt.auto_close ? 'auto_close: ✓' : null,
+    `born: ${agt.born ? fmtTs(agt.born) : '—'}`,
+  ].filter(Boolean).join(' · ');
+  document.getElementById('acp-type-badge').textContent = agt.type ?? 'native';
+  document.getElementById('acp-type-badge').style.color = agt.type === 'zambia' ? 'var(--accent-lime)' : 'var(--accent-green)';
+
+  document.getElementById('acp-status').value = agt.status ?? 'idle';
+  document.getElementById('acp-domain').value = agt.domain ?? 'execution';
+
+  // Provider/model selects
+  const provSel = document.getElementById('acp-provider');
+  provSel.innerHTML = providersData.map(p =>
+    `<option value="${esc(p.id)}" ${p.id === agt.providerID ? 'selected' : ''}>${esc(p.displayName)}</option>`
+  ).join('');
+  acpProvChanged(agt.providerID, agt.modelID);
+
+  // Stats
+  const s = agt.stats ?? {};
+  document.getElementById('acp-msgs').textContent   = s.messages_sent ?? 0;
+  document.getElementById('acp-tokens').textContent = s.tokens_used > 1000 ? `${(s.tokens_used/1000).toFixed(1)}k` : (s.tokens_used ?? 0);
+  document.getElementById('acp-cost').textContent   = s.cost_usd ? `$${s.cost_usd.toFixed(3)}` : '$0';
+  document.getElementById('acp-hb').textContent     = agt.heartbeat ? fmtTs(agt.heartbeat) : '—';
+
+  // Last activity (last chat message)
+  const chat = await fetch(`${API}/chat/${encodeURIComponent(agt.chatKey)}`).then(r => r.json()).catch(() => null);
+  const lastMsg = chat?.messages?.slice(-1)?.[0];
+  document.getElementById('acp-last').textContent = lastMsg
+    ? `[${lastMsg.role}] ${(lastMsg.text ?? '').slice(0, 70)}`
+    : 'sem atividade registrada';
+
+  // Soul + Skills
+  acpPopulateSouls(agt.soul);
+  acpPopulateSkills(agt.skills);
+  // Reset soul editor state
+  const soulEditor = document.getElementById('acp-soul-editor');
+  if (soulEditor) soulEditor.style.display = 'none';
+  const soulBtn = document.getElementById('acp-soul-edit-btn');
+  if (soulBtn) soulBtn.textContent = '✏ ver';
+
+  // Buttons visibility
+  document.getElementById('acp-chat-btn').style.display  = KILO_AGENTS.has(agt.chatKey) ? '' : 'none';
+  document.getElementById('acp-char-btn').style.display  = !!char ? '' : 'none';
+  document.getElementById('acp-stop-btn').style.display  = agt.chat_active ? '' : 'none';
+  document.getElementById('acp-term-btn').style.display  = agt.type === 'zambia' ? '' : 'none';
+
+  document.getElementById('modal-acp').classList.add('open');
+}
+
+function acpProvChanged(forceProvider, forceModel) {
+  const provId = forceProvider ?? document.getElementById('acp-provider').value;
+  const prov   = providersData.find(p => p.id === provId);
+  const sel    = document.getElementById('acp-model');
+  if (prov && prov.models.length > 0) {
+    sel.innerHTML = prov.models.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
+    if (forceModel) {
+      const opt = Array.from(sel.options).find(o => o.value === forceModel);
+      if (opt) sel.value = forceModel;
+    }
+  } else {
+    sel.innerHTML = '<option value="">— sem modelos —</option>';
+  }
+}
+
+function acpCharChart() {
+  if (acpAgent) openCharacterModal(acpAgent.chatKey);
+}
+
+function acpOpenChat() {
+  const a = acpAgent;
+  closeModal('modal-acp');
+  if (!a) return;
+  const prov = document.getElementById('acp-provider').value || a.providerID || document.getElementById('dp-provider').value;
+  const mod  = document.getElementById('acp-model').value    || a.modelID    || document.getElementById('dp-model').value;
+  openChat(a.chatKey, prov, mod);
+}
+
+async function acpStop() {
+  if (!acpAgent) return;
+  await fetch(`${API}/stop/${encodeURIComponent(acpAgent.chatKey)}`, { method: 'POST' });
+}
+
+async function acpSave() {
+  if (!acpAgent) return;
+  const soulVal    = document.getElementById('acp-soul-sel')?.value || null;
+  const skillsVal  = acpGetSelectedSkills();
+  await fetch(`${API}/hive/agents/${encodeURIComponent(acpAgent.id)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      status:     document.getElementById('acp-status').value,
+      domain:     document.getElementById('acp-domain').value,
+      providerID: document.getElementById('acp-provider').value,
+      modelID:    document.getElementById('acp-model').value,
+      soul:       soulVal ? `souls/${soulVal}.yaml` : null,
+      skills:     skillsVal,
+    }),
+  });
+  closeModal('modal-acp');
+  await loadData();
+}
+
+async function acpTerminate() {
+  if (!acpAgent || acpAgent.type === 'native') return;
+  await fetch(`${API}/hive/agents/${encodeURIComponent(acpAgent.id)}`, { method: 'DELETE' });
+  closeModal('modal-acp');
+  await loadData();
+}
+
+// ── ACP Soul + Skills ────────────────────────────────────────────────────────
+
+function acpPopulateSouls(currentSoul) {
+  const sel = document.getElementById('acp-soul-sel');
+  if (!sel) return;
+  const soulKeys = Object.keys(soulsData);
+  sel.innerHTML = '<option value="">— nenhuma —</option>' +
+    soulKeys.map(k => {
+      const s = soulsData[k];
+      const label = s.display ?? k;
+      // currentSoul can be "souls/kilo-native.yaml" or "kilo-native"
+      const normalized = (currentSoul ?? '').replace(/^souls\//, '').replace(/\.yaml$/, '');
+      return `<option value="${esc(k)}" ${k === normalized ? 'selected' : ''}>${esc(label)}</option>`;
+    }).join('');
+  acpSoulChanged();
+}
+
+function acpSoulChanged() {
+  const sel    = document.getElementById('acp-soul-sel');
+  const key    = sel?.value;
+  const soul   = key ? (soulsData[key] ?? null) : null;
+  const textEl = document.getElementById('acp-soul-text');
+  if (!textEl) return;
+  if (soul) {
+    let preview = `${soul.display ?? soul.name}\n\n`;
+    if (soul.persona)                             preview += `PERSONA:\n${soul.persona.trim()}\n\n`;
+    if (soul.directives?.length)                  preview += `DIRETIVAS:\n${soul.directives.map(d => `- ${d}`).join('\n')}\n\n`;
+    if (soul.restrictions?.length)                preview += `RESTRIÇÕES:\n${soul.restrictions.map(r => `- ${r}`).join('\n')}\n\n`;
+    if (soul.tone)                                preview += `TOM: ${soul.tone}\n`;
+    if (soul.suggested_skills?.length)            preview += `\nSugestão de skills: ${soul.suggested_skills.join(', ')}\n`;
+    textEl.value = preview.trim();
+  } else {
+    textEl.value = '';
+  }
+}
+
+function acpToggleSoulEditor() {
+  const editor = document.getElementById('acp-soul-editor');
+  const btn    = document.getElementById('acp-soul-edit-btn');
+  if (!editor) return;
+  const open = editor.style.display !== 'none';
+  editor.style.display = open ? 'none' : '';
+  btn.textContent = open ? '✏ ver' : '▲ ocultar';
+}
+
+function acpPopulateSkills(agentSkills) {
+  const container = document.getElementById('acp-skills-list');
+  if (!container) return;
+  const active = new Set(Array.isArray(agentSkills) ? agentSkills : []);
+  const skillKeys = Object.keys(skillsData).sort();
+  container.innerHTML = skillKeys.map(k => {
+    const s = skillsData[k];
+    const on = active.has(k);
+    return `<span class="acp-skill-chip ${on ? 'active' : ''}" data-skill="${esc(k)}" onclick="acpToggleSkill(this,'${esc(k)}')" title="${esc(s.description ?? '')}">
+      ${on ? '✓' : '○'} ${esc(s.display ?? k)}
+    </span>`;
+  }).join('');
+}
+
+function acpToggleSkill(el, skillName) {
+  el.classList.toggle('active');
+  const on = el.classList.contains('active');
+  el.innerHTML = `${on ? '✓' : '○'} ${esc(skillsData[skillName]?.display ?? skillName)}`;
+}
+
+function acpGetSelectedSkills() {
+  return Array.from(document.querySelectorAll('#acp-skills-list .acp-skill-chip.active'))
+    .map(el => el.dataset.skill);
+}
+
+// ── Spawn Zambia ─────────────────────────────────────────────────────────────
+
+function openSpawnModal() {
+  // Populate soul select
+  const soulSel = document.getElementById('sp-soul');
+  soulSel.innerHTML = '<option value="">— nenhuma —</option>' +
+    Object.entries(soulsData).map(([k,s]) =>
+      `<option value="${esc(k)}">${esc(s.display ?? k)}</option>`
+    ).join('');
+
+  // Populate parent select
+  const parentSel = document.getElementById('sp-parent');
+  parentSel.innerHTML = '<option value="">— sem parent —</option>' +
+    hiveAgents.map(a =>
+      `<option value="${esc(a.id)}">${esc(a.name ?? a.chatKey)} (${a.type})</option>`
+    ).join('');
+
+  // Populate provider select
+  const provSel = document.getElementById('sp-provider');
+  provSel.innerHTML = providersData.map(p =>
+    `<option value="${esc(p.id)}">${esc(p.displayName)}</option>`
+  ).join('');
+  spProvChanged();
+
+  // Populate skills
+  const container = document.getElementById('sp-skills-list');
+  container.innerHTML = Object.keys(skillsData).sort().map(k => {
+    const s = skillsData[k];
+    return `<span class="acp-skill-chip" data-skill="${esc(k)}" onclick="spToggleSkill(this,'${esc(k)}')" title="${esc(s.description ?? '')}">○ ${esc(s.display ?? k)}</span>`;
+  }).join('');
+
+  // Reset fields
+  document.getElementById('sp-name').value    = '';
+  document.getElementById('sp-mission').value = '';
+  document.getElementById('sp-autostart').checked = true;
+  document.getElementById('sp-autoclose').checked = false;
+
+  document.getElementById('modal-spawn').classList.add('open');
+}
+
+function spProvChanged() {
+  const provId = document.getElementById('sp-provider').value;
+  const prov   = providersData.find(p => p.id === provId);
+  const sel    = document.getElementById('sp-model');
+  if (prov && prov.models.length > 0) {
+    sel.innerHTML = prov.models.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
+  } else {
+    sel.innerHTML = '<option value="">— sem modelos —</option>';
+  }
+}
+
+function spToggleSkill(el, skillName) {
+  el.classList.toggle('active');
+  const on = el.classList.contains('active');
+  el.innerHTML = `${on ? '✓' : '○'} ${esc(skillsData[skillName]?.display ?? skillName)}`;
+}
+
+async function spawnZambia() {
+  const mission = document.getElementById('sp-mission').value.trim();
+  if (!mission) { alert('A missão é obrigatória.'); return; }
+
+  const soulKey  = document.getElementById('sp-soul').value;
+  const soulFile = soulKey ? `souls/${soulKey}.yaml` : null;
+  const skills   = Array.from(document.querySelectorAll('#sp-skills-list .acp-skill-chip.active'))
+    .map(el => el.dataset.skill);
+  const nameVal  = document.getElementById('sp-name').value.trim();
+  const parentId = document.getElementById('sp-parent').value || null;
+  const chatKey  = `agt-${Date.now().toString(36)}`;
+
+  const body = {
+    name:       nameVal || `Zambia-${chatKey.slice(-6)}`,
+    type:       'zambia',
+    chatKey,
+    parent:     parentId,
+    soul:       soulFile,
+    skills,
+    mission,
+    domain:     document.getElementById('sp-domain').value,
+    providerID: document.getElementById('sp-provider').value || null,
+    modelID:    document.getElementById('sp-model').value    || null,
+    auto_close: document.getElementById('sp-autoclose').checked,
+  };
+
+  try {
+    const agt = await fetch(`${API}/hive/agents`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(r => r.json());
+
+    closeModal('modal-spawn');
+    await loadData();
+
+    // Auto-activate: inject context via first dummy message
+    if (document.getElementById('sp-autostart').checked && agt.providerID && agt.modelID) {
+      // Activate session (creates Kilo session + injects soul+skills context)
+      try {
+        await fetch(`${API}/hive/agents/${agt.id}/activate`, { method: 'POST' });
+      } catch {}
+      // Open chat
+      openChat(agt.chatKey, agt.providerID, agt.modelID);
+    }
+  } catch (e) {
+    alert(`Erro ao spawnar Zambia: ${e.message}`);
+  }
+}
+
+// ── Render legacy agents (still used for agentRoute building) ─────────────────
+
+// Renderiza painel esquerdo com agentes Kilo nativos (code, plan, debug, orchestrator, ask)
+function renderAgents(kiloAgents, tasks) {
+  const agentActive = {};
+  tasks.filter(t => t.status === 'in_progress').forEach(t => {
+    const agentName = matrixMap[t.domain]?.agent;
+    if (agentName && !agentActive[agentName]) agentActive[agentName] = t;
+  });
+
+  // Pega provider/model do primeiro domain que use cada agente (para o chat)
+  const agentRoute = {};
+  Object.entries(matrixMap).forEach(([dom, route]) => {
+    if (route.agent && !agentRoute[route.agent]) agentRoute[route.agent] = route;
+  });
+
+  document.getElementById('agent-count').textContent = kiloAgents.length;
+  document.getElementById('agent-list').innerHTML = kiloAgents.map(a => {
+    const active = agentActive[a.name];
+    const route  = agentRoute[a.name] ?? {};
+    const prov   = esc(route.providerID ?? '');
+    const mod    = esc(route.modelID ?? '');
+    const hasChar = !!charactersData[a.name];
+    return `
+    <div class="agent-card ${active ? 'active' : ''}"
+         onclick="openChat('${esc(a.name)}','${prov}','${mod}')">
+      ${hasChar ? `<button class="agent-char-btn" onclick="event.stopPropagation();openCharacterModal('${esc(a.name)}')" title="Character Chart">§</button>` : ''}
+      <div class="agent-domain">${esc(a.name)}</div>
+      <div class="agent-desc">${esc(a.description || '')}</div>
+      ${active
+        ? `<div class="agent-task-badge">▶ #${active.id} ${esc(active.title.slice(0,26))}</div>`
+        : `<div class="agent-idle">— idle · clique p/ chat</div>`}
+    </div>`;
+  }).join('');
+}
+
+// Atualiza indicador ao vivo num card do kanban
+function setKanbanLive(taskId, text) {
+  if (!taskId) return;
+  const card = document.querySelector(`[data-taskid="${taskId}"]`);
+  if (!card) return;
+  let live = card.querySelector('.task-live');
+  if (text === null) { live?.remove(); return; }
+  if (!live) {
+    live = document.createElement('div');
+    live.className = 'task-live';
+    live.style.cssText = 'font-family:JetBrains Mono,monospace;font-size:9px;color:var(--accent-gold);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:pulse 1.2s infinite';
+    card.appendChild(live);
+  }
+  live.textContent = text;
+}
+
+function renderKanban(tasks) {
+  document.getElementById('task-count').textContent =
+    `${tasks.length} task${tasks.length !== 1 ? 's' : ''}`;
+  const cols = {};
+  STATUSES.forEach(s => cols[s] = []);
+  tasks.forEach(t => {
+    (cols[t.status] ?? cols.pending).push(t);
+    tasksCache[t.id] = t;   // popula cache para drag/ctx/delete
+  });
+  // Sync selectedKanbanTask with latest data
+  if (selectedKanbanTask) {
+    const latest = tasks.find(t => t.id === selectedKanbanTask.id);
+    if (latest) selectedKanbanTask = latest;
+  }
+  document.getElementById('kanban-board').innerHTML = STATUSES.map(s => `
+    <div class="k-col"
+         ondragover="onDragOver(event)"
+         ondragenter="onDragEnter(event)"
+         ondragleave="onDragLeave(event)"
+         ondrop="onDrop(event,'${s}')">
+      <div class="k-col-hdr">
+        ${s.replace('_',' ')}
+        <span class="k-col-count">${cols[s].length}</span>
+      </div>
+      ${cols[s].map(t => `
+        <div class="task-card" data-taskid="${t.id}"
+             draggable="true"
+             ondragstart="onDragStart(event,'${t.id}')"
+             ondragend="onDragEnd(event)"
+             onclick='handleTaskClick(${JSON.stringify(t).replace(/'/g,"&#39;")})'
+             oncontextmenu="onCardContextMenu(event,'${t.id}')">
+          <button class="task-del-btn" onclick="event.stopPropagation();confirmDeleteTask('${t.id}')" title="Excluir task">✕</button>
+          <div class="task-id">#${t.id} ${t.chatKey ? '💬' : ''}</div>
+          <div class="task-title">${esc(t.title)}</div>
+          <div class="task-tags">
+            <span class="tag tag-domain">${t.domain}</span>
+            <span class="tag tag-${t.priority}">${t.priority}</span>
+            ${KILO_AGENTS.has(t.agent) ? `<span class="tag" style="background:rgba(196,214,107,0.15);color:var(--accent-lime)">${t.agent}</span>` : ''}
+          </div>
+          ${t.status === 'in_progress' ? `<div class="task-live" style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--accent-gold);margin-top:4px;animation:pulse 1.2s infinite">● processando...</div>` : ''}
+        </div>`).join('')}
+    </div>`).join('');
+  // Re-apply selected highlight
+  if (selectedKanbanTask) {
+    document.querySelector(`[data-taskid="${selectedKanbanTask.id}"]`)?.classList.add('selected');
+  }
+}
+
+function renderEvents(events) {
+  document.getElementById('event-count').textContent = events.length;
+  document.getElementById('event-feed').innerHTML = events.map(evRow).join('');
+}
+
+function prependEvent(e) {
+  const feed = document.getElementById('event-feed');
+  const div = document.createElement('div');
+  div.innerHTML = evRow(e);
+  const row = div.firstElementChild;
+  row.classList.add('flash');
+  feed.prepend(row);
+  document.getElementById('event-count').textContent = feed.querySelectorAll('.ev-row').length;
+}
+
+function evRow(e) {
+  if (e.ts) evData.set(e.ts, e);
+  const parts = [];
+  if (e.task_id)  parts.push(`#${e.task_id}`);
+  if (e.agent)    parts.push(`[${e.agent}]`);
+  if (e.providerID && e.modelID) parts.push(`${e.providerID}/${e.modelID}`);
+  else if (e.provider && e.model) parts.push(`${e.provider}/${e.model}`);
+  if (e.outcome)  parts.push(`→ ${e.outcome}`);
+  if (e.error)    parts.push(`err: ${e.error}`);
+  if (e.latency_ms) parts.push(`${e.latency_ms}ms`);
+  if (e.pid)      parts.push(`pid:${e.pid}`);
+  const tsKey = esc(e.ts ?? '');
+  return `<div class="ev-row" data-ts="${tsKey}" onclick="openEventModal('${tsKey}')">
+    <div class="ev-meta">
+      <span class="ev-ts">${fmtTs(e.ts)}</span>
+      <span class="ev-type">${esc(e.event ?? '?')}</span>
+    </div>
+    <div class="ev-detail">${esc(parts.join('  ') || JSON.stringify(e).slice(0,70))}</div>
+  </div>`;
+}
+
+// ── Bulletin Board ────────────────────────────────────────────────────────────
+
+let bbMessages = [];
+
+async function bbLoad() {
+  const topic = document.getElementById('bb-filter-topic')?.value ?? '';
+  const from  = document.getElementById('bb-filter-from')?.value.trim() ?? '';
+  let url = `${API}/bus?n=100`;
+  if (topic) url += `&topic=${encodeURIComponent(topic)}`;
+  if (from)  url += `&from=${encodeURIComponent(from)}`;
+  try {
+    bbMessages = await fetch(url).then(r => r.json());
+    renderBulletin(bbMessages);
+  } catch {}
+}
+
+function renderBulletin(msgs) {
+  const feed = document.getElementById('bb-feed');
+  if (!feed) return;
+  document.getElementById('bb-count').textContent = msgs.length;
+  if (!msgs.length) {
+    feed.innerHTML = '<div style="padding:16px;text-align:center;font-size:10px;color:var(--text-muted)">Nenhuma mensagem no bus.</div>';
+    return;
+  }
+  feed.innerHTML = msgs.map(m => bbMsgCard(m)).join('');
+}
+
+function bbTopicClass(topic) {
+  const map = {
+    orchestration:'bb-topic-orchestration', debug:'bb-topic-debug',
+    brainstorm:'bb-topic-brainstorm', 'task-result':'bb-topic-task-result',
+    'request-skill':'bb-topic-request-skill', 'request-agent':'bb-topic-request-agent',
+    heartbeat:'bb-topic-heartbeat', memory:'bb-topic-memory', alert:'bb-topic-alert',
+  };
+  return map[topic] ?? 'bb-topic-default';
+}
+
+function bbMsgCard(m) {
+  const rCount = Array.isArray(m.replies) ? m.replies.length : 0;
+  const replyHtml = rCount > 0 ? m.replies.map(r => `
+    <div class="bb-reply-item">
+      <div class="bb-reply-hdr">
+        <span class="bb-reply-from">${esc(r.from)}</span>
+        <span class="bb-reply-ts">${fmtTs(r.ts)}</span>
+      </div>
+      <div class="bb-reply-text">${esc(r.content)}</div>
+    </div>`).join('') : '';
+
+  return `<div class="bb-msg${m.thread ? ' has-thread' : ''}" data-msgid="${esc(m.id)}">
+    <div class="bb-msg-hdr">
+      <span class="bb-topic ${bbTopicClass(m.topic)}">${esc(m.topic)}</span>
+      <span class="bb-from">${esc(m.from)}</span>
+      ${m.to && m.to !== 'broadcast' ? `<span class="bb-arrow">→</span><span class="bb-to">${esc(m.to)}</span>` : ''}
+      <span class="bb-ts">${fmtTs(m.ts)}</span>
+    </div>
+    <div class="bb-content" id="bbc-${esc(m.id)}" onclick="bbToggleExpand('${esc(m.id)}')">${esc(m.content)}</div>
+    <div class="bb-footer">
+      <span class="bb-reply-count${rCount ? ' has-replies' : ''}" onclick="bbToggleReplies('${esc(m.id)}')">${rCount ? `▸ ${rCount} resposta${rCount>1?'s':''}` : '0 respostas'}</span>
+      <button class="btn" onclick="bbOpenReply('${esc(m.id)}')" style="padding:1px 6px;font-size:8px">↩ reply</button>
+      <button class="btn btn-red" onclick="bbDelete('${esc(m.id)}')" style="padding:1px 6px;font-size:8px">✕</button>
+    </div>
+    ${rCount ? `<div class="bb-replies" id="bbr-${esc(m.id)}">${replyHtml}</div>` : ''}
+  </div>`;
+}
+
+function bbToggleExpand(msgId) {
+  const el = document.getElementById(`bbc-${msgId}`);
+  if (el) el.classList.toggle('expanded');
+}
+
+function bbToggleReplies(msgId) {
+  const el = document.getElementById(`bbr-${msgId}`);
+  if (el) el.classList.toggle('open');
+}
+
+function bbToggleCompose(replyTo) {
+  const compose = document.getElementById('bb-compose');
+  const isHidden = compose.classList.contains('hidden');
+  compose.classList.toggle('hidden');
+  if (isHidden) {
+    document.getElementById('bb-thread').value = replyTo ?? '';
+    document.getElementById('bb-content').focus();
+  }
+}
+
+function bbOpenReply(msgId) {
+  bbToggleCompose(msgId);
+}
+
+async function bbPost() {
+  const content = document.getElementById('bb-content').value.trim();
+  if (!content) return;
+  const payload = {
+    from:    document.getElementById('bb-from').value.trim() || 'human',
+    to:      document.getElementById('bb-to').value.trim() || 'broadcast',
+    topic:   document.getElementById('bb-topic').value,
+    thread:  document.getElementById('bb-thread').value.trim() || null,
+    content,
+  };
+  try {
+    await fetch(`${API}/bus`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    document.getElementById('bb-content').value = '';
+    document.getElementById('bb-thread').value  = '';
+    document.getElementById('bb-compose').classList.add('hidden');
+    await bbLoad();
+  } catch (e) {
+    alert(`Erro ao postar: ${e.message}`);
+  }
+}
+
+async function bbDelete(msgId) {
+  if (!confirm('Excluir mensagem do bus?')) return;
+  await fetch(`${API}/bus/${msgId}`, { method: 'DELETE' }).catch(() => {});
+  await bbLoad();
+}
+
+function bbPrepend(msg) {
+  const feed = document.getElementById('bb-feed');
+  if (!feed) return;
+  // If empty state, clear it
+  if (feed.querySelector('div[style]') && !feed.querySelector('.bb-msg')) {
+    feed.innerHTML = '';
+  }
+  const div = document.createElement('div');
+  div.innerHTML = bbMsgCard(msg);
+  const card = div.firstElementChild;
+  card.classList.add('flash');
+  feed.prepend(card);
+  const cnt = document.getElementById('bb-count');
+  cnt.textContent = (parseInt(cnt.textContent) || 0) + 1;
+}
+
+// ── Dispatch form setup ───────────────────────────────────────────────────────
+
+function populateAgentSelect(kiloAgents) {
+  const sel = document.getElementById('dp-agent');
+  sel.innerHTML = kiloAgents.map(a =>
+    `<option value="${esc(a.name)}" title="${esc(a.description)}">${esc(a.name)}</option>`
+  ).join('');
+}
+
+function populateMatrixDomains(matrixAgents) {
+  const sel = document.getElementById('dp-domain');
+  matrixMap = {};
+  matrixAgents.forEach(a => {
+    matrixMap[a.domain] = { agent: a.agent, providerID: a.providerID, modelID: a.modelID };
+  });
+  sel.innerHTML = matrixAgents.map(a => `<option value="${a.domain}">${a.domain}</option>`).join('');
+}
+
+function populateProviders(providers) {
+  providersData = providers;
+  const sel = document.getElementById('dp-provider');
+  sel.innerHTML = providers.map(p =>
+    `<option value="${esc(p.id)}">${esc(p.displayName)}</option>`
+  ).join('');
+  if (providers.length > 0) providerChanged();
+}
+
+// Chamado quando muda o provider → atualiza o select de modelos
+function providerChanged() {
+  const provId = document.getElementById('dp-provider').value;
+  const prov   = providersData.find(p => p.id === provId);
+  const sel    = document.getElementById('dp-model');
+  if (prov && prov.models.length > 0) {
+    sel.innerHTML = prov.models.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
+  } else {
+    sel.innerHTML = '<option value="">— sem modelos —</option>';
+  }
+}
+
+// Chamado quando muda o domain → auto-fill agent + provider + model
+function domainChanged() {
+  const domain = document.getElementById('dp-domain').value;
+  const route  = matrixMap[domain];
+  if (!route) return;
+  if (route.agent) document.getElementById('dp-agent').value = route.agent;
+  if (route.providerID) {
+    document.getElementById('dp-provider').value = route.providerID;
+    providerChanged(); // recarrega modelos do provider
+  }
+  if (route.modelID) {
+    // Tenta selecionar o model após recarregar
+    const sel = document.getElementById('dp-model');
+    const opt = Array.from(sel.options).find(o => o.value === route.modelID);
+    if (opt) sel.value = route.modelID;
+  }
+}
+
+// Click no card do agente Kilo → preenche só dp-agent
+function agentFill(agentName) {
+  document.getElementById('dp-agent').value = agentName;
+  document.getElementById('dp-prompt').focus();
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+
+async function addTask() {
+  const title = document.getElementById('inp-title').value.trim();
+  if (!title) return;
+  await fetch(`${API}/tasks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title,
+      domain:   document.getElementById('inp-domain').value,
+      priority: document.getElementById('inp-priority').value,
+    }),
+  });
+  document.getElementById('inp-title').value = '';
+  await loadData();
+}
+
+async function dispatchManual() {
+  const prompt     = document.getElementById('dp-prompt').value.trim();
+  const providerID = document.getElementById('dp-provider').value;
+  const modelID    = document.getElementById('dp-model').value;
+  const domain     = document.getElementById('dp-domain').value;
+  const agent      = document.getElementById('dp-agent').value;
+  if (!prompt) return;
+
+  document.getElementById('dp-btn').disabled = true;
+  document.getElementById('dp-status').textContent = 'dispatching...';
+  document.getElementById('md-result').textContent = 'aguardando resposta do modelo...';
+  document.getElementById('md-meta').textContent = `[${agent}] ${providerID} / ${modelID}`;
+  document.getElementById('modal-dispatch').classList.add('open');
+
+  await fetch(`${API}/dispatch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, providerID, modelID, domain, agent }),
+  });
+  document.getElementById('dp-prompt').value = '';
+}
+
+function openTaskModal(task) {
+  selectedTask = task;
+  document.getElementById('mt-title').textContent = `#${task.id} — ${task.title}`;
+  document.getElementById('mt-sub').textContent   =
+    `${task.domain}  |  ${task.priority}  |  criado: ${fmtTs(task.created)}`;
+  document.getElementById('mt-status').value = task.status;
+  const pre = document.getElementById('mt-result');
+  if (task.result) { pre.textContent = task.result; pre.style.display = 'block'; }
+  else pre.style.display = 'none';
+  document.getElementById('modal-task').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-task') selectedTask = null;
+}
+
+async function moveTask() {
+  if (!selectedTask) return;
+  await fetch(`${API}/tasks/${selectedTask.id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: document.getElementById('mt-status').value }),
+  });
+  closeModal('modal-task');
+  await loadData();
+}
+
+async function removeTask() {
+  if (!selectedTask) return;
+  await fetch(`${API}/tasks/${selectedTask.id}`, { method: 'DELETE' });
+  closeModal('modal-task');
+  await loadData();
+}
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+async function loadData() {
+  const [tasks, matrixAgents, events, kiloAgents, providers, chars, hive, skills, souls] = await Promise.all([
+    fetch(`${API}/tasks`).then(r => r.json()).catch(() => []),
+    fetch(`${API}/matrix`).then(r => r.json()).catch(() => []),
+    fetch(`${API}/events?n=80`).then(r => r.json()).catch(() => []),
+    fetch(`${API}/agents`).then(r => r.json()).catch(() => []),
+    fetch(`${API}/providers`).then(r => r.json()).catch(() => []),
+    fetch(`${API}/characters`).then(r => r.json()).catch(() => ({})),
+    fetch(`${API}/hive/agents`).then(r => r.json()).catch(() => []),
+    fetch(`${API}/skills`).then(r => r.json()).catch(() => ({})),
+    fetch(`${API}/souls`).then(r => r.json()).catch(() => ({})),
+  ]);
+  if (chars   && typeof chars === 'object')   charactersData = chars;
+  if (skills  && typeof skills === 'object')  skillsData = skills;
+  if (souls   && typeof souls === 'object')   soulsData = souls;
+  if (Array.isArray(hive)) hiveAgents = hive;
+
+  const t = Array.isArray(tasks)        ? tasks        : [];
+  const m = Array.isArray(matrixAgents) ? matrixAgents : [];
+  const e = Array.isArray(events)       ? events       : [];
+  const k = Array.isArray(kiloAgents)   ? kiloAgents   : [];
+  const p = Array.isArray(providers)    ? providers     : [];
+
+  // Popula formulário de dispatch na primeira carga ou quando dados chegarem
+  if (!initialized && (m.length > 0 || k.length > 0 || p.length > 0)) {
+    if (m.length > 0) populateMatrixDomains(m);
+    if (k.length > 0) populateAgentSelect(k);
+    if (p.length > 0) populateProviders(p);
+    // Auto-fill com o primeiro domain
+    if (m.length > 0) domainChanged();
+    initialized = true;
+  }
+
+  renderStats(t, k, e);
+  renderHivePanel(hiveAgents.length ? hiveAgents : k.map(a => ({ id: `agt-${a.name}-native`, name: a.name, type: 'native', status: 'idle', chatKey: a.name, domain: '', stats: { messages_sent: 0 } })), t);
+  renderKanban(t);
+  renderEvents(e);
+  bbLoad();
+}
+
+async function loadState() {
+  const s = await fetch(`${API}/state`).then(r => r.json()).catch(() => ({}));
+  renderChips(s);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function setDot(id, s) { document.getElementById(id).className = `dot dot-${s}`; }
+
+function fmtTs(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleTimeString('pt-BR') + ' ' +
+         d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Event listeners ───────────────────────────────────────────────────────────
+
+document.getElementById('modal-task').addEventListener('click',     e => { if (e.target === e.currentTarget) closeModal('modal-task'); });
+document.getElementById('modal-dispatch').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('modal-dispatch'); });
+document.getElementById('modal-event').addEventListener('click',    e => { if (e.target === e.currentTarget) closeModal('modal-event'); });
+document.getElementById('modal-auth').addEventListener('click',      e => { if (e.target === e.currentTarget) closeModal('modal-auth'); });
+document.getElementById('modal-character').addEventListener('click',    e => { if (e.target === e.currentTarget) closeModal('modal-character'); });
+document.getElementById('modal-task-preview').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('modal-task-preview'); });
+document.getElementById('modal-acp').addEventListener('click',          e => { if (e.target === e.currentTarget) closeModal('modal-acp'); });
+document.getElementById('modal-spawn').addEventListener('click',        e => { if (e.target === e.currentTarget) closeModal('modal-spawn'); });
+document.addEventListener('click',      () => hideCtxMenu());
+document.addEventListener('keydown',    e => { if (e.key === 'Escape') { hideCtxMenu(); cancelDelete(); closeModal('modal-task-preview'); } });
+document.addEventListener('contextmenu', e => { if (!e.target.closest('[data-taskid]')) hideCtxMenu(); });
+document.getElementById('chat-overlay').addEventListener('click',   e => { if (e.target === e.currentTarget) closeChat(); });
+document.getElementById('inp-title').addEventListener('keydown',    e => { if (e.key === 'Enter') addTask(); });
+document.getElementById('dp-prompt').addEventListener('keydown',    e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) dispatchManual(); });
+document.getElementById('chat-input').addEventListener('keydown',   e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendChatMessage(); } });
+document.getElementById('chat-input').addEventListener('paste',     e => handleChatPaste(e));
+
+// ── Chat ─────────────────────────────────────────────────────────────────────
+
+let activeChatKey   = null;
+let chatActive      = false;   // se há request em andamento
+let chatQueue       = [];      // msgs pendentes na fila
+let chatAttachments = [];      // [{name, dataURL, type, mimeType}] pendentes
+
+function openChat(agentName, providerID, modelID) {
+  activeChatKey = agentName;
+  chatState = { agentName, providerID: providerID || '', modelID: modelID || '' };
+  document.getElementById('chat-agent-label').textContent = agentName.toUpperCase();
+  // Populate provider select
+  const provSel = document.getElementById('chat-prov');
+  provSel.innerHTML = providersData.map(p =>
+    `<option value="${esc(p.id)}" ${p.id === providerID ? 'selected' : ''}>${esc(p.displayName)}</option>`
+  ).join('');
+  chatProvChanged(providerID, modelID);
+  document.getElementById('chat-overlay').classList.add('open');
+  document.getElementById('chat-messages').innerHTML = '';
+  chatQueue = [];
+  chatAttachments = [];
+  chatActive = false;
+  updateChatDot('idle');
+  updateQueueBar();
+  renderAttachPreviews();
+  // Carrega histórico
+  fetch(`${API}/chat/${encodeURIComponent(agentName)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.messages?.length) {
+        data.messages.forEach(m => appendChatBubble(m.role, m.text, m.parts, m.ts));
+        scrollChatBottom();
+      }
+      if (data.active) { chatActive = true; updateChatDot('think'); }
+    })
+    .catch(() => {});
+}
+
+function closeChat() {
+  document.getElementById('chat-overlay').classList.remove('open');
+  activeChatKey = null;
+}
+
+// Chamado quando muda o provider no chat header
+function chatProvChanged(forceProvider, forceModel) {
+  const provId = forceProvider != null ? forceProvider : document.getElementById('chat-prov').value;
+  const prov   = providersData.find(p => p.id === provId);
+  const sel    = document.getElementById('chat-mod');
+  if (prov && prov.models.length > 0) {
+    sel.innerHTML = prov.models.map(m =>
+      `<option value="${esc(m)}">${esc(m)}</option>`
+    ).join('');
+    if (forceModel) {
+      const opt = Array.from(sel.options).find(o => o.value === forceModel);
+      if (opt) sel.value = forceModel;
+    }
+  } else {
+    sel.innerHTML = '<option value="">— sem modelos —</option>';
+  }
+  chatState.providerID = document.getElementById('chat-prov').value;
+  chatState.modelID    = sel.value;
+}
+
+function updateChatDot(state) {
+  // state: 'idle' | 'think' | 'err'
+  const dot = document.getElementById('chat-dot');
+  dot.className = `chat-status-dot ${state}`;
+}
+
+async function sendChatMessage() {
+  if (!activeChatKey) return;
+  const inp  = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text && chatAttachments.length === 0) return;
+
+  // Monta parts multimodal
+  const parts = [];
+  for (const att of chatAttachments) {
+    if (att.type === 'image') {
+      parts.push({ type: 'image_url', image_url: { url: att.dataURL } });
+    } else if (att.type === 'video') {
+      parts.push({ type: 'video_url', video_url: { url: att.dataURL } });
+    } else {
+      // texto/código: adicionar ao texto principal
+    }
+  }
+  if (text) parts.push({ type: 'text', text });
+
+  // Se chat já ativo, enfileirar
+  if (chatActive) {
+    chatQueue.push({ text, parts: parts.length > 0 ? parts : null });
+    inp.value = '';
+    chatAttachments = [];
+    renderAttachPreviews();
+    updateQueueBar();
+    return;
+  }
+
+  // Pegar provider/model dos selects do header
+  const providerID = document.getElementById('chat-prov').value || chatState.providerID;
+  const modelID    = document.getElementById('chat-mod').value  || chatState.modelID;
+
+  inp.value = '';
+  chatAttachments = [];
+  renderAttachPreviews();
+
+  chatActive = true;
+  updateChatDot('think');
+
+  await fetch(`${API}/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chatKey:    activeChatKey,
+      providerID, modelID,
+      agent:      activeChatKey,
+      text,
+      parts:      parts.length > 1 || chatAttachments.length > 0 ? parts : null,
+    }),
+  });
+}
+
+async function stopChat() {
+  if (!activeChatKey) return;
+  await fetch(`${API}/stop/${encodeURIComponent(activeChatKey)}`, { method: 'POST' });
+}
+
+function appendChatBubble(role, text, parts, ts) {
+  const feed  = document.getElementById('chat-messages');
+  const div   = document.createElement('div');
+  div.className = `chat-bubble ${role === 'user' ? 'user' : 'agent'}`;
+
+  // Imagens
+  let imgHtml = '';
+  if (Array.isArray(parts)) {
+    for (const p of parts) {
+      if (p.type === 'image_url' && p.image_url?.url) {
+        imgHtml += `<img class="chat-bubble-img" src="${p.image_url.url}" alt="img">`;
+      }
+    }
+  }
+
+  div.innerHTML = `
+    <div class="chat-bubble-meta">${role === 'user' ? 'você' : role} · ${fmtTs(ts)}</div>
+    ${imgHtml}
+    <div class="chat-bubble-body">${esc(text ?? '')}</div>`;
+
+  // Detecta se precisa de autorização
+  if (role === 'agent' && needsAuth(text)) {
+    div.insertAdjacentHTML('beforeend', authBannerHtml(text));
+    showAuthModal(text);
+  }
+  feed.appendChild(div);
+  scrollChatBottom();
+}
+
+function appendThinkingBubble() {
+  const feed = document.getElementById('chat-messages');
+  const div  = document.createElement('div');
+  div.id = 'chat-thinking';
+  div.className = 'chat-thinking-bubble';
+  div.textContent = '● aguardando resposta...';
+  feed.appendChild(div);
+  scrollChatBottom();
+}
+
+function removeThinkingBubble() {
+  document.getElementById('chat-thinking')?.remove();
+}
+
+function scrollChatBottom() {
+  const feed = document.getElementById('chat-messages');
+  feed.scrollTop = feed.scrollHeight;
+}
+
+// Detect se resposta pede autorização
+function needsAuth(text) {
+  if (!text) return false;
+  const t = text.toLowerCase();
+  return t.includes('autorização_requerida:') ||
+    t.includes('authorization_required:') ||
+    (/\?$/.test(text.trim()) && (t.includes('posso') || t.includes('devo') || t.includes('autorize') || t.includes('pode')));
+}
+
+function authBannerHtml(text) {
+  const escaped = esc(text.trim());
+  return `<div class="chat-auth-banner">
+    <span class="chat-auth-text">⚠ Autorização solicitada</span>
+    <button class="btn btn-lime" onclick="chatAuthorize(true)"  style="font-size:9px;padding:2px 8px">✓ Autorizar</button>
+    <button class="btn btn-red"  onclick="chatAuthorize(false)" style="font-size:9px;padding:2px 8px">✗ Recusar</button>
+  </div>`;
+}
+
+async function chatAuthorize(approved) {
+  closeModal('modal-auth');
+  const msg = approved ? 'Sim, pode prosseguir.' : 'Não, cancele a operação.';
+  document.getElementById('chat-input').value = msg;
+  await sendChatMessage();
+}
+
+function showAuthModal(text) {
+  document.getElementById('ma-body').textContent = text ?? '';
+  document.getElementById('modal-auth').classList.add('open');
+}
+
+// ── Attachments ─────────────────────────────────────────────────────────────
+
+function triggerFileAttach() {
+  document.getElementById('chat-file-input').click();
+}
+
+function handleFileSelect(ev) {
+  for (const file of ev.target.files) {
+    readFileAsAttachment(file);
+  }
+  ev.target.value = '';
+}
+
+function readFileAsAttachment(file) {
+  const isImage = file.type.startsWith('image/');
+  const isVideo = file.type.startsWith('video/');
+  const isText  = file.type.startsWith('text/') || /\.(md|json|yaml|js|ts|py|txt)$/i.test(file.name);
+
+  if (isImage || isVideo) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      chatAttachments.push({
+        name: file.name,
+        dataURL: e.target.result,
+        type: isImage ? 'image' : 'video',
+        mimeType: file.type,
+      });
+      renderAttachPreviews();
+    };
+    reader.readAsDataURL(file);
+  } else if (isText) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const inp = document.getElementById('chat-input');
+      inp.value += `\n\n[Arquivo: ${file.name}]\n${e.target.result}`;
+    };
+    reader.readAsText(file);
+  }
+}
+
+function renderAttachPreviews() {
+  const container = document.getElementById('chat-attach-previews');
+  container.innerHTML = chatAttachments.map((a, i) => `
+    <div class="attach-thumb">
+      ${a.type === 'image' ? `<img src="${a.dataURL}" alt="${esc(a.name)}">` :
+        `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);font-size:18px">🎬</div>`}
+      <span class="attach-thumb-label">${esc(a.name)}</span>
+      <span class="attach-thumb-remove" onclick="removeAttachment(${i})">✕</span>
+    </div>`).join('');
+}
+
+function removeAttachment(i) {
+  chatAttachments.splice(i, 1);
+  renderAttachPreviews();
+}
+
+// Ctrl+V para colar imagens do clipboard
+function handleChatPaste(e) {
+  const items = e.clipboardData?.items ?? [];
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      e.preventDefault();
+      const file = item.getAsFile();
+      if (file) readFileAsAttachment(file);
+    }
+  }
+}
+
+// ── Queue ─────────────────────────────────────────────────────────────────────
+
+function updateQueueBar() {
+  const bar   = document.getElementById('chat-queue-bar');
+  const label = document.getElementById('chat-queue-label');
+  const n     = chatQueue.length;
+  if (n > 0) { bar.classList.add('has-queue'); label.textContent = `Fila: ${n} msg${n>1?'s':''} pendente${n>1?'s':''}`; }
+  else        { bar.classList.remove('has-queue'); }
+  renderQueueModal();
+}
+
+function toggleQueueModal() {
+  document.getElementById('chat-queue-modal').classList.toggle('open');
+}
+
+function renderQueueModal() {
+  const modal = document.getElementById('chat-queue-modal');
+  if (!chatQueue.length) { modal.classList.remove('open'); modal.innerHTML = ''; return; }
+  modal.innerHTML = chatQueue.map((m, i) => `
+    <div class="queue-item">
+      <span>${esc(m.text.slice(0, 60) || '[attachment]')}</span>
+      <button class="btn btn-red" onclick="removeQueueItem(${i})" style="font-size:8px;padding:1px 5px">✕</button>
+    </div>`).join('');
+}
+
+function removeQueueItem(i) {
+  chatQueue.splice(i, 1);
+  updateQueueBar();
+}
+
+function clearQueue() {
+  chatQueue = [];
+  updateQueueBar();
+}
+
+// Processa próximo item da fila após resposta
+async function flushQueue() {
+  if (!chatQueue.length || !activeChatKey) return;
+  const next = chatQueue.shift();
+  updateQueueBar();
+  const providerID = document.getElementById('chat-prov').value || chatState.providerID;
+  const modelID    = document.getElementById('chat-mod').value  || chatState.modelID;
+  chatActive = true;
+  updateChatDot('think');
+  await fetch(`${API}/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chatKey: activeChatKey, providerID, modelID,
+      agent: activeChatKey, text: next.text, parts: next.parts,
+    }),
+  });
+}
+
+// ── Kanban task selection + switchboard chat mode ─────────────────────────────
+
+function handleTaskClick(task) {
+  selectKanbanTask(task);
+  openTaskPreview(task);
+}
+
+async function openTaskPreview(task) {
+  previewTask = task;
+  const char  = charactersData[task.agent];
+  const isKilo = KILO_AGENTS.has(task.agent);
+
+  // Glyph + nome
+  const glyphEl = document.getElementById('tp-glyph');
+  glyphEl.textContent  = char?.glyph ?? (isKilo ? '◈' : '●');
+  glyphEl.style.color  = char?.color ?? 'var(--accent-lime)';
+  document.getElementById('tp-agent-name').textContent   = char ? `${char.name}` : (task.agent ?? '—');
+  document.getElementById('tp-agent-name').style.color   = char?.color ?? 'var(--text-primary)';
+  document.getElementById('tp-agent-title').textContent  = char?.title ?? (task.domain ?? '');
+
+  // Badge de status
+  const STATUS_COLOR = { in_progress: 'var(--accent-lime)', blocked: 'var(--accent-red)', done: 'var(--accent-green)', review: 'var(--accent-gold)', pending: 'var(--text-muted)' };
+  const badge = document.getElementById('tp-badge');
+  badge.textContent  = task.status.replace('_',' ');
+  badge.style.color  = STATUS_COLOR[task.status] ?? 'var(--text-muted)';
+
+  // Info da task
+  document.getElementById('tp-task-id').textContent    = `#${task.id} · ${task.domain} · ${task.priority}`;
+  document.getElementById('tp-task-title').textContent = task.title;
+
+  // Provider / model
+  document.getElementById('tp-provider').textContent = task.providerID ?? '—';
+  document.getElementById('tp-model').textContent    = task.modelID    ?? '—';
+
+  // Hint de histórico (verifica se há sessão salva)
+  const histHint = document.getElementById('tp-history-hint');
+  try {
+    const hist = await fetch(`${API}/chat/${encodeURIComponent(task.agent)}`).then(r => r.json()).catch(() => null);
+    histHint.style.display = (hist?.messages?.length > 0) ? '' : 'none';
+  } catch { histHint.style.display = 'none'; }
+
+  // Botão chat (só para agentes Kilo)
+  document.getElementById('tp-chat-btn').style.display = isKilo ? '' : 'none';
+
+  document.getElementById('modal-task-preview').classList.add('open');
+}
+
+function tpOpenChat() {
+  const task = previewTask;
+  closeModal('modal-task-preview');
+  if (!task) return;
+  const prov = task.providerID || document.getElementById('dp-provider').value;
+  const mod  = task.modelID    || document.getElementById('dp-model').value;
+  openChat(task.agent, prov, mod);
+}
+
+function tpOpenDetails() {
+  const task = previewTask;
+  closeModal('modal-task-preview');
+  if (task) openTaskModal(task);
+}
+
+function selectKanbanTask(task) {
+  selectedKanbanTask = task;
+  document.querySelectorAll('.task-card.selected').forEach(c => c.classList.remove('selected'));
+  if (task) {
+    document.querySelector(`[data-taskid="${task.id}"]`)?.classList.add('selected');
+  }
+  const btn = document.getElementById('dp-chat-btn');
+  const lbl = document.getElementById('dp-target-label');
+  if (task && KILO_AGENTS.has(task.agent)) {
+    btn.style.display = '';
+    btn.textContent   = `→ ${task.agent}`;
+    lbl.textContent   = `#${task.id} selecionado`;
+  } else {
+    btn.style.display = 'none';
+    lbl.textContent   = '';
+  }
+}
+
+async function dpSendToAgent() {
+  if (!selectedKanbanTask) return;
+  const text = document.getElementById('dp-prompt').value.trim();
+  if (!text) return;
+  const task = selectedKanbanTask;
+  const prov = task.providerID || document.getElementById('dp-provider').value;
+  const mod  = task.modelID    || document.getElementById('dp-model').value;
+  document.getElementById('dp-prompt').value = '';
+  openChat(task.agent, prov, mod);
+  await new Promise(r => setTimeout(r, 80));
+  document.getElementById('chat-input').value = text;
+  sendChatMessage();
+}
+
+// ── Event modal ──────────────────────────────────────────────────────────────
+
+function openEventModal(ts) {
+  const e = evData.get(ts);
+  if (!e) return;
+  currentEventTs = ts;
+  document.getElementById('me-title').textContent = `// ${e.event ?? 'Evento'}`;
+  document.getElementById('me-sub').textContent   = fmtTs(e.ts);
+  document.getElementById('me-body').textContent  = JSON.stringify(e, null, 2);
+  document.getElementById('modal-event').classList.add('open');
+}
+
+async function deleteEvent() {
+  if (!currentEventTs) return;
+  await fetch(`${API}/events?ts=${encodeURIComponent(currentEventTs)}`, { method: 'DELETE' });
+  document.querySelectorAll('.ev-row').forEach(el => {
+    if (el.dataset.ts === currentEventTs) el.remove();
+  });
+  evData.delete(currentEventTs);
+  currentEventTs = null;
+  closeModal('modal-event');
+  document.getElementById('event-count').textContent =
+    document.getElementById('event-feed').querySelectorAll('.ev-row').length;
+}
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────────
+
+function onDragStart(e, taskId) {
+  draggedTaskId = taskId;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', taskId);
+  requestAnimationFrame(() => e.target.classList.add('dragging'));
+}
+
+function onDragEnd(e) {
+  e.target.classList.remove('dragging');
+  draggedTaskId = null;
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function onDragEnter(e) {
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  // só remove se saiu realmente da coluna (não de um filho)
+  if (!e.currentTarget.contains(e.relatedTarget)) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+}
+
+async function onDrop(e, status) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const taskId = draggedTaskId ?? e.dataTransfer.getData('text/plain');
+  if (!taskId) return;
+  const task = tasksCache[taskId];
+  if (!task || task.status === status) return;
+  await fetch(`${API}/tasks/${task.id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  await loadData();
+}
+
+// ── Context menu ──────────────────────────────────────────────────────────────
+
+function onCardContextMenu(e, taskId) {
+  e.preventDefault();
+  e.stopPropagation();
+  ctxTask = tasksCache[taskId];
+  if (!ctxTask) return;
+  hideCtxMenu();
+
+  document.getElementById('ctx-task-id').textContent = `#${ctxTask.id} — ${ctxTask.title.slice(0,30)}`;
+  document.getElementById('ctx-chat-item').style.display = KILO_AGENTS.has(ctxTask.agent) ? '' : 'none';
+  document.getElementById('ctx-char-item').style.display = charactersData[ctxTask.agent] ? '' : 'none';
+
+  const menu = document.getElementById('ctx-menu');
+  const x    = Math.min(e.clientX, window.innerWidth  - 185);
+  const y    = Math.min(e.clientY, window.innerHeight - 310);
+  menu.style.left = x + 'px';
+  menu.style.top  = y + 'px';
+  menu.classList.add('open');
+}
+
+function hideCtxMenu() {
+  document.getElementById('ctx-menu').classList.remove('open');
+}
+
+function ctxChat() {
+  const t = ctxTask; hideCtxMenu();
+  if (!t || !KILO_AGENTS.has(t.agent)) return;
+  const prov = t.providerID || document.getElementById('dp-provider').value;
+  const mod  = t.modelID    || document.getElementById('dp-model').value;
+  openChat(t.agent, prov, mod);
+}
+
+function ctxChar() {
+  const t = ctxTask; hideCtxMenu();
+  if (t) openCharacterModal(t.agent);
+}
+
+function ctxDetails() {
+  const t = ctxTask; hideCtxMenu();
+  if (t) openTaskModal(t);
+}
+
+async function ctxMove(status) {
+  const t = ctxTask; hideCtxMenu();
+  if (!t) return;
+  await fetch(`${API}/tasks/${t.id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  await loadData();
+}
+
+async function ctxPriority(priority) {
+  const t = ctxTask; hideCtxMenu();
+  if (!t) return;
+  await fetch(`${API}/tasks/${t.id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ priority }),
+  });
+  await loadData();
+}
+
+function ctxCopy() {
+  const t = ctxTask; hideCtxMenu();
+  if (t) navigator.clipboard?.writeText(t.title).catch(() => {});
+}
+
+function ctxDelete() {
+  const t = ctxTask; hideCtxMenu();
+  if (t) confirmDeleteTask(t.id);
+}
+
+// ── Delete confirmation ───────────────────────────────────────────────────────
+
+function confirmDeleteTask(taskId) {
+  const task = tasksCache[taskId];
+  if (!task) return;
+  pendingDeleteId = taskId;
+  document.getElementById('confirm-task-preview').textContent =
+    `#${task.id}  ${task.title.slice(0, 55)}`;
+  document.getElementById('confirm-delete').classList.add('open');
+}
+
+function cancelDelete() {
+  pendingDeleteId = null;
+  document.getElementById('confirm-delete').classList.remove('open');
+}
+
+async function executeDelete() {
+  if (!pendingDeleteId) return;
+  const id = pendingDeleteId;
+  cancelDelete();
+  await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
+  await loadData();
+}
+
+// ── Character Chart ───────────────────────────────────────────────────────────
+
+function ccBarColor(v) {
+  if (v >= 85) return 'var(--accent-lime)';
+  if (v >= 65) return 'var(--accent-green)';
+  if (v >= 45) return 'var(--accent-orange)';
+  return 'var(--accent-red)';
+}
+
+function ccResColor(v) {
+  if (v >= 85) return 'var(--accent-lime)';
+  if (v >= 65) return 'var(--accent-green)';
+  if (v >= 45) return 'var(--accent-orange)';
+  return 'var(--accent-red)';
+}
+
+function openCharacterModal(agentName) {
+  const c = charactersData[agentName];
+  if (!c) return;
+
+  const glyphEl = document.getElementById('cc-glyph');
+  glyphEl.textContent = c.glyph ?? '◈';
+  glyphEl.style.color = c.color ?? 'var(--accent-lime)';
+
+  document.getElementById('cc-name').textContent  = `${c.name ?? agentName}`;
+  document.getElementById('cc-name').style.color  = c.color ?? 'var(--accent-lime)';
+  document.getElementById('cc-title').textContent = c.title ?? '';
+  document.getElementById('cc-lore').textContent  = c.lore?.trim() ?? '';
+
+  // Atributos
+  const attrs = c.attributes ?? {};
+  const attrKeys = ['STR','INT','WIS','DEX','VIT','CHA'];
+  document.getElementById('cc-attrs').innerHTML = attrKeys.map(k => {
+    const v = attrs[k] ?? 0;
+    return `<div class="cc-attr-row">
+      <span class="cc-attr-name">${k}</span>
+      <div class="cc-attr-bar-bg">
+        <div class="cc-attr-bar-fill" style="width:${v}%;background:${ccBarColor(v)}"></div>
+      </div>
+      <span class="cc-attr-val">${v}</span>
+    </div>`;
+  }).join('');
+
+  // Especial
+  const sp = c.special ?? {};
+  document.getElementById('cc-special').innerHTML = `
+    <div class="cc-special-box">
+      <span class="cc-special-name">${esc(sp.name ?? '')}</span>
+      <span class="cc-special-desc">${esc(sp.description ?? '')}</span>
+      <span class="cc-special-val">${sp.value ?? 100}</span>
+    </div>`;
+
+  // Resistências
+  const res = c.resistances ?? {};
+  document.getElementById('cc-res').innerHTML = Object.entries(res).map(([k, v]) => `
+    <div class="cc-res-item">
+      <div class="cc-res-name">${esc(k.replace(/_/g,' '))}</div>
+      <div class="cc-res-bar-bg">
+        <div class="cc-res-bar-fill" style="width:${v}%;background:${ccResColor(v)}"></div>
+      </div>
+      <div class="cc-res-val">${v}<span style="font-weight:400;color:var(--text-muted)"> RES</span></div>
+    </div>`).join('');
+
+  // Skills ativas (do hive agent se disponível, senão vazio)
+  const hiveAgt    = hiveAgents.find(a => a.chatKey === agentName);
+  const agentSkills = Array.isArray(hiveAgt?.skills) ? hiveAgt.skills : [];
+  const skillsEl    = document.getElementById('cc-skills');
+  if (agentSkills.length > 0) {
+    skillsEl.innerHTML = agentSkills.map(sk => {
+      const sd = skillsData[sk];
+      return `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:2px;border:1px solid rgba(164,175,127,0.4);background:rgba(164,175,127,0.08);font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--accent-lime)" title="${esc(sd?.description ?? '')}">✓ ${esc(sd?.display ?? sk)}</span>`;
+    }).join('');
+  } else {
+    skillsEl.innerHTML = '<span style="font-size:9px;color:var(--text-muted)">— nenhuma skill ativa —</span>';
+  }
+
+  // Passivas
+  const passives = Array.isArray(c.passive) ? c.passive : [];
+  document.getElementById('cc-passives').innerHTML = passives.length
+    ? passives.map(p => `<div class="cc-passive"><span class="cc-passive-name">${esc(p.name)}</span> — ${esc(p.effect)}</div>`).join('')
+    : '<div style="font-size:10px;color:var(--text-muted)">—</div>';
+
+  // Fraqueza
+  document.getElementById('cc-weakness').textContent = c.weakness ? `⚠ ${c.weakness}` : '';
+
+  document.getElementById('modal-character').classList.add('open');
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+
+connectWS();
+loadState();
+loadData();
+setInterval(loadState, 10000);
+setInterval(loadData,   8000);
+</script>
+</body>
+</html>

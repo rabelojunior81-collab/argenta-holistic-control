@@ -1,0 +1,21 @@
+{
+  "name": "holistic-mission-control",
+  "version": "1.0.0",
+  "description": "Mission Control + Intelligent Routing via Kilo Code for Argenta Fênix",
+  "type": "module",
+  "bin": {
+    "mc": "./cli/mc.mjs"
+  },
+  "scripts": {
+    "loop": "node ralph-loop/index.mjs",
+    "kanban": "node kanban/cli.mjs",
+    "health": "node ops/healthcheck.mjs",
+    "serve": "node kilo-adapter/server-manager.mjs start",
+    "ui": "node ui/server.mjs",
+    "mc": "node cli/mc.mjs"
+  },
+  "dependencies": {
+    "eventsource": "^2.0.2",
+    "js-yaml": "^4.1.0"
+  }
+}

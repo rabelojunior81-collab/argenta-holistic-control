@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "updated": "2026-03-07T07:23:08.938Z",
+  "tasks": [
+    {
+      "id": "978318af",
+      "title": "💬 ask: Olá. Quem é voce",
+      "domain": "execution",
+      "agent": "ask",
+      "providerID": "zai",
+      "modelID": "glm-5",
+      "chatKey": "ask",
+      "priority": "high",
+      "status": "review",
+      "created": "2026-03-05T02:43:30.827Z",
+      "updated": "2026-03-07T07:23:05.385Z",
+      "result": null,
+      "events": [
+        {
+          "ts": "2026-03-07T06:51:59.146Z",
+          "from": "in_progress",
+          "to": "done"
+        },
+        {
+          "ts": "2026-03-07T07:23:05.385Z",
+          "from": "done",
+          "to": "review"
+        }
+      ]
+    },
+    {
+      "id": "4a09928f",
+      "title": "explore o repositorio e me passe seu entendimento",
+      "domain": "reasoning",
+      "agent": "plan",
+      "providerID": "kimi-for-coding",
+      "modelID": "kimi-k2-thinking",
+      "chatKey": "plan",
+      "priority": "high",
+      "status": "review",
+      "created": "2026-03-07T01:13:23.882Z",
+      "updated": "2026-03-07T07:23:08.938Z",
+      "result": null,
+      "events": [
+        {
+          "ts": "2026-03-07T01:13:23.882Z",
+          "from": "manual",
+          "to": "in_progress"
+        },
+        {
+          "ts": "2026-03-07T07:23:08.938Z",
+          "from": "in_progress",
+          "to": "review"
+        }
+      ]
+    }
+  ]
+}

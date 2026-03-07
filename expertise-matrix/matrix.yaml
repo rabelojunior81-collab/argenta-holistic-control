@@ -1,0 +1,145 @@
+# Expertise Matrix — Roteamento Inteligente para Argenta Fênix
+# v3 — 2026-03-04 | providerID + modelID + agent (Kilo native agent)
+#
+# Agentes Kilo disponíveis (GET /agent):
+#   code         → default, executa ferramentas, edita código
+#   plan         → planejamento, proibido editar arquivos
+#   debug        → diagnóstico sistemático de bugs
+#   orchestrator → orquestra sub-agentes em paralelo
+#   ask          → pesquisa e respostas, somente leitura
+#
+# Providers autenticados (kilo auth list):
+#   kilo            → Kilo Gateway (oauth)
+#   opencode        → OpenCode Zen (api)
+#   openai          → OpenAI (oauth)
+#   github-copilot  → GitHub Copilot (oauth)
+#   kimi-for-coding → Kimi For Coding (api)
+#   zai             → Z.AI GLM (api)
+#   bailian-coding-plan → Model Studio Alibaba (api)
+
+version: 3
+
+policy:
+  fallback_on_error: true
+  log_routing_decision: true
+
+domains:
+
+  # ── PLANNING ─────────────────────────────────────────────────────────────────
+  planning:
+    agent: orchestrator
+    providerID: opencode
+    modelID: claude-opus-4-1
+    rationale: "Orchestrator spawna sub-agentes; Opus 4.1 para raciocínio sistêmico"
+    fallback:
+      providerID: github-copilot
+      modelID: claude-opus-4.5
+
+  # ── EXECUTION ────────────────────────────────────────────────────────────────
+  execution:
+    agent: code
+    providerID: kimi-for-coding
+    modelID: k2p5
+    rationale: "Agente code + Kimi K2.5 — especialista em implementação"
+    fallback:
+      providerID: github-copilot
+      modelID: claude-sonnet-4.6
+
+  # ── AUDIT ────────────────────────────────────────────────────────────────────
+  audit:
+    agent: ask
+    providerID: zai
+    modelID: glm-5
+    rationale: "Agente ask (somente leitura) + GLM-5 para análise crítica"
+    fallback:
+      providerID: opencode
+      modelID: glm-5
+
+  # ── RESEARCH ─────────────────────────────────────────────────────────────────
+  research:
+    agent: ask
+    providerID: opencode
+    modelID: gemini-3.1-pro
+    rationale: "Agente ask + Gemini 3.1 Pro — contexto longo, pesquisa ampla"
+    fallback:
+      providerID: github-copilot
+      modelID: gpt-5.1
+
+  # ── QUICK ────────────────────────────────────────────────────────────────────
+  quick:
+    agent: code
+    providerID: zai
+    modelID: glm-4.5-flash
+    rationale: "Agente code + GLM-4.5-Flash — baixa latência, custo mínimo"
+    fallback:
+      providerID: github-copilot
+      modelID: claude-haiku-4.5
+
+  # ── REVIEW ───────────────────────────────────────────────────────────────────
+  review:
+    agent: ask
+    providerID: bailian-coding-plan
+    modelID: qwen3-coder-next
+    rationale: "Agente ask + Qwen3-Coder-Next — análise e revisão de código"
+    fallback:
+      providerID: kimi-for-coding
+      modelID: kimi-k2-thinking
+
+  # ── SYNTHESIS ────────────────────────────────────────────────────────────────
+  synthesis:
+    agent: ask
+    providerID: opencode
+    modelID: gpt-5.3-codex
+    rationale: "Agente ask + GPT-5.3-Codex — síntese e redação técnica"
+    fallback:
+      providerID: openai
+      modelID: gpt-4o-2024-11-20
+
+  # ── REASONING ────────────────────────────────────────────────────────────────
+  reasoning:
+    agent: plan
+    providerID: kimi-for-coding
+    modelID: kimi-k2-thinking
+    rationale: "Agente plan + Kimi K2 Thinking — raciocínio profundo estruturado"
+    fallback:
+      providerID: opencode
+      modelID: kimi-k2.5-free
+
+  # ── DEBUG ─────────────────────────────────────────────────────────────────────
+  debug:
+    agent: debug
+    providerID: kimi-for-coding
+    modelID: k2p5
+    rationale: "Agente debug + Kimi K2.5 — diagnóstico sistemático"
+    fallback:
+      providerID: github-copilot
+      modelID: claude-sonnet-4.6
+
+  # ── CREATIVE ─────────────────────────────────────────────────────────────────
+  creative:
+    agent: code
+    providerID: github-copilot
+    modelID: gpt-5.2
+    rationale: "Agente code + GPT-5.2 — geração criativa e diversidade"
+    fallback:
+      providerID: openai
+      modelID: gpt-4o-2024-11-20
+
+  # ── LOCAL ────────────────────────────────────────────────────────────────────
+  local:
+    agent: code
+    providerID: zai
+    modelID: glm-4.5-flash
+    rationale: "Ollama não configurado — GLM-4.5-Flash como substituto"
+    fallback:
+      providerID: zai
+      modelID: glm-4.6
+
+# ── Default ───────────────────────────────────────────────────────────────────
+default:
+  agent: code
+  providerID: github-copilot
+  modelID: claude-sonnet-4.6
+  fallback:
+    providerID: openai
+    modelID: gpt-4o-2024-11-20

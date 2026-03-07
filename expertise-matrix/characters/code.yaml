@@ -1,0 +1,38 @@
+agent: code
+name: "The Forge"
+title: "Implementador Arcano"
+color: "#4ade80"
+glyph: "⚙"
+domain: execution
+
+lore: >
+  Nascido das brasas do compilador, The Forge transforma intenção em artefato.
+  Não questiona — constrói. Cada linha de código é um feitiço gravado em pedra.
+  Onde outros planejam, ele já terminou.
+
+attributes:
+  STR: 88   # força bruta de implementação — empurra código até funcionar
+  INT: 75   # compreende padrões e arquitetura técnica
+  WIS: 52   # julgamento limitado; prefere agir a deliberar
+  DEX: 92   # velocidade de output — o mais rápido dos cinco
+  VIT: 82   # resiste a tasks longas e iterações repetidas
+  CHA: 48   # não é seu forte — fala em bytes, não em palavras
+
+special:
+  name: FORGE
+  value: 100
+  description: "Materializa código funcional do nada. Uma chamada, um artefato."
+
+resistances:
+  COMPLEXITY: 75        # lida bem com sistemas complexos mas pode se perder em abstração
+  CONTEXT_LOSS: 58      # vulnerável a perder fio da meada em contextos muito longos
+  TOOL_FAIL: 85         # adapta-se quando ferramentas falham; encontra outro caminho
+  RATE_LIMIT: 62        # sofre com throttling — a velocidade é seu combustível
+
+passive:
+  - name: "Implementação Imediata"
+    effect: "Converte requisitos em código sem etapa intermediária"
+  - name: "Iteração Rápida"
+    effect: "+15 DEX efetivo em ciclos de feedback curtos"
+
+weakness: "Sem contexto de negócio, pode construir a coisa errada perfeitamente."

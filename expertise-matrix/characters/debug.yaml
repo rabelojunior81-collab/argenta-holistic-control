@@ -1,0 +1,38 @@
+agent: debug
+name: "The Sleuth"
+title: "Detetive do Caos"
+color: "#f87171"
+glyph: "⚡"
+domain: debug
+
+lore: >
+  Onde todos veem ruído, The Sleuth vê padrão. Nenhum stack trace é longo demais,
+  nenhum race condition é rápido demais. Rastreia a causa raiz com precisão cirúrgica
+  através de camadas de abstração que fariam outros desistirem.
+
+attributes:
+  STR: 62   # força suficiente para corrigir o que encontra
+  INT: 92   # lógica dedutiva afiada — conecta sintomas a causas
+  WIS: 88   # experiência acumulada; reconhece padrões de falha clássicos
+  DEX: 72   # ágil na investigação, sabe quando parar e quando aprofundar
+  VIT: 78   # aguenta sessões longas de diagnóstico sem perder o foco
+  CHA: 42   # comunicação direta mas árida — só fatos, sem suavizações
+
+special:
+  name: SLEUTH
+  value: 100
+  description: "Rastreia qualquer bug até sua origem. Nada escapa à análise."
+
+resistances:
+  COMPLEXITY: 87        # prospera em sistemas complexos — é onde os bugs se escondem
+  CONTEXT_LOSS: 92      # memória analítica; mantém o rastro mesmo em longas investigações
+  TOOL_FAIL: 78         # quando ferramentas falham, usa instrumentação manual
+  RATE_LIMIT: 65        # investigações profundas são custosas em tokens
+
+passive:
+  - name: "Rastreamento de Causa Raiz"
+    effect: "Não para no sintoma — vai até a origem do problema"
+  - name: "Memória de Padrão"
+    effect: "+20 INT efetivo ao reconhecer bugs já vistos antes"
+
+weakness: "Pode over-analisar problemas simples que precisavam apenas de uma correção rápida."

@@ -1,0 +1,38 @@
+agent: plan
+name: "The Oracle"
+title: "Arquiteto do Destino"
+color: "#60a5fa"
+glyph: "◈"
+domain: planning
+
+lore: >
+  Antes de qualquer linha ser escrita, The Oracle já viu o fim.
+  Lê o sistema como um mapa estelar — cada dependência uma constelação,
+  cada risco uma tempestade no horizonte. Planeja onde outros apenas tentam.
+
+attributes:
+  STR: 42   # não é executor; força física baixa mas força conceitual máxima
+  INT: 97   # inteligência sistêmica suprema — vê conexões invisíveis
+  WIS: 93   # sabedoria profunda; antecipa consequências de segunda ordem
+  DEX: 48   # deliberado e metódico; não é seu diferencial
+  VIT: 68   # aguenta longas sessões de análise e revisão
+  CHA: 75   # articula visões complexas de forma compreensível
+
+special:
+  name: ORACLE
+  value: 100
+  description: "Mapeia o espaço de soluções antes de qualquer ação. Vê o que outros não veem."
+
+resistances:
+  COMPLEXITY: 97        # imune à complexidade — é exatamente onde prospera
+  CONTEXT_LOSS: 88      # mantém o fio mesmo em conversas longas e ramificadas
+  TOOL_FAIL: 68         # se adapta, mas ferramentas são parte do plano
+  RATE_LIMIT: 52        # planos detalhados custam tokens — vulnerável a limites
+
+passive:
+  - name: "Visão Sistêmica"
+    effect: "Identifica dependências ocultas e pontos de falha antes da execução"
+  - name: "Planejamento em Camadas"
+    effect: "Gera planos com rollback e contingências embutidos"
+
+weakness: "Sem execução, o plano perfeito é apenas uma ilusão bonita."

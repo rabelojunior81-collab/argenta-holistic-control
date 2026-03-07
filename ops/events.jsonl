@@ -1,0 +1,45 @@
+{"ts":"2026-03-04T01:25:26.917Z","event":"loop_start","pid":41236}
+{"ts":"2026-03-04T01:25:26.922Z","event":"dispatch","decision_id":"30569a89","task_id":"c9e2d690","domain":"execution","provider":"anthropic","model":"claude-sonnet-4-6"}
+{"ts":"2026-03-04T01:25:27.605Z","event":"failed","decision_id":"30569a89","task_id":"c9e2d690","provider":"anthropic","model":"claude-sonnet-4-6","outcome":"blocked","error":"Unexpected token '<', \"<!doctype \"... is not valid JSON","result_length":0}
+{"ts":"2026-03-04T01:34:28.970Z","event":"loop_stop","pid":41236}
+{"ts":"2026-03-04T01:50:20.991Z","event":"loop_start","pid":27016}
+{"ts":"2026-03-04T01:53:17.465Z","event":"loop_stop","pid":27016}
+{"ts":"2026-03-04T02:15:30.578Z","event":"loop_start","pid":50880}
+{"ts":"2026-03-04T02:16:53.616Z","event":"loop_stop","pid":50880}
+{"ts":"2026-03-04T02:21:17.421Z","event":"manual_dispatch","decision_id":"e14ae91d","task_id":"56642e6d","providerID":"github-copilot","modelID":"claude-sonnet-4.6"}
+{"ts":"2026-03-04T02:21:17.616Z","event":"manual_failed","task_id":"56642e6d","error":"fetch failed"}
+{"ts":"2026-03-04T02:24:59.473Z","event":"loop_start","pid":17580}
+{"ts":"2026-03-04T02:31:14.454Z","event":"loop_stop","pid":17580}
+{"ts":"2026-03-04T14:58:32.170Z","event":"loop_start","pid":76320}
+{"ts":"2026-03-04T14:59:57.946Z","event":"manual_dispatch","decision_id":"54702257","task_id":"9e1c69d7","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus","agent":"ask"}
+{"ts":"2026-03-04T15:00:10.984Z","event":"manual_completed","decision_id":"54702257","task_id":"9e1c69d7","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus","agent":"ask","latency_ms":13025,"result_length":222}
+{"ts":"2026-03-04T23:29:04.433Z","event":"manual_dispatch","decision_id":"7f46cb05","task_id":"1a20c1a5","providerID":"kimi-for-coding","modelID":"k2p5","agent":"ask"}
+{"ts":"2026-03-04T23:29:27.419Z","event":"manual_completed","decision_id":"7f46cb05","task_id":"1a20c1a5","providerID":"kimi-for-coding","modelID":"k2p5","agent":"ask","latency_ms":22978,"result_length":675}
+{"ts":"2026-03-05T01:24:05.184Z","event":"manual_dispatch","decision_id":"5c248e93","task_id":"caa78e4d","providerID":"github-copilot","modelID":"claude-opus-4.6","agent":"plan"}
+{"ts":"2026-03-05T01:24:16.861Z","event":"manual_completed","decision_id":"5c248e93","task_id":"caa78e4d","providerID":"github-copilot","modelID":"claude-opus-4.6","agent":"plan","latency_ms":11672,"result_length":509}
+{"ts":"2026-03-05T02:02:52.394Z","event":"loop_stop","pid":76320}
+{"ts":"2026-03-05T02:03:58.125Z","event":"loop_start","pid":150084}
+{"ts":"2026-03-05T02:05:39.403Z","event":"manual_dispatch","decision_id":"4af203bb","task_id":"61ba14a4","providerID":"bailian-coding-plan","modelID":"glm-5","agent":"orchestrator"}
+{"ts":"2026-03-05T02:06:02.273Z","event":"manual_completed","decision_id":"4af203bb","task_id":"61ba14a4","providerID":"bailian-coding-plan","modelID":"glm-5","agent":"orchestrator","latency_ms":22855,"result_length":631}
+{"ts":"2026-03-05T02:17:23.928Z","event":"loop_start","pid":24724}
+{"ts":"2026-03-05T02:32:18.638Z","event":"loop_stop","pid":24724}
+{"ts":"2026-03-05T02:40:19.765Z","event":"loop_start","pid":150056}
+{"ts":"2026-03-05T02:40:52.602Z","event":"loop_stop","pid":150056}
+{"ts":"2026-03-05T02:42:39.601Z","event":"loop_start","pid":150912}
+{"ts":"2026-03-05T02:59:05.649Z","event":"loop_stop","pid":150912}
+{"ts":"2026-03-07T01:08:17.134Z","event":"loop_start","pid":132224}
+{"ts":"2026-03-07T01:13:23.885Z","event":"manual_dispatch","decision_id":"18c8f2df","task_id":"4a09928f","providerID":"kimi-for-coding","modelID":"kimi-k2-thinking","agent":"plan"}
+{"ts":"2026-03-07T01:13:53.956Z","event":"manual_failed","task_id":"4a09928f","error":"The operation was aborted due to timeout"}
+{"ts":"2026-03-07T06:15:02.165Z","event":"loop_stop","pid":132224}
+{"ts":"2026-03-07T06:15:49.504Z","event":"loop_start","pid":130116}
+{"ts":"2026-03-07T06:32:53.024Z","event":"loop_stop","pid":130116}
+{"ts":"2026-03-07T06:47:38.423Z","event":"loop_start","pid":141608}
+{"ts":"2026-03-07T07:02:14.754Z","event":"loop_stop","pid":141608}
+{"ts":"2026-03-07T07:08:11.235Z","event":"loop_start","pid":101196}
+{"ts":"2026-03-07T07:18:27.393Z","event":"loop_stop","pid":101196}
+{"ts":"2026-03-07T07:18:38.871Z","event":"loop_start","pid":118556}
+{"ts":"2026-03-07T12:31:24.883Z","event":"loop_stop","pid":118556}
+{"ts":"2026-03-07T12:31:37.336Z","event":"loop_start","pid":138284}
+{"ts":"2026-03-07T12:49:24.288Z","event":"loop_start","pid":121564}
+{"ts":"2026-03-07T12:57:04.846Z","event":"loop_stop","pid":121564}
+{"ts":"2026-03-07T12:57:16.418Z","event":"loop_start","pid":29604}

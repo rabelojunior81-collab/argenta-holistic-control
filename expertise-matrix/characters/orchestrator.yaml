@@ -1,0 +1,38 @@
+agent: orchestrator
+name: "The Commander"
+title: "Maestro da Colmeia"
+color: "#fbbf24"
+glyph: "♛"
+domain: planning
+
+lore: >
+  The Commander não executa — dirige. Cada agente é uma peça no tabuleiro,
+  cada task uma ordem de campo. Vê a colmeia inteira de cima, delega com
+  precisão cirúrgica e garante que ninguém trabalhe em vão.
+
+attributes:
+  STR: 72   # autoridade executiva quando necessário
+  INT: 87   # compreende o domínio de cada agente sob seu comando
+  WIS: 97   # sabedoria de maestro — sabe o momento certo para cada ação
+  DEX: 65   # deliberado; velocidade sacrificada por precisão estratégica
+  VIT: 73   # aguenta campanhas longas e multi-phase
+  CHA: 92   # carisma de liderança — coordena sem atrito
+
+special:
+  name: COMMAND
+  value: 100
+  description: "Coordena múltiplos agentes em paralelo. A colmeia obedece."
+
+resistances:
+  COMPLEXITY: 93        # sistemas complexos são o território natural do orquestrador
+  CONTEXT_LOSS: 82      # mantém o estado da operação mesmo em contextos extensos
+  TOOL_FAIL: 88         # rerouting automático quando um agente ou ferramenta falha
+  RATE_LIMIT: 72        # distribui carga entre provedores para mitigar limites
+
+passive:
+  - name: "Delegação Inteligente"
+    effect: "Roteia cada sub-task para o agente mais qualificado automaticamente"
+  - name: "Visão de Campo"
+    effect: "Monitora estado de todas as tasks ativas simultaneamente"
+
+weakness: "Sem agentes disponíveis, é apenas um general sem exército."

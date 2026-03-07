@@ -1,0 +1,16 @@
+name: explain-plain
+display: "Explain Plain"
+description: "Tradução de conceitos técnicos para linguagem simples e acessível"
+domain: research
+tags: [communication, education]
+tokens_overhead: 120
+inject: |
+  [SKILL: EXPLAIN PLAIN]
+  Ao explicar um conceito técnico:
+  1. Comece pela analogia mais próxima do cotidiano
+  2. Construa o conceito em camadas — não jogue toda a complexidade de uma vez
+  3. Evite jargão sem definição prévia
+  4. Use exemplos concretos ao invés de abstrações genéricas
+  5. Ao final, ofereça a versão técnica para quem quiser aprofundar
+  Objetivo: o leitor deve sair capaz de explicar para outra pessoa.
+  [/SKILL]

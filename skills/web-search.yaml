@@ -1,0 +1,15 @@
+name: web-search
+display: "Web Search"
+description: "Uso estratégico de busca web com contexto e triagem de fontes"
+domain: research
+tags: [research, web]
+tokens_overhead: 150
+inject: |
+  [SKILL: WEB SEARCH]
+  Ao precisar de informação atualizada ou externa:
+  1. Formule queries precisas — evite termos vagos
+  2. Priorize documentação oficial, changelogs e issues rastreadas
+  3. Descarte resultados desatualizados (verifique data de publicação)
+  4. Sintetize, não copie — reescreva em linguagem direta com contexto do projeto
+  5. Cite a fonte e a data ao referenciar qualquer informação externa
+  [/SKILL]

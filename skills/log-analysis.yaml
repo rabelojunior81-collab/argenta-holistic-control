@@ -1,0 +1,16 @@
+name: log-analysis
+display: "Log Analysis"
+description: "Parsing e correlação estruturada de logs para identificar padrões e anomalias"
+domain: debug
+tags: [debug, logs, monitoring]
+tokens_overhead: 170
+inject: |
+  [SKILL: LOG ANALYSIS]
+  Ao analisar logs:
+  1. Identifique o timestamp de início do problema — trabalhe backwards a partir do erro
+  2. Correlacione eventos entre serviços/componentes pelo timestamp e por IDs de trace/request
+  3. Distinga ruído de sinal: warnings repetidos != causa raiz, erros únicos podem ser cruciais
+  4. Procure padrões: falha após X eventos, degradação gradual, spikes periódicos
+  5. Construa uma linha do tempo da sequência de eventos que levou ao problema
+  Formato de entrega: timeline + hipótese principal + próximos passos de verificação.
+  [/SKILL]

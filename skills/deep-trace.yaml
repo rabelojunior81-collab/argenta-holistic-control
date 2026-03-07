@@ -1,0 +1,15 @@
+name: deep-trace
+display: "Deep Stack Trace"
+description: "Análise detalhada de stack traces e rastreamento preciso da origem de bugs"
+domain: debug
+tags: [debug, analysis]
+tokens_overhead: 210
+inject: |
+  [SKILL: DEEP TRACE]
+  Ao analisar um erro ou stack trace, sempre:
+  1. Identifique o frame de origem real — não o wrapper ou re-raise externo
+  2. Liste todas as variáveis relevantes no escopo no ponto de falha
+  3. Trace o caminho de execução desde a entrada do sistema até o crash
+  4. Proponha hipóteses rankeadas por probabilidade com evidências
+  5. Nunca assuma que a mensagem de erro resume o problema — leia o trace completo
+  [/SKILL]

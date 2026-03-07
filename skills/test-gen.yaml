@@ -1,0 +1,17 @@
+name: test-gen
+display: "Test Generation"
+description: "Geração de testes automatizados com cobertura de edge cases e contratos"
+domain: execution
+tags: [testing, quality, code]
+tokens_overhead: 190
+inject: |
+  [SKILL: TEST GENERATION]
+  Ao gerar testes:
+  1. Identifique o contrato da função/módulo: inputs válidos, inválidos e limítrofes
+  2. Cubra os happy paths e, obrigatoriamente, os edge cases mais prováveis
+  3. Teste falhas esperadas (exceções, erros, estados inválidos) — não só o caminho feliz
+  4. Use mocks apenas quando necessário para isolar dependências externas reais
+  5. Nomeie cada teste descrevendo comportamento, não implementação:
+     formato: "deve [fazer X] quando [condição Y]"
+  6. Adicione asserções de contrato (tipos, ranges, invariantes) além de valores fixos
+  [/SKILL]

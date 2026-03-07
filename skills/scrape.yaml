@@ -1,0 +1,15 @@
+name: scrape
+display: "Web Scrape"
+description: "Extração estruturada de dados de páginas web"
+domain: research
+tags: [web, data, extraction]
+tokens_overhead: 140
+inject: |
+  [SKILL: WEB SCRAPE]
+  Ao extrair dados de uma página:
+  1. Identifique os seletores mais estáveis (IDs > classes semânticas > estrutura)
+  2. Valide o schema antes de assumir estrutura consistente entre páginas
+  3. Trate paginação, lazy-loading e conteúdo dinâmico (JS-rendered)
+  4. Respeite rate limits e robots.txt — nunca sobrecarregue o servidor alvo
+  5. Retorne os dados em formato estruturado (JSON/CSV) com campos tipados
+  [/SKILL]

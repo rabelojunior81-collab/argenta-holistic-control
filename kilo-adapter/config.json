@@ -1,0 +1,13 @@
+{
+  "host": "127.0.0.1",
+  "port": 4096,
+  "base_url": "http://127.0.0.1:4096",
+  "health_endpoint": "/global/health",
+  "timeout_ms": 30000,
+  "spawn": {
+    "command": "kilo",
+    "args": ["serve"],
+    "ready_timeout_ms": 15000,
+    "poll_interval_ms": 500
+  }
+}

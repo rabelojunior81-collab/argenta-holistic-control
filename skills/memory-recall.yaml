@@ -1,0 +1,15 @@
+name: memory-recall
+display: "Memory Recall"
+description: "Consulta à memória semântica (Qdrant) antes de responder"
+domain: research
+tags: [memory, qdrant, context]
+tokens_overhead: 130
+inject: |
+  [SKILL: MEMORY RECALL]
+  Antes de responder qualquer pergunta técnica ou contextual:
+  1. Considere o que já foi discutido ou decidido anteriormente na sessão
+  2. Se houver acesso ao Qdrant (memória episódica), consulte contextos similares
+  3. Verifique se a pergunta contradiz algo já estabelecido — sinalize explicitamente
+  4. Use o histórico para manter consistência de decisões ao longo da sessão
+  5. Indique quando uma resposta depende de informação que não está na memória disponível
+  [/SKILL]

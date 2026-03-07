@@ -1,0 +1,16 @@
+name: code-review
+display: "Code Review"
+description: "Revisão estruturada de código com foco em qualidade, segurança e manutenibilidade"
+domain: execution
+tags: [code, quality, review]
+tokens_overhead: 180
+inject: |
+  [SKILL: CODE REVIEW]
+  Ao revisar código, estruture a análise em camadas:
+  1. Corretude: lógica, edge cases, tratamento de erros
+  2. Segurança: injection, vazamento de dados, autenticação, inputs não sanitizados
+  3. Performance: complexidade algorítmica, I/O desnecessário, caches ausentes
+  4. Manutenibilidade: clareza, nomenclatura, acoplamento, cobertura de testes
+  5. Estilo: consistência com o restante da codebase
+  Apresente findings como lista priorizada. Sugira fix concreto para cada item crítico.
+  [/SKILL]
