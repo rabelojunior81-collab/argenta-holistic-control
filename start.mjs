@@ -34,7 +34,8 @@ const SERVICES = [
     cmd:     "node",
     args:    ["ui/server.mjs"],
     color:   C.lime,
-    ready:   /ouvindo|listening|porta|port\s*3030/i,
+    ready:   /Mission Control|3030|ouvindo|listening/i,
+    primary: true,   // saída deste serviço encerra todos os outros
     delay:   0,
   },
   {
@@ -43,8 +44,9 @@ const SERVICES = [
     cmd:     "node",
     args:    ["ralph-loop/index.mjs"],
     color:   C.gold,
-    ready:   /loop|tick|started|iniciando/i,
-    delay:   800,    // aguarda UI iniciar
+    ready:   /loop|tick|started|iniciando|ralph/i,
+    primary: false,
+    delay:   1200,   // aguarda UI estar completamente pronto
   },
 ];
 
@@ -102,14 +104,18 @@ function startService(svc) {
 
     child.on("exit", (code, signal) => {
       if (shuttingDown) return;
-      if (code === 0) {
-        // Saída limpa (ex: /api/shutdown chamado pelo dashboard) — encerra tudo
-        log(svc.color, svc.id, paint(C.lime, `encerrado graciosamente`));
-        shutdown("EXIT");
+      if (svc.primary) {
+        // Serviço primário saiu — encerra tudo em cascata
+        if (code === 0) {
+          log(svc.color, svc.id, paint(C.lime, `encerrado graciosamente`));
+          shutdown("EXIT");
+        } else {
+          log(svc.color, svc.id, paint(C.red, `encerrado inesperadamente (code=${code ?? signal})`));
+          shutdown("CRASH");
+        }
       } else {
-        log(svc.color, svc.id, paint(C.red, `encerrado inesperadamente (code=${code ?? signal})`));
-        // Opcional: reiniciar ou encerrar tudo
-        shutdown("CRASH");
+        // Serviço secundário — apenas loga, não derruba os demais
+        log(svc.color, svc.id, paint(C.gold, `encerrado (code=${code ?? signal}) — outros serviços continuam`));
       }
     });
 
