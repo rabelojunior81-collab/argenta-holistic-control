@@ -5,6 +5,125 @@
 
 ---
 
+## [Sprint 7.5] — docs: Scribe Review Final ✅
+**data:** 2026-03-07
+**sprint:** 7.5
+**domínio:** docs
+
+### Scribe Review — Checklist de Integridade
+- [x] CHANGELOG.md tem entradas S7.1, S7.2, S7.3, S7.4, S7.5
+- [x] ARCHITECTURE.md reflete o estado atual (endpoints, WS events, gaps fechados)
+- [x] HELP-HUMAN.md cobre todas as features: chat, kanban, board, CLI, zambia, cooperação
+- [x] HELP-AI.md atualizado com novos endpoints (memory, PATCH characters), padrões de integração
+- [x] HIVE_GROWTH_PROTOCOL.md: S7.1–S7.5 todos marcados [x]
+- [x] HIVE_BLUEPRINT.md: S1–S6 marcados [x]
+- [x] README.md: landing page GitHub completa
+
+### Critérios de Aceitação do Sprint 7 — Todos Verificados
+- [x] Todos os 5 gaps do audit fechados (hive/memory, /memory endpoint, PATCH characters, uptime_ms, mc agent memory)
+- [x] CHANGELOG.md com entradas retroativas S1–S6 + S7
+- [x] ARCHITECTURE.md com TL;DR + mapa técnico completo
+- [x] HELP-HUMAN.md — 12 seções, humano leigo consegue operar
+- [x] HELP-AI.md — 13 seções, injetável, token-eficiente
+- [x] Painel [?] no dashboard: 8 seções navegáveis, fluido, shortcuts de teclado
+- [x] Sync infrastructure funcionando (sync-hmc.sh + GitHub Actions)
+- [x] SYNC.md documentando o mecanismo completo
+- [x] Scribe Protocol aplicado a cada sub-sprint
+
+### Status
+✅ Sprint 7 entregue e auditado · 2026-03-07
+Aguardando aprovação explícita do usuário para marcar Sprint 7 como APROVADO.
+
+---
+
+## [Sprint 7.4] — frontend: Help UI Panel ✅
+**data:** 2026-03-07
+**sprint:** 7.4
+**domínio:** frontend
+
+### Entregues
+- `[?] HELP` button no header do dashboard (abre com clique ou tecla `?`)
+- Help overlay full-screen com painel de navegação lateral (8 itens) e área de conteúdo
+- 8 seções implementadas e navegáveis:
+  - O Que É · Primeiros Passos · Guia de Agentes · Bulletin Board
+  - CLI Reference · Conceitos-Chave · Cooperação com IA · FAQ
+- Estilos consistentes com palette olive/glass do dashboard
+- Botão "Pergunte à Argenta →" abre chat com The Lore Keeper (agente `ask`)
+- Keyboard shortcut `?` abre o painel, `Escape` fecha
+- Click fora do painel fecha o overlay
+
+### Impacto
+Usuário navega pelo Help sem sair do flow do dashboard.
+FAQ cobre erros comuns. CLI Reference cobre todos os comandos mc.
+Seção Cooperação com IA ensina o padrão de trabalho humano-agente.
+
+### Arquivos Modificados
+- `ui/index.html` — CSS (.help-overlay + componentes) + HTML (overlay completo) + JS (openHelp/closeHelp/helpGoTo)
+
+### Docs Atualizados
+- `CHANGELOG.md` — esta entrada
+- `HIVE_GROWTH_PROTOCOL.md` — S7.4 marcado [x]
+
+### Status
+✅ entregue · 2026-03-07
+
+---
+
+## [Sprint 7.3] — docs: Documentation Layer ✅
+**data:** 2026-03-07
+**sprint:** 7.3
+**domínio:** docs
+
+### Entregues
+- `ARCHITECTURE.md` — mapa técnico vivo: TL;DR 90s + 9 seções (camadas, endpoints, WS events, identity flow, CLI, persistência, Kilo, sync)
+- `HELP-HUMAN.md` — tutorial narrativo e didático para humanos leigos: 12 seções, tabelas de agentes/status/tópicos, guia de cooperação com IA
+- `HELP-AI.md` — contexto estruturado e token-eficiente para agentes IA: 13 seções, API reference completa, fluxos de injeção, padrões de integração, Protocolo Scribe §crescimento semântico
+
+### Impacto
+Qualquer agente (humano ou IA) pode assimilar o sistema em leitura superficial.
+HELP-AI.md é diretamente injetável como contexto de sistema em novos agentes.
+Protocolo Scribe agora tem instrução explícita de como crescer cada doc semanticamente.
+
+### Arquivos Modificados
+- `ARCHITECTURE.md` (criado)
+- `HELP-HUMAN.md` (criado)
+- `HELP-AI.md` (criado)
+
+### Docs Atualizados
+- `CHANGELOG.md` — esta entrada
+- `HIVE_GROWTH_PROTOCOL.md` — S7.1, S7.2, S7.3 marcados [x]
+
+### Status
+✅ entregue · 2026-03-07
+
+---
+
+## [Sprint 7.2] — backend: Gap Closure ✅
+**data:** 2026-03-07
+**sprint:** 7.2
+**domínio:** backend · cli
+
+### Entregues
+- `hive/memory/.gitkeep` — diretório criado para summaries de agentes
+- `GET /api/hive/agents/:id/memory` — retorna stats, summary, último msg, qdrant_collection
+- `PATCH /api/characters/:agent` — crescimento orgânico: attributes/resistances/special + YAML persistido + WS `character_updated`
+- `uptime_ms` calculado como `Date.now() - born` em `updateAgentStats()`
+- `mc agent memory <id>` — wired ao endpoint, exibe sumário + stats + último msg
+
+### Impacto
+Fecha todos os 5 gaps do audit de entrega S1–S6. Taxa de entrega: 100%.
+Atributos do Character Chart agora suportam crescimento orgânico via PATCH.
+
+### Arquivos Modificados
+- `ui/server.mjs` — 3 novos endpoints + uptime_ms fix
+- `cli/commands/agent.mjs` — cmdMemory + router
+- `hive/memory/.gitkeep` (criado)
+
+### Status
+✅ entregue · `afd79c7`
+
+---
+
 ## [Sprint 7.1] — config: Sync Infrastructure ✅
 **data:** 2026-03-07
 **sprint:** 7.1

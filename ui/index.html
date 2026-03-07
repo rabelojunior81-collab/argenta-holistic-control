@@ -1155,6 +1155,150 @@
     .ctx-item.danger:hover { background: rgba(214,107,107,0.1); }
     .ctx-sep { border-bottom: 1px solid var(--glass-border); margin: 3px 0; }
 
+    /* ── Help Panel ──────────────────────────────────────────────────────── */
+    .help-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(10,12,8,0.88);
+      backdrop-filter: blur(8px);
+      display: none; align-items: stretch; justify-content: center;
+    }
+    .help-overlay.open { display: flex; }
+    .help-panel {
+      display: flex;
+      flex-direction: column;
+      width: 100%; max-width: 1080px;
+      margin: 20px;
+      background: linear-gradient(160deg, rgba(28,31,20,0.98) 0%, rgba(40,44,28,0.98) 100%);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 0 80px rgba(196,214,107,0.08), 0 24px 64px rgba(0,0,0,0.85);
+      overflow: hidden;
+    }
+    .help-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px;
+      background: var(--glass-bg);
+      border-bottom: 1px solid var(--glass-border);
+      flex-shrink: 0;
+    }
+    .help-header-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+      color: var(--accent-lime); flex: 1;
+    }
+    .help-header-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; color: var(--text-muted); letter-spacing: 0.08em;
+    }
+    .help-body {
+      display: flex; flex: 1; overflow: hidden;
+    }
+    .help-nav {
+      width: 200px; flex-shrink: 0;
+      border-right: 1px solid var(--glass-border);
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+    .help-nav-item {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.04em;
+      padding: 8px 16px; cursor: pointer;
+      color: var(--text-muted);
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .help-nav-item:hover { color: var(--text-secondary); background: var(--glass-highlight); }
+    .help-nav-item.active {
+      color: var(--accent-lime);
+      border-left-color: var(--accent-lime);
+      background: rgba(196,214,107,0.07);
+    }
+    .help-nav-sep {
+      border-bottom: 1px solid var(--glass-border);
+      margin: 8px 0;
+    }
+    .help-content {
+      flex: 1; overflow-y: auto;
+      padding: 24px 32px;
+    }
+    .help-section { display: none; }
+    .help-section.active { display: block; }
+    .help-section h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; font-weight: 700;
+      color: var(--accent-lime); letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .help-section .h-sub {
+      font-size: 11px; color: var(--text-muted);
+      margin-bottom: 20px; font-style: italic;
+    }
+    .help-section h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      color: var(--text-secondary);
+      margin: 20px 0 8px; letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 4px;
+    }
+    .help-section p {
+      font-size: 12px; color: var(--text-secondary);
+      line-height: 1.7; margin-bottom: 12px;
+    }
+    .help-section ul { padding-left: 18px; margin-bottom: 12px; }
+    .help-section li { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+    .help-section code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; background: rgba(0,0,0,0.45);
+      padding: 1px 5px; color: var(--accent-lime);
+      border: 1px solid var(--glass-border);
+    }
+    .help-section pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; background: rgba(0,0,0,0.45);
+      padding: 12px 14px; color: var(--text-secondary);
+      border: 1px solid var(--glass-border);
+      border-left: 3px solid var(--accent-lime);
+      overflow-x: auto; margin-bottom: 14px; line-height: 1.6;
+    }
+    .help-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11px; }
+    .help-table th {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-muted); text-align: left;
+      padding: 5px 10px; border-bottom: 1px solid var(--glass-border);
+    }
+    .help-table td {
+      padding: 6px 10px; color: var(--text-secondary);
+      border-bottom: 1px solid rgba(164,175,127,0.1);
+      vertical-align: top; line-height: 1.5;
+    }
+    .help-table td:first-child { font-family: 'JetBrains Mono', monospace; color: var(--accent-lime); font-size: 10px; white-space: nowrap; }
+    .help-tip {
+      background: rgba(196,214,107,0.06);
+      border: 1px solid rgba(196,214,107,0.2);
+      border-left: 3px solid var(--accent-lime);
+      padding: 10px 14px; margin: 12px 0; font-size: 11px;
+      color: var(--text-secondary); line-height: 1.6;
+    }
+    .help-tip strong { color: var(--accent-lime); }
+    .help-alert {
+      background: rgba(214,107,107,0.06);
+      border-left: 3px solid var(--accent-red);
+      padding: 10px 14px; margin: 12px 0; font-size: 11px;
+      color: var(--text-secondary); line-height: 1.6;
+    }
+    .help-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .help-footer-note {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; color: var(--text-muted); flex: 1;
+      letter-spacing: 0.05em;
+    }
+
     /* ── Delete confirmation overlay ─────────────────────────────────────── */
     #confirm-delete {
       position: fixed; inset: 0; z-index: 10000;
@@ -1188,6 +1332,7 @@
       <span id="lbl-loop">ralph-loop</span>
     </div>
     <div class="ws-pill" id="ws-pill">WS: OFF</div>
+    <button class="btn" onclick="openHelp()" style="padding:3px 10px;font-size:10px;letter-spacing:0.06em" title="Help & Tutoriais">[?] HELP</button>
   </div>
 </header>
 
@@ -1696,6 +1841,354 @@
     </div>
   </div>
 </div>
+
+<!-- Help Panel Overlay -->
+<div class="help-overlay" id="help-overlay" onclick="helpOverlayClick(event)">
+  <div class="help-panel">
+    <div class="help-header">
+      <span class="help-header-title">[?] HELP &amp; TUTORIAIS — Mission Control</span>
+      <span class="help-header-sub">Sprint 7.3 · 2026-03-07</span>
+      <button class="btn" onclick="closeHelp()" style="padding:3px 10px;font-size:9px;margin-left:12px">✕ Fechar</button>
+    </div>
+    <div class="help-body">
+      <!-- Navigation -->
+      <nav class="help-nav" id="help-nav">
+        <div class="help-nav-item active" onclick="helpGoTo('h-what')">O Que É</div>
+        <div class="help-nav-item" onclick="helpGoTo('h-start')">Primeiros Passos</div>
+        <div class="help-nav-item" onclick="helpGoTo('h-agents')">Guia de Agentes</div>
+        <div class="help-nav-item" onclick="helpGoTo('h-board')">Bulletin Board</div>
+        <div class="help-nav-sep"></div>
+        <div class="help-nav-item" onclick="helpGoTo('h-cli')">CLI Reference</div>
+        <div class="help-nav-item" onclick="helpGoTo('h-concepts')">Conceitos-Chave</div>
+        <div class="help-nav-item" onclick="helpGoTo('h-collab')">Cooperação com IA</div>
+        <div class="help-nav-sep"></div>
+        <div class="help-nav-item" onclick="helpGoTo('h-faq')">FAQ</div>
+      </nav>
+
+      <!-- Content -->
+      <div class="help-content" id="help-content">
+
+        <!-- SECTION 1: O Que É -->
+        <div class="help-section active" id="h-what">
+          <h2>O Que É o Mission Control?</h2>
+          <p class="h-sub">Entenda o sistema em 60 segundos.</p>
+          <p>
+            O <strong>Mission Control</strong> é o painel de comando de uma colmeia de agentes de IA.
+            Cada agente tem identidade própria — nome, alma, habilidades — e é especializado
+            em um domínio (código, planejamento, debug, etc.).
+            Você orquestra esses agentes a partir daqui, acompanhando em tempo real.
+          </p>
+          <div class="help-tip">
+            <strong>Metáfora:</strong> Pense em um centro de missão espacial. Você é o diretor de voo.
+            Os agentes são os especialistas nas estações. O Mission Control é o painel que conecta todos.
+          </div>
+          <h3>// Stack Técnico</h3>
+          <pre>
+Motor de IA:   Kilo Code (porta 4096) — extensão VS Code
+Dashboard:     Node.js HTTP + WebSocket (porta 3030)
+Persistência:  JSON/JSONL (sem banco de dados externo)
+          </pre>
+          <h3>// Três Camadas Principais</h3>
+          <table class="help-table">
+            <tr><th>Camada</th><th>O que é</th><th>Você usa assim</th></tr>
+            <tr><td>Hive Panel</td><td>Lista de agentes com status em tempo real</td><td>Ver estado, abrir chat, spawnar sub-agentes</td></tr>
+            <tr><td>Kanban</td><td>Quadro de tarefas em 4 colunas</td><td>Criar, mover e acompanhar tarefas</td></tr>
+            <tr><td>Bulletin Board</td><td>Mural de comunicados assíncronos</td><td>Postar alertas, relatórios, brainstorms</td></tr>
+          </table>
+          <h3>// Os 5 Agentes Nativos</h3>
+          <table class="help-table">
+            <tr><th>ID</th><th>Nome</th><th>Especialidade</th></tr>
+            <tr><td>code</td><td>The Forge</td><td>Escrever, revisar e refatorar código</td></tr>
+            <tr><td>plan</td><td>The Oracle</td><td>Estratégias, arquitetura, roadmaps</td></tr>
+            <tr><td>debug</td><td>The Sleuth</td><td>Investigar bugs e analisar erros</td></tr>
+            <tr><td>orchestrator</td><td>The Commander</td><td>Coordenar agentes, delegar tarefas</td></tr>
+            <tr><td>ask</td><td>The Lore Keeper</td><td>Responder dúvidas, explicar conceitos</td></tr>
+          </table>
+        </div>
+
+        <!-- SECTION 2: Primeiros Passos -->
+        <div class="help-section" id="h-start">
+          <h2>Primeiros Passos</h2>
+          <p class="h-sub">Do zero ao primeiro agente respondendo.</p>
+          <h3>// Pré-requisitos</h3>
+          <ul>
+            <li>Node.js v18 ou superior instalado</li>
+            <li>Kilo Code rodando (extensão VS Code ativa)</li>
+          </ul>
+          <h3>// Iniciando o Sistema</h3>
+          <pre>
+# 1. Instalar dependências (primeira vez)
+npm install
+
+# 2. Iniciar o servidor do dashboard
+npm run ui
+
+# 3. Abrir no navegador
+http://localhost:3030
+          </pre>
+          <div class="help-tip">
+            <strong>Dica:</strong> O Kilo Code inicia automaticamente com o VS Code.
+            Verifique: <code>http://localhost:4096/global/health</code> deve retornar <code>{"status":"ok"}</code>.
+          </div>
+          <h3>// Primeira Conversa com um Agente</h3>
+          <ol style="padding-left:18px;margin-bottom:12px">
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7">No painel esquerdo (Hive), localize o agente desejado</li>
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7">Clique no botão <code>Chat</code> ao lado do nome</li>
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7">A janela de chat abre — digite sua mensagem e pressione Enter</li>
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7">O agente responde com sua identidade injetada automaticamente</li>
+          </ol>
+          <h3>// Problema: porta 3030 já em uso</h3>
+          <pre>
+# Encontre e encerre o processo:
+netstat -ano | grep ":3030 "
+taskkill /PID &lt;numero&gt; /F
+          </pre>
+        </div>
+
+        <!-- SECTION 3: Guia de Agentes -->
+        <div class="help-section" id="h-agents">
+          <h2>Guia de Agentes</h2>
+          <p class="h-sub">Nativos, zambias, identidade e controle.</p>
+          <h3>// Status dos Agentes</h3>
+          <table class="help-table">
+            <tr><th>Status</th><th>Significado</th><th>O que fazer</th></tr>
+            <tr><td>idle</td><td>Disponível</td><td>Pode enviar mensagens</td></tr>
+            <tr><td>in_progress</td><td>Trabalhando</td><td>Aguarde ou acompanhe no chat</td></tr>
+            <tr><td>blocked</td><td>Impedido</td><td>Verifique o Bulletin Board</td></tr>
+            <tr><td>zombie</td><td>Sem resposta &gt;2min</td><td>Reinicie a sessão via ACP</td></tr>
+            <tr><td>done</td><td>Encerrado</td><td>Tarefa concluída</td></tr>
+          </table>
+          <h3>// Character Chart</h3>
+          <p>Clique no nome de qualquer agente para ver sua ficha (estilo RPG):
+            <strong>STR, INT, WIS, DEX, VIT, CHA</strong> + resistências a COMPLEXITY, CONTEXT_LOSS, TOOL_FAIL, RATE_LIMIT.
+            A habilidade especial é única por agente (ex: FORGE 100 para The Forge).
+          </p>
+          <h3>// Agent Control Panel (ACP)</h3>
+          <p>Clique em <code>Config</code> no card do agente para abrir o ACP. Você pode:
+            alterar provider/modelo, ativar/desativar skills, editar a soul, ver stats de uso.
+          </p>
+          <h3>// Zambias — Sub-Agentes Temporários</h3>
+          <p>Clique em <code>⚡ Spawn</code> no topo do Hive Panel para criar um zambia com missão específica.
+            Com <code>auto_close</code> ativo, ele encerra sozinho após 5 min de idle.
+          </p>
+          <pre>
+Flow: Spawn → Activate → in_progress → idle → [auto-close 5min]
+          </pre>
+        </div>
+
+        <!-- SECTION 4: Bulletin Board -->
+        <div class="help-section" id="h-board">
+          <h2>Bulletin Board</h2>
+          <p class="h-sub">Mural de comunicação assíncrona da colmeia.</p>
+          <p>
+            Diferente do Chat (direto e síncrono), o Bulletin Board é para <strong>comunicados formais</strong>:
+            alertas, relatórios, brainstorms e coordenação entre múltiplos agentes.
+          </p>
+          <h3>// Tópicos Disponíveis</h3>
+          <table class="help-table">
+            <tr><th>Tópico</th><th>Para que serve</th></tr>
+            <tr><td>orchestration</td><td>Coordenação de missões complexas</td></tr>
+            <tr><td>debug</td><td>Relatos de erros e investigações</td></tr>
+            <tr><td>brainstorm</td><td>Ideias e discussões abertas</td></tr>
+            <tr><td>alert</td><td>Situações urgentes ou bloqueios</td></tr>
+            <tr><td>report</td><td>Resultados e conclusões de tarefas</td></tr>
+            <tr><td>request</td><td>Pedidos de recurso ou ajuda</td></tr>
+            <tr><td>feedback</td><td>Avaliações e sugestões</td></tr>
+            <tr><td>coordination</td><td>Sincronização entre agentes</td></tr>
+            <tr><td>general</td><td>Tudo que não se encaixa acima</td></tr>
+          </table>
+          <h3>// Threads e Replies</h3>
+          <p>Clique em <code>Reply</code> em qualquer card para adicionar resposta aninhada.
+            Threads permitem acompanhar conversas sobre um tópico específico sem poluir o feed.</p>
+          <div class="help-tip">
+            <strong>Boas práticas:</strong> Use <code>alert</code> para bloqueios urgentes.
+            Use <code>report</code> ao concluir uma tarefa complexa.
+            Use <code>brainstorm</code> para discutir ideias antes de executar.
+          </div>
+        </div>
+
+        <!-- SECTION 5: CLI Reference -->
+        <div class="help-section" id="h-cli">
+          <h2>CLI Reference — mc</h2>
+          <p class="h-sub">Operação completa via terminal. Instale com <code>npm link</code>.</p>
+          <h3>// Status e Visão Geral</h3>
+          <pre>
+mc status          # resumo da colmeia
+mc status --full   # status detalhado completo
+          </pre>
+          <h3>// Agentes</h3>
+          <pre>
+mc agent list                    # listar todos os agentes
+mc agent show &lt;id&gt;              # detalhes de um agente
+mc agent spawn                   # criar zambia interativo
+mc agent stop &lt;id&gt;              # encerrar agente
+mc agent talk &lt;id&gt; "mensagem"   # enviar mensagem direta
+mc agent memory &lt;id&gt;            # ver memória e stats
+mc agent skill &lt;id&gt; &lt;skill&gt;    # ativar/desativar skill
+mc agent close &lt;id&gt;             # fechar zambia
+          </pre>
+          <h3>// Bulletin Board</h3>
+          <pre>
+mc board read                    # ler mensagens recentes
+mc board read --n 20             # últimas 20 mensagens
+mc board post --topic alert "msg"  # postar mensagem
+mc board reply &lt;msg-id&gt; "reply"    # responder mensagem
+mc board delete &lt;msg-id&gt;           # remover mensagem
+          </pre>
+          <h3>// Tarefas</h3>
+          <pre>
+mc task list                     # listar todas as tasks
+mc task list --column doing      # apenas tasks em progresso
+mc task add "título"             # criar task no backlog
+mc task move &lt;id&gt; review        # mover para coluna
+mc task remove &lt;id&gt;             # remover task
+mc task show &lt;id&gt;               # detalhes da task
+          </pre>
+          <h3>// Hive (colmeia)</h3>
+          <pre>
+mc hive broadcast "mensagem"     # broadcast para todos os agentes
+mc hive snapshot                 # snapshot do estado atual
+mc hive brainstorm "questão"     # brainstorm coletivo
+          </pre>
+          <h3>// Chat REPL Interativo</h3>
+          <pre>
+mc chat &lt;id&gt;   # abre REPL com o agente
+  /sair         # encerrar REPL
+  /limpar       # limpar histórico
+  /status       # ver status da sessão
+          </pre>
+        </div>
+
+        <!-- SECTION 6: Conceitos-Chave -->
+        <div class="help-section" id="h-concepts">
+          <h2>Conceitos-Chave</h2>
+          <p class="h-sub">Glossário do sistema para entender e operar com precisão.</p>
+          <table class="help-table">
+            <tr><th>Conceito</th><th>Definição</th></tr>
+            <tr><td>Soul</td><td>YAML com persona, diretivas e tom de comunicação. Define a "personalidade" do agente. Ex: <code>kilo-native.yaml</code></td></tr>
+            <tr><td>Skill</td><td>YAML com bloco de prompt injetado no contexto do agente. Expande suas capacidades. Ex: <code>code-review.yaml</code></td></tr>
+            <tr><td>Character Chart</td><td>Ficha de atributos do agente (STR/INT/WIS etc.). Pode crescer organicamente via PATCH /api/characters/:agent</td></tr>
+            <tr><td>Heartbeat</td><td>Pulso periódico do agente. Ausência por &gt;2min → status zombie. Registrado em <code>hive/heartbeats.jsonl</code></td></tr>
+            <tr><td>Zambia</td><td>Sub-agente temporário criado para missão específica. Tem parent, auto_close, encerra após idle 5min</td></tr>
+            <tr><td>Lineage</td><td>Árvore de parentesco: agentes nativos + zambias indentados sob seu criador</td></tr>
+            <tr><td>chatKey</td><td>Chave da sessão de chat. Para nativos: nome do agente (ex: "code"). Para zambias: ID do agente</td></tr>
+            <tr><td>Bus</td><td>Message bus assíncrono (<code>bus/messages.jsonl</code>). 9 tópicos. Bulletin Board é a UI do Bus</td></tr>
+            <tr><td>Dispatch</td><td>Fire-and-forget: envia prompt + cria task no Kanban + resposta via WS. Sem chat interativo</td></tr>
+            <tr><td>Context injection</td><td>Sistema que prefixa a primeira mensagem do agente com soul+skills+character. Transparente ao Kilo</td></tr>
+          </table>
+          <h3>// Ciclo de Vida de uma Sessão</h3>
+          <pre>
+Ativar agente → buildAgentContext (soul+skills+char)
+  → primeira mensagem = systemCtx + userMessage → Kilo
+  → respostas subsequentes: apenas userMessage → Kilo
+  → sessão expirada: recriar + re-injetar systemCtx automaticamente
+          </pre>
+        </div>
+
+        <!-- SECTION 7: Cooperação com IA -->
+        <div class="help-section" id="h-collab">
+          <h2>Cooperação com IA</h2>
+          <p class="h-sub">Como trabalhar com agentes como a Argenta como copiloto.</p>
+          <p>
+            Você não precisa operar o Mission Control sozinho. Agentes como a Argenta (orquestradora)
+            podem co-pilotar o sistema — analisando estado, sugerindo ações, executando comandos.
+          </p>
+          <h3>// Padrão de Cooperação</h3>
+          <ol style="padding-left:18px;margin-bottom:12px">
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7"><strong>Você define a intenção</strong> em linguagem natural</li>
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7"><strong>A Argenta pesquisa e consolida</strong> — lê o estado, sugere uma rota</li>
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7"><strong>Você aprova ou ajusta</strong> — nunca assuma execução sem aprovação para ações irreversíveis</li>
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7"><strong>A Argenta executa e reporta</strong> — no Bulletin Board e no Kanban</li>
+            <li style="font-size:12px;color:var(--text-secondary);line-height:1.7"><strong>Você valida o resultado</strong></li>
+          </ol>
+          <h3>// Comandos Úteis para a Argenta</h3>
+          <pre>
+"Analise o estado atual da colmeia e me dê um resumo"
+"Crie um plano para implementar [feature X] e poste no Bulletin Board"
+"Há agentes zombie? Tome as ações necessárias"
+"Spawna um zambia para revisar este PR: [descrição]"
+"Qual é o status das tasks em progresso?"
+          </pre>
+          <h3>// Boas Práticas</h3>
+          <ul>
+            <li>Seja específico sobre o <strong>resultado esperado</strong>, não apenas a tarefa</li>
+            <li>Permita <strong>perguntas de clarificação</strong> antes de executar</li>
+            <li>Aprove explicitamente ações <strong>irreversíveis</strong> (deletar, fazer push, etc.)</li>
+            <li>Acompanhe o <strong>Bulletin Board</strong> para ver a coordenação entre agentes</li>
+          </ul>
+          <div class="help-tip">
+            <strong>Dica:</strong> Abra o chat com <code>ask</code> (The Lore Keeper) para tirar dúvidas
+            sobre qualquer conceito do sistema — ele conhece toda a documentação da colmeia.
+          </div>
+          <h3>// Injetando Contexto em um Agente IA Externo</h3>
+          <p>O arquivo <code>HELP-AI.md</code> na raiz do projeto é otimizado para injeção como
+            contexto de sistema. Basta colar seu conteúdo no prompt do agente e ele poderá
+            operar o Mission Control via API sem precisar de contexto adicional.
+          </p>
+        </div>
+
+        <!-- SECTION 8: FAQ -->
+        <div class="help-section" id="h-faq">
+          <h2>FAQ</h2>
+          <p class="h-sub">Dúvidas frequentes e soluções rápidas.</p>
+
+          <h3>// O dashboard não abre</h3>
+          <p>Verifique se o servidor está rodando com <code>npm run ui</code>.
+            Se a porta 3030 estiver ocupada:</p>
+          <pre>netstat -ano | grep ":3030 "
+taskkill /PID &lt;numero&gt; /F</pre>
+
+          <h3>// O agente não responde</h3>
+          <p>1. Verifique o status no Hive Panel — <code>zombie</code> = perdeu o heartbeat.</p>
+          <p>2. Verifique o Kilo: <code>http://localhost:4096/global/health</code>.</p>
+          <p>3. Abra o ACP e clique em "Reativar sessão".</p>
+
+          <h3>// Como sei se o Kilo está funcionando?</h3>
+          <p>Veja o indicador <strong>kilo-serve</strong> no header — verde = ok.
+            Ou acesse <code>http://localhost:4096/global/health</code> diretamente.</p>
+
+          <h3>// Posso usar qualquer modelo de IA?</h3>
+          <p>Sim, desde que autenticado no Kilo. Os providers disponíveis aparecem nos seletores
+            de provider/modelo no ACP e no Dispatch. Providers atuais:
+            <code>kilo · openai · github-copilot · kimi-for-coding · zai · bailian-coding-plan</code></p>
+
+          <h3>// O que é um zambia e quando criar?</h3>
+          <p>Zambia é um agente temporário com missão específica. Crie quando a tarefa é especializada
+            demais para os 5 nativos, ou quando quer isolar um contexto (ex: "só para revisar este PR").
+            Com <code>auto_close</code>, ele encerra sozinho ao ficar idle por 5 min.</p>
+
+          <h3>// Onde ficam as conversas salvas?</h3>
+          <ul>
+            <li><code>ops/chat-sessions.json</code> — sessões de chat (restauradas ao reiniciar)</li>
+            <li><code>bus/messages.jsonl</code> — mensagens do Bulletin Board</li>
+            <li><code>hive/memory/*.md</code> — memórias formais de agentes</li>
+            <li><code>hive/heartbeats.jsonl</code> — histórico de heartbeats</li>
+          </ul>
+
+          <h3>// Como atualizar o sistema?</h3>
+          <pre>
+git pull origin master
+npm install   # se houver novas dependências
+# reinicie: npm run ui
+          </pre>
+
+          <div class="help-tip">
+            <strong>Ainda com dúvidas?</strong> Clique em <strong>"Pergunte à Argenta"</strong> abaixo
+            para abrir o chat com The Lore Keeper, o especialista em conhecimento da colmeia.
+          </div>
+        </div>
+
+      </div><!-- /help-content -->
+    </div><!-- /help-body -->
+
+    <div class="help-footer">
+      <span class="help-footer-note">Mission Control · Sprint 7.3 · Protocolo Scribe — atualizado a cada Sprint</span>
+      <button class="btn btn-lime" onclick="closeHelp(); openChat('ask')" style="padding:4px 14px;font-size:10px">
+        Pergunte à Argenta →
+      </button>
+    </div>
+  </div><!-- /help-panel -->
+</div><!-- /help-overlay -->
 
 <script>
 const API = 'http://127.0.0.1:3030/api';
@@ -3313,6 +3806,42 @@ async function executeDelete() {
   await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
   await loadData();
 }
+
+// ── Help Panel ────────────────────────────────────────────────────────────────
+
+function openHelp() {
+  document.getElementById('help-overlay').classList.add('open');
+}
+
+function closeHelp() {
+  document.getElementById('help-overlay').classList.remove('open');
+}
+
+function helpOverlayClick(e) {
+  if (e.target === document.getElementById('help-overlay')) closeHelp();
+}
+
+function helpGoTo(sectionId) {
+  // deactivate all sections
+  document.querySelectorAll('.help-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.help-nav-item').forEach(n => n.classList.remove('active'));
+  // activate target
+  const sec = document.getElementById(sectionId);
+  if (sec) sec.classList.add('active');
+  // activate matching nav item (by onclick attribute)
+  document.querySelectorAll('.help-nav-item').forEach(n => {
+    if (n.getAttribute('onclick') === `helpGoTo('${sectionId}')`) n.classList.add('active');
+  });
+  // scroll content to top
+  const content = document.getElementById('help-content');
+  if (content) content.scrollTop = 0;
+}
+
+// keyboard shortcut: ? opens Help
+document.addEventListener('keydown', e => {
+  if (e.key === '?' && !e.target.matches('input,textarea,select')) openHelp();
+  if (e.key === 'Escape') closeHelp();
+});
 
 // ── Character Chart ───────────────────────────────────────────────────────────
 

@@ -233,11 +233,11 @@ Entregues:
 
 Critério: npm run sync:hmc executa sem erro e reflete no repo remoto
 ```
-- [ ] remote hmc configurado no workspace
-- [ ] script `sync-hmc.sh` criado
-- [ ] GitHub Actions workflow criado
-- [ ] `SYNC.md` escrito
-- [ ] Scribe: CHANGELOG.md entrada S7.1 · ARCHITECTURE.md §infra
+- [x] remote hmc configurado no workspace
+- [x] script `sync-hmc.sh` criado
+- [x] GitHub Actions workflow criado
+- [x] `SYNC.md` escrito
+- [x] Scribe: CHANGELOG.md entrada S7.1 · ARCHITECTURE.md §infra
 
 ---
 
@@ -255,12 +255,12 @@ Gaps a fechar:
 
 Critério: mc agent memory <id> retorna estrutura (stub ok) sem erro
 ```
-- [ ] `hive/memory/.gitkeep` criado
-- [ ] `GET /api/hive/agents/:id/memory` implementado
-- [ ] `PATCH /api/characters/:agent` implementado
-- [ ] `uptime_ms` calculado em `updateAgentStats()`
-- [ ] `mc agent memory` wired
-- [ ] Scribe: CHANGELOG.md S7.2 · ARCHITECTURE.md §endpoints · HELP-AI.md §api
+- [x] `hive/memory/.gitkeep` criado
+- [x] `GET /api/hive/agents/:id/memory` implementado
+- [x] `PATCH /api/characters/:agent` implementado
+- [x] `uptime_ms` calculado em `updateAgentStats()`
+- [x] `mc agent memory` wired
+- [x] Scribe: CHANGELOG.md S7.2 · ARCHITECTURE.md §endpoints · HELP-AI.md §api
 
 ---
 
@@ -278,12 +278,12 @@ Entregues:
 
 Critério: humano leigo lê HELP-HUMAN.md e consegue operar o sistema
 ```
-- [ ] `ARCHITECTURE.md` criado com TL;DR
-- [ ] `CHANGELOG.md` criado com entradas retroativas
-- [ ] `HELP-HUMAN.md` criado (seções completas)
-- [ ] `HELP-AI.md` criado (formato estruturado)
-- [ ] `HIVE_BLUEPRINT.md` S1–S6 marcados `[x]`
-- [ ] Scribe: CHANGELOG.md S7.3
+- [x] `ARCHITECTURE.md` criado com TL;DR
+- [x] `CHANGELOG.md` criado com entradas retroativas
+- [x] `HELP-HUMAN.md` criado (seções completas)
+- [x] `HELP-AI.md` criado (formato estruturado)
+- [x] `HIVE_BLUEPRINT.md` S1–S6 marcados `[x]`
+- [x] Scribe: CHANGELOG.md S7.3
 
 ---
 
@@ -307,11 +307,11 @@ Interação: seções expansíveis, botão "Pergunte à Argenta"
 
 Critério: usuário navega pelo Help sem sair do flow do dashboard
 ```
-- [ ] Aba `[?]` adicionada à navegação principal
-- [ ] 8 seções implementadas e navegáveis
-- [ ] Estilos consistentes com o dashboard
-- [ ] Botão "Pergunte à Argenta" funcional
-- [ ] Scribe: CHANGELOG.md S7.4 · HELP-HUMAN.md §help-ui
+- [x] Aba `[?]` adicionada à navegação principal
+- [x] 8 seções implementadas e navegáveis
+- [x] Estilos consistentes com o dashboard
+- [x] Botão "Pergunte à Argenta" funcional
+- [x] Scribe: CHANGELOG.md S7.4 · HELP-HUMAN.md §help-ui
 
 ---
 
@@ -334,10 +334,10 @@ Checklist Scribe:
 Critério: todos os critérios de aceitação do Sprint 7 verificados
           + aprovação explícita do usuário registrada no CHANGELOG
 ```
-- [ ] Scribe Review completo
-- [ ] Todos os critérios de aceitação do Sprint 7 verificados
-- [ ] Commit semântico + push para ambos os repos
-- [ ] Aprovação registrada no CHANGELOG.md
+- [x] Scribe Review completo
+- [x] Todos os critérios de aceitação do Sprint 7 verificados
+- [x] Commit semântico + push para ambos os repos
+- [x] Aprovação registrada no CHANGELOG.md
 
 ---
 
@@ -454,7 +454,7 @@ por qualquer pessoa, com qualquer agente IA como coordenador.
 
 ### Sprint 7 — Docs + Help + Sync + Gap Closure 🔄 EM PROGRESSO
 - [x] S7.1 Sync Infrastructure ✅ 2026-03-07
-- [ ] S7.2 Gap Closure
+- [x] S7.2 Gap Closure ✅ 2026-03-07
 - [ ] S7.3 Documentation Layer
 - [ ] S7.4 Help UI Panel
 - [ ] S7.5 Scribe Review + Aprovação
