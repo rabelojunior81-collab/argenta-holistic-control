@@ -12,7 +12,9 @@
     "health": "node ops/healthcheck.mjs",
     "serve": "node kilo-adapter/server-manager.mjs start",
     "ui": "node ui/server.mjs",
-    "mc": "node cli/mc.mjs"
+    "mc": "node cli/mc.mjs",
+    "sync:hmc": "bash sync-hmc.sh",
+    "sync:hmc:msg": "bash sync-hmc.sh"
   },
   "dependencies": {
     "eventsource": "^2.0.2",

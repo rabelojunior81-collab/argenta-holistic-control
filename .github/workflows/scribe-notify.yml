@@ -1,0 +1,69 @@
+# .github/workflows/scribe-notify.yml
+#
+# Protocolo Scribe — Notificação de push
+#
+# Disparado a cada push em master do argenta-holistic-control.
+# Gera um summary automático do que foi alterado no push,
+# para que qualquer agente (humano ou IA) saiba o que mudou
+# sem precisar ler o diff completo.
+#
+# Para ativar o sync automático de volta para argenta_fenix:
+# 1. Crie um Personal Access Token com escopo 'repo' em:
+#    github.com → Settings → Developer settings → Tokens
+# 2. Adicione como secret ARGENTA_SYNC_TOKEN neste repo:
+#    github.com/rabelojunior81-collab/argenta-holistic-control
+#    → Settings → Secrets and variables → Actions
+# 3. Descomente o job 'sync-workspace' abaixo
+
+name: Scribe Notify
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  # ── Job 1: Log de push (sempre ativo) ──────────────────────────
+  push-summary:
+    name: Push Summary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Log commit info
+        run: |
+          echo "## Push Summary — argenta-holistic-control"
+          echo ""
+          echo "**Branch:** ${{ github.ref_name }}"
+          echo "**Commit:** ${{ github.sha }}"
+          echo "**Author:** ${{ github.actor }}"
+          echo "**Message:** ${{ github.event.head_commit.message }}"
+          echo ""
+          echo "### Arquivos alterados:"
+          git diff --name-only HEAD~1 HEAD || echo "(primeiro commit)"
+
+  # ── Job 2: Sync para argenta_fenix (opcional, requer secret) ───
+  # sync-workspace:
+  #   name: Sync argenta_fenix workspace
+  #   runs-on: ubuntu-latest
+  #   needs: push-summary
+  #   if: secrets.ARGENTA_SYNC_TOKEN != ''
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #
+  #     - name: Push changes to argenta_fenix
+  #       env:
+  #         TOKEN: ${{ secrets.ARGENTA_SYNC_TOKEN }}
+  #       run: |
+  #         git config user.email "rabelojunior81-collab@users.noreply.github.com"
+  #         git config user.name "Scribe Bot"
+  #         # Clone workspace, update the subdirectory, push back
+  #         git clone https://x-access-token:${TOKEN}@github.com/rabelojunior81-collab/argenta_fenix.git /tmp/workspace
+  #         rsync -av --exclude='.git' ./ /tmp/workspace/sandbox/holistic-mission-control/
+  #         cd /tmp/workspace
+  #         git add sandbox/holistic-mission-control/
+  #         git diff --staged --quiet || git commit -m "chore: sync holistic-mission-control from argenta-holistic-control"
+  #         git push
