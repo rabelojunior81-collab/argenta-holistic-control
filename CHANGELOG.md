@@ -1,0 +1,227 @@
+# CHANGELOG — Holistic Mission Control
+> Histórico append-only de entregas.
+> Nunca editar entradas anteriores — apenas adicionar.
+> Formato: HIVE_GROWTH_PROTOCOL.md §2.4
+
+---
+
+## [Sprint 6.0] — Zambias + Spawn System ✅
+**data:** 2026-03-06
+**sprint:** 6
+**domínio:** backend · frontend
+
+### Entregues
+- `#modal-spawn` — formulário completo com soul/skills/mission/parent/auto_close
+- `spawnZambia()` → POST /api/hive/agents + POST activate em sequência
+- Server: `POST /api/hive/agents/:id/activate` com soul+skills injetados na sessão Kilo
+- Lineage tree no Hive Panel (zambias com parent indentados sob nativo)
+- Auto-close: `auto_close: true` + idle 5min + WS `agent_autoclosed`
+
+### Impacto
+Colmeia passa a suportar sub-agentes especializados com identidade completa.
+Argenta pode spawnar zambias com missão específica, monitorá-los e auto-encerrá-los.
+
+### Arquivos Modificados
+- `ui/server.mjs` — activate endpoint + auto-close logic
+- `ui/index.html` — spawn modal + lineage render + WS handler
+
+### Status
+✅ entregue · auditado em 2026-03-07
+
+---
+
+## [Sprint 5.0] — argenta-CLI ✅
+**data:** 2026-03-06
+**sprint:** 5
+**domínio:** cli
+
+### Entregues
+- `cli/mc.mjs` — entry point com parseArgs, ANSI colors, API client, shared helpers
+- `cli/commands/status.mjs` — hive overview completo
+- `cli/commands/agent.mjs` — list/show/spawn/stop/talk/skill/redirect/close
+- `cli/commands/board.mjs` — read/post/reply/mark-read/delete
+- `cli/commands/task.mjs` — list/add/move/remove/show
+- `cli/commands/hive.mjs` — broadcast/snapshot/brainstorm
+- `cli/commands/chat.mjs` — REPL com histórico, /sair, /limpar, /status
+- `package.json` — `"bin": { "mc": "./cli/mc.mjs" }` + script
+
+### Impacto
+Toda a funcionalidade do Mission Control acessível via terminal.
+Argenta pode operar o hive via subprocess sem depender da UI.
+
+### Arquivos Modificados
+- `cli/mc.mjs` (criado)
+- `cli/commands/*.mjs` (6 arquivos criados)
+- `package.json` (bin + script adicionados)
+
+### Gap identificado
+- `mc agent memory <id>` listado no help mas endpoint `/api/hive/agents/:id/memory` não existia → deferred S7.2
+
+### Status
+✅ entregue · auditado em 2026-03-07
+
+---
+
+## [Sprint 4.0] — Skills + Souls ✅
+**data:** 2026-03-06
+**sprint:** 4
+**domínio:** backend · frontend · config
+
+### Entregues
+- 9 skills YAML em `skills/` com campo `inject` (blocos de prompt)
+- 4 souls YAML em `souls/` com persona/directives/restrictions/tone
+- `GET /api/skills`, `GET /api/skills/:name`
+- `GET /api/souls`, `GET /api/souls/:name`
+- `buildAgentContext(char, agentName, soul, activeSkills)` — sistema de injeção
+- First-message-prime: contexto injetado como prefixo da primeira mensagem
+- Session restore: sessão Kilo expirada → recria + re-injeta automaticamente
+- Skill editor no ACP modal (chips toggle)
+- Soul editor no ACP modal (selector + textarea)
+- Skills exibidas no Character Chart modal
+- `POST /api/hive/agents/:id/activate` — pré-injeta ao spawnar
+
+### Impacto
+Agentes passam a ter identidade injetável nas sessões Kilo.
+Kilo não sabe a diferença — a identidade é transparente no substrato.
+
+### Arquivos Modificados
+- `skills/*.yaml` (9 arquivos criados)
+- `souls/*.yaml` (4 arquivos criados)
+- `ui/server.mjs` — loadSkills, loadSouls, buildAgentContext, activate endpoint
+- `ui/index.html` — ACP skill/soul editor + Character Chart skills section
+
+### Status
+✅ entregue · auditado em 2026-03-07
+
+---
+
+## [Sprint 3.0] — Message Bus + Bulletin Board ✅
+**data:** 2026-03-06
+**sprint:** 3
+**domínio:** backend · frontend
+
+### Entregues
+- `bus/messages.jsonl` — barramento append-only criado
+- `GET /api/bus` com filtros: topic · from · thread · n
+- `POST /api/bus` — nova mensagem com validação de topic
+- `PATCH /api/bus/:id` — atualiza status/content
+- `DELETE /api/bus/:id` — remove mensagem (bonus)
+- `POST /api/bus/:id/reply` — adiciona reply aninhado
+- WS broadcast: `bus_message` (novo post) + `bus_updated` (PATCH/DELETE)
+- Bulletin Board UI no painel direito (substitui eventos simples)
+- Cards expansíveis com thread view + compose + filtros
+
+### Impacto
+Colmeia passa a ter canal de comunicação assíncrono entre agentes.
+9 tópicos padrão definidos (orchestration/debug/brainstorm/etc).
+
+### Arquivos Modificados
+- `bus/messages.jsonl` (criado)
+- `ui/server.mjs` — loadBus, saveBus, todos endpoints /api/bus
+- `ui/index.html` — Bulletin Board UI completo
+
+### Status
+✅ entregue · auditado em 2026-03-07
+
+---
+
+## [Sprint 2.0] — Agent Identity + Hive Store ✅
+**data:** 2026-03-05
+**sprint:** 2
+**domínio:** backend · frontend
+
+### Entregues
+- `hive/agents.json` — 5 agentes nativos populados (code/plan/debug/orchestrator/ask)
+- `GET /api/hive/agents` — lista todos os agentes
+- `POST /api/hive/agents` — registra novo agente
+- `GET /api/hive/agents/:id` — detalhes enriquecidos com character + chat data
+- `PATCH /api/hive/agents/:id` — atualiza campos (status/soul/skills/etc)
+- `DELETE /api/hive/agents/:id` — remove agente
+- `POST /api/hive/agents/:id/heartbeat` — pulso + append em heartbeats.jsonl
+- `zombieCheck()` — 2min sem heartbeat → zombie (a cada 30s)
+- `syncNativeAgentStatus()` — sync status nativos com chatSessions (a cada 5s)
+- `updateAgentStats()` — atualiza msgs/tokens/cost após chat_response
+- Hive Panel UI — linhagem (nativos + zambias indentados)
+- Agent Control Panel modal — status/provider/model/skills/soul/stats
+
+### Arquivos Modificados
+- `hive/agents.json` (criado)
+- `hive/heartbeats.jsonl` (criado)
+- `ui/server.mjs` — loadHive, saveHive, syncNativeAgentStatus, zombieCheck, todos endpoints /api/hive
+- `ui/index.html` — Hive Panel + ACP modal
+
+### Gaps identificados
+- `GET /api/hive/agents/:id/memory` não implementado → deferred S7.2
+- `hive/memory/` directory não criado → deferred S7.2
+
+### Status
+✅ entregue · auditado em 2026-03-07
+
+---
+
+## [Sprint 1.0] — Character Charts ✅
+**data:** 2026-03-05
+**sprint:** 1
+**domínio:** config · backend · frontend
+
+### Entregues
+- `expertise-matrix/characters/code.yaml` — The Forge (FORGE 100)
+- `expertise-matrix/characters/plan.yaml` — The Oracle (ORACLE 100)
+- `expertise-matrix/characters/debug.yaml` — The Sleuth (SLEUTH 100)
+- `expertise-matrix/characters/orchestrator.yaml` — The Commander (COMMAND 100)
+- `expertise-matrix/characters/ask.yaml` — The Lore Keeper (LORE 100)
+- `GET /api/characters` — todas as fichas parseadas
+- `GET /api/characters/:agent` — ficha específica
+- Character Chart modal Diablo-style com barras de atributos ASCII
+- `openCharacterModal()` integrado ao Hive Panel
+
+### Divergência de schema
+- Blueprint define `base_attributes`, YAML implementado usa `attributes`
+- Server lê `char.attributes` corretamente → divergência não bloqueante
+
+### Gaps identificados
+- `PATCH /api/characters/:agent` não implementado → deferred S7.2
+
+### Status
+✅ entregue · auditado em 2026-03-07
+
+---
+
+## [Infra] — Repositório GitHub criado ✅
+**data:** 2026-03-07
+**sprint:** infra
+**domínio:** config
+
+### Entregues
+- Repositório `argenta-holistic-control` criado (privado)
+- Account: `rabelojunior81-collab`
+- 48 arquivos · 8978 linhas no commit inicial
+- `.gitignore` excluindo `node_modules/` e `ops/chat-sessions.json`
+- Branch: `master` tracking `origin/master`
+
+### Status
+✅ entregue
+
+---
+
+## [Docs] — HIVE_GROWTH_PROTOCOL.md criado 🔄
+**data:** 2026-03-07
+**sprint:** 7.0 (início)
+**domínio:** docs
+
+### Entregues
+- `HIVE_GROWTH_PROTOCOL.md` — metodologia molecular + Protocolo Scribe + roadmap S7–S9
+- `HIVE_BLUEPRINT.md` — S1–S6 marcados como `[x]`, status congelado adicionado
+- `CHANGELOG.md` — este arquivo, com entradas retroativas S1–S6
+
+### Impacto
+Colmeia passa a ter metodologia explícita de crescimento.
+Qualquer agente pode entender onde estamos e como contribuir sem histórico da sessão.
+
+### Arquivos Modificados
+- `HIVE_GROWTH_PROTOCOL.md` (criado)
+- `HIVE_BLUEPRINT.md` (atualizado — sprints marcados + status)
+- `CHANGELOG.md` (criado — este arquivo)
+
+### Status
+🔄 em progresso — Sprint 7 em execução

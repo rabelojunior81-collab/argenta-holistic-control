@@ -2,6 +2,10 @@
 > Versão 0.1 — 2026-03-05
 > Arquitetura completa da colmeia de agentes inteligentes
 
+> **STATUS:** Sprints 1–6 entregues e auditados em 2026-03-07 (taxa de entrega: 89%).
+> Metodologia de crescimento e roadmap Sprint 7+ em `HIVE_GROWTH_PROTOCOL.md`.
+> Este documento está **congelado** como registro da arquitetura original.
+
 ---
 
 ## 0. Visão Sistêmica
@@ -530,42 +534,48 @@ holistic-mission-control/
 
 ## 9. Sequência de Implementação
 
-### Sprint 1 — Character Charts (próxima sessão)
-- [ ] Criar `expertise-matrix/characters/*.yaml` (5 fichas)
-- [ ] Endpoint `GET /api/characters`
-- [ ] UI: Character Chart modal/panel com visual Diablo-style
-- [ ] Integrar com `renderAgents()` (click no agent card → character chart)
+### Sprint 1 — Character Charts ✅ ENTREGUE (2026-03-05)
+- [x] Criar `expertise-matrix/characters/*.yaml` (5 fichas)
+- [x] Endpoint `GET /api/characters` + `GET /api/characters/:agent`
+- [x] UI: Character Chart modal/panel com visual Diablo-style
+- [x] Integrar com Hive Panel (click no agent card → character chart)
+- [ ] `PATCH /api/characters/:agent` → deferred Sprint 7.2
 
-### Sprint 2 — Agent Identity + Hive Store
-- [ ] Schema `hive/agents.json`
-- [ ] Endpoints `/api/hive/agents` (CRUD)
-- [ ] Heartbeat system
-- [ ] UI: Hive Panel (substituir painel esquerdo atual)
-- [ ] Agent Control Panel (modal completo)
+### Sprint 2 — Agent Identity + Hive Store ✅ ENTREGUE (2026-03-05)
+- [x] Schema `hive/agents.json` — 5 nativos populados
+- [x] Endpoints `/api/hive/agents` (CRUD completo)
+- [x] Heartbeat system + zombie detection
+- [x] UI: Hive Panel com linhagem (nativos + zambias)
+- [x] Agent Control Panel (modal completo)
+- [ ] `GET /api/hive/agents/:id/memory` → deferred Sprint 7.2
+- [ ] `hive/memory/` directory → deferred Sprint 7.2
 
-### Sprint 3 — Message Bus + Bulletin Board
-- [ ] `bus/messages.jsonl` + endpoints `/api/bus`
-- [ ] WS broadcast para novos posts
-- [ ] UI: Bulletin Board (painel direito, substituindo eventos simples)
-- [ ] Thread view + reply
+### Sprint 3 — Message Bus + Bulletin Board ✅ ENTREGUE (2026-03-06)
+- [x] `bus/messages.jsonl` + endpoints `/api/bus` completo
+- [x] WS broadcast: `bus_message` + `bus_updated`
+- [x] UI: Bulletin Board (painel direito) com threads + compose
+- [x] Thread view + reply + filtros
 
-### Sprint 4 — Skills + Souls
-- [ ] Schema YAML de skills e souls
-- [ ] Injeção de skills na sessão Kilo ao spawnar
-- [ ] UI: skill editor no Agent Control Panel
-- [ ] Soul editor (textarea de system prompt)
+### Sprint 4 — Skills + Souls ✅ ENTREGUE (2026-03-06)
+- [x] 9 skills YAML + 4 souls YAML com campos completos
+- [x] `buildAgentContext()` — injeta char+soul+skills no prompt Kilo
+- [x] UI: skill editor + soul editor no ACP modal
+- [x] `POST /api/hive/agents/:id/activate`
 
-### Sprint 5 — argenta-CLI
-- [ ] `cli/mc.mjs` entry point
-- [ ] Comandos `status`, `agent`, `board`, `task`
-- [ ] Integração com endpoints do server
-- [ ] Modo REPL para `mc chat`
+### Sprint 5 — argenta-CLI ✅ ENTREGUE (2026-03-06)
+- [x] `cli/mc.mjs` entry point + todos os helpers
+- [x] Comandos: status · agent · board · task · hive · chat
+- [x] Integração completa com endpoints do server
+- [x] Modo REPL para `mc chat` com histórico e /comandos
+- [ ] `mc agent memory` → deferred Sprint 7.2
 
-### Sprint 6 — Zambias + Spawn System
-- [ ] UI: modal de spawn com soul + skills + mission
-- [ ] Server: criar agente Kilo com soul injetado no system prompt
-- [ ] Tracking de linhagem (parent → children)
-- [ ] Auto-encerramento de task-agents após conclusão
+### Sprint 6 — Zambias + Spawn System ✅ ENTREGUE (2026-03-06)
+- [x] UI: modal spawn completo (soul/skills/mission/parent/auto_close)
+- [x] Server: agente criado com soul+skills injetado no Kilo session
+- [x] Tracking de linhagem (parent → children) no Hive Panel
+- [x] Auto-encerramento: `auto_close: true` + 5min idle + WS broadcast
+
+### Sprint 7+ — ver HIVE_GROWTH_PROTOCOL.md
 
 ---
 
@@ -593,4 +603,4 @@ a qualquer momento. Sem caixas pretas.
 
 ---
 
-*Próxima sessão: implementar Sprint 1 — Character Charts.*
+*Sprints 1–6 entregues. Roadmap Sprint 7+ em `HIVE_GROWTH_PROTOCOL.md`.*
