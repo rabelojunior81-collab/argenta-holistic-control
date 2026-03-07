@@ -299,6 +299,8 @@ async function updateAgentStats(chatKey, tokens, cost) {
     a.stats.messages_sent++;
     if (tokens) a.stats.tokens_used += tokens;
     if (cost)   a.stats.cost_usd   += cost;
+    // uptime_ms: acumula tempo desde o born do agente até agora
+    if (a.born) a.stats.uptime_ms = Date.now() - new Date(a.born).getTime();
     a.heartbeat = new Date().toISOString();
     await saveHive(db);
   } catch {}
@@ -1040,6 +1042,28 @@ const server = createServer(async (req, res) => {
     return json(res, { ok: true });
   }
 
+  // ── Agent Memory summary ──
+  const memoryMatch = path.match(/^\/api\/hive\/agents\/([^/]+)\/memory$/);
+  if (memoryMatch && method === "GET") {
+    const db  = await loadHive();
+    const agt = db.agents.find(a => a.id === memoryMatch[1]);
+    if (!agt) return err(res, "agent not found", 404);
+    const summaryPath = join(ROOT, "hive/memory", `${agt.id}.md`);
+    const summaryExists = existsSync(summaryPath);
+    const chat  = chatSessions.get(agt.chatKey);
+    return json(res, {
+      agent_id:       agt.id,
+      name:           agt.name,
+      summary_file:   `hive/memory/${agt.id}.md`,
+      summary_exists: summaryExists,
+      summary:        summaryExists ? await readFile(summaryPath, "utf8") : null,
+      message_count:  chat?.messages?.length ?? 0,
+      last_message:   chat?.messages?.at(-1) ?? null,
+      stats:          agt.stats,
+      qdrant_collection: agt.memory?.qdrant_collection ?? null,
+    });
+  }
+
   // ── Agent Activate (pre-injects soul+skills context into Kilo session) ──
   const activateMatch = path.match(/^\/api\/hive\/agents\/([^/]+)\/activate$/);
   if (activateMatch && method === "POST") {
@@ -1210,11 +1234,42 @@ const server = createServer(async (req, res) => {
   }
 
   const charMatch = path.match(/^\/api\/characters\/([a-z]+)$/);
-  if (charMatch && method === "GET") {
-    const chars = await loadCharacters();
-    const char  = chars[charMatch[1]];
-    if (!char) return err(res, "character not found", 404);
-    return json(res, char);
+  if (charMatch) {
+    const agentSlug = charMatch[1];
+
+    if (method === "GET") {
+      const chars = await loadCharacters();
+      const char  = chars[agentSlug];
+      if (!char) return err(res, "character not found", 404);
+      return json(res, char);
+    }
+
+    // PATCH /api/characters/:agent — crescimento orgânico de atributos
+    if (method === "PATCH") {
+      const b     = await body(req);
+      const chars = await loadCharacters();
+      const char  = chars[agentSlug];
+      if (!char) return err(res, "character not found", 404);
+
+      // Permite atualizar atributos, resistências e stats especiais
+      if (b.attributes && typeof b.attributes === "object") {
+        char.attributes = { ...char.attributes, ...b.attributes };
+      }
+      if (b.resistances && typeof b.resistances === "object") {
+        char.resistances = { ...char.resistances, ...b.resistances };
+      }
+      if (b.special && typeof b.special === "object") {
+        char.special = { ...char.special, ...b.special };
+      }
+
+      // Persiste o YAML atualizado
+      const charFile = join(CHARACTERS, `${agentSlug}.yaml`);
+      if (!existsSync(charFile)) return err(res, "character file not found", 404);
+      const updatedYaml = yaml.dump(char, { lineWidth: 120 });
+      await writeFile(charFile, updatedYaml, "utf8");
+      wsBroadcast("character_updated", { agent: agentSlug });
+      return json(res, char);
+    }
   }
 
   // ── Health ──

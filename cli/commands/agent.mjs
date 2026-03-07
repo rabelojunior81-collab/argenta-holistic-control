@@ -26,9 +26,10 @@ export async function run(args, flags) {
     case "skill":  return cmdSkill(rest, flags);
     case "redirect": return cmdRedirect(rest[0], rest[1], rest[2]);
     case "close":  return cmdClose(rest[0]);
+    case "memory": return cmdMemory(rest[0]);
     default:
       console.error(`${paint(C.red, "✗")} Subcomando desconhecido: "${sub ?? "(nenhum)"}"`);
-      console.error(`  Tente: list · show · spawn · stop · talk · skill · redirect · close`);
+      console.error(`  Tente: list · show · spawn · stop · talk · skill · redirect · close · memory`);
       process.exit(1);
   }
 }
@@ -288,6 +289,36 @@ async function cmdClose(id) {
     await apiDel(`/hive/agents/${agt.id}`);
     console.log(paint(C.lime, `✓ Zambia "${agt.name ?? agt.id}" encerrado e removido do hive`));
   }
+}
+
+// ── mc agent memory <id> ──────────────────────────────────────────────────────
+
+async function cmdMemory(id) {
+  if (!id) { console.error(paint(C.red, "✗ id requerido")); process.exit(1); }
+  const agt = await _resolveAgent(id);
+  const mem = await api(`/hive/agents/${agt.id}/memory`);
+
+  section(`MEMÓRIA: ${mem.name ?? agt.id}`);
+  kv("agent_id",   mem.agent_id);
+  kv("msgs",       String(mem.message_count));
+  kv("tokens",     String(mem.stats?.tokens_used ?? 0));
+  kv("uptime",     mem.stats?.uptime_ms ? `${Math.round(mem.stats.uptime_ms / 60000)}m` : "—");
+  kv("qdrant",     mem.qdrant_collection ?? paint(C.gray, "não configurado"));
+  kv("summary",    mem.summary_exists
+    ? paint(C.lime, `✓ ${mem.summary_file}`)
+    : paint(C.gray, "sem sumário — agente não encerrou formalmente"));
+
+  if (mem.summary) {
+    console.log(`\n  ${paint(C.bold, "Sumário:")}`);
+    console.log(mem.summary.split("\n").map(l => "  " + l).join("\n"));
+  }
+
+  if (mem.last_message) {
+    const m = mem.last_message;
+    console.log(`\n  ${paint(C.bold, "Última mensagem:")} ${paint(C.gray, m.role)} ${paint(C.gray, m.ts ?? "")}`);
+    console.log("  " + (m.text ?? "").slice(0, 120));
+  }
+  console.log("");
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

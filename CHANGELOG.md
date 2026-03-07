@@ -5,6 +5,36 @@
 
 ---
 
+## [Sprint 7.1] — config: Sync Infrastructure ✅
+**data:** 2026-03-07
+**sprint:** 7.1
+**domínio:** config · infra
+
+### Entregues
+- `sync-hmc.sh` — script bash de sync standalone → argenta-holistic-control
+- `npm run sync:hmc` — alias no package.json
+- `.github/workflows/scribe-notify.yml` — push summary + sync workspace opcional via secret
+- `SYNC.md` — arquitetura completa, dois flows, roadmap até fork agnóstico (S9)
+
+### Impacto
+Qualquer agente sincroniza os dois repos com um único comando.
+GitHub Actions pronto para ativar sync automático com 1 secret (ARGENTA_SYNC_TOKEN).
+
+### Arquivos Modificados
+- `sync-hmc.sh` (criado)
+- `package.json` (scripts sync:hmc)
+- `.github/workflows/scribe-notify.yml` (criado)
+- `SYNC.md` (criado)
+
+### Docs Atualizados
+- `CHANGELOG.md` — esta entrada
+- `HIVE_GROWTH_PROTOCOL.md` — S7.1 marcado [x]
+
+### Status
+✅ entregue · argenta-holistic-control `b02c58d` · argenta_fenix `ab5c70c`
+
+---
+
 ## [Sprint 6.0] — Zambias + Spawn System ✅
 **data:** 2026-03-06
 **sprint:** 6

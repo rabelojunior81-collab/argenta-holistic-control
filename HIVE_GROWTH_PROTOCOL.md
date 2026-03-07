@@ -453,7 +453,7 @@ por qualquer pessoa, com qualquer agente IA como coordenador.
 - [x] WS `agent_autoclosed` → UI refresh
 
 ### Sprint 7 — Docs + Help + Sync + Gap Closure 🔄 EM PROGRESSO
-- [ ] S7.1 Sync Infrastructure
+- [x] S7.1 Sync Infrastructure ✅ 2026-03-07
 - [ ] S7.2 Gap Closure
 - [ ] S7.3 Documentation Layer
 - [ ] S7.4 Help UI Panel
