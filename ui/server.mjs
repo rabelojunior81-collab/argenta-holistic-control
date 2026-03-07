@@ -1413,6 +1413,22 @@ const server = createServer(async (req, res) => {
     return json(res, { ...result, duration_ms, command: allArgs.join(" ") });
   }
 
+  // ── Shutdown gracioso ──
+  if (path === "/api/shutdown" && method === "POST") {
+    const b       = await body(req);
+    const delay   = Math.min(Math.max(parseInt(b.delay ?? "1500"), 500), 5000);
+    const reason  = b.reason ?? "user_request";
+    wsBroadcast("shutdown", { countdown_ms: delay, reason, ts: new Date().toISOString() });
+    json(res, { shutdown: true, countdown_ms: delay, reason });
+    // Persiste sessões antes de sair
+    await saveChatSessions().catch(() => {});
+    setTimeout(() => {
+      console.log("[ui] shutdown solicitado — encerrando processo.");
+      process.exit(0);
+    }, delay);
+    return;
+  }
+
   // ── Health ──
   if (path === "/api/health" && method === "GET") {
     const kilo  = await kiloHealth();

@@ -101,8 +101,15 @@ function startService(svc) {
     });
 
     child.on("exit", (code, signal) => {
-      if (!shuttingDown) {
-        log(svc.color, svc.id, paint(C.red, `encerrado (code=${code ?? signal})`));
+      if (shuttingDown) return;
+      if (code === 0) {
+        // Saída limpa (ex: /api/shutdown chamado pelo dashboard) — encerra tudo
+        log(svc.color, svc.id, paint(C.lime, `encerrado graciosamente`));
+        shutdown("EXIT");
+      } else {
+        log(svc.color, svc.id, paint(C.red, `encerrado inesperadamente (code=${code ?? signal})`));
+        // Opcional: reiniciar ou encerrar tudo
+        shutdown("CRASH");
       }
     });
 

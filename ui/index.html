@@ -1327,6 +1327,49 @@
     }
 
     /* ── Help Panel ──────────────────────────────────────────────────────── */
+    /* ── Shutdown Modal ──────────────────────────────────────────────────── */
+    #shutdown-overlay {
+      position: fixed; inset: 0; z-index: 99000;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(6px);
+      display: none; align-items: center; justify-content: center;
+    }
+    #shutdown-overlay.open { display: flex; }
+    .shutdown-box {
+      background: linear-gradient(160deg, rgba(16,10,10,0.99) 0%, rgba(32,16,16,0.99) 100%);
+      border: 1px solid rgba(214,107,107,0.4);
+      box-shadow: 0 0 60px rgba(214,107,107,0.12), 0 24px 48px rgba(0,0,0,0.85);
+      padding: 32px 36px; width: 360px; text-align: center;
+    }
+    .shutdown-icon {
+      font-size: 32px; margin-bottom: 16px; display: block;
+      animation: shutdownPulse 1.5s ease infinite;
+    }
+    @keyframes shutdownPulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+    .shutdown-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
+      color: var(--accent-red); margin-bottom: 8px;
+    }
+    .shutdown-sub {
+      font-size: 11px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;
+    }
+    .shutdown-countdown {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 36px; font-weight: 700; color: var(--accent-red);
+      margin-bottom: 20px; line-height: 1;
+      text-shadow: 0 0 20px rgba(214,107,107,0.5);
+      display: none;
+    }
+    .shutdown-actions { display: flex; gap: 10px; justify-content: center; }
+    .shutdown-done {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em;
+      padding: 16px 0; display: none;
+    }
+
+    /* ── Help Panel ──────────────────────────────────────────────────────── */
     .help-overlay {
       position: fixed; inset: 0; z-index: 9000;
       background: rgba(10,12,8,0.88);
@@ -1560,6 +1603,7 @@
     </div>
     <div class="ws-pill" id="ws-pill">WS: OFF</div>
     <button class="btn" onclick="openHelp()" style="padding:3px 10px;font-size:10px;letter-spacing:0.06em" title="Help & Tutoriais">[?] HELP</button>
+    <button class="btn" onclick="openShutdown()" style="padding:3px 10px;font-size:10px;letter-spacing:0.06em;color:var(--accent-red);border-color:rgba(214,107,107,0.35)" title="Encerrar Mission Control">[⏻]</button>
   </div>
 </header>
 
@@ -2074,6 +2118,24 @@
   </div>
 </div>
 
+<!-- Shutdown Modal -->
+<div id="shutdown-overlay" onclick="if(event.target===this&&!_shuttingDown)closeShutdown()">
+  <div class="shutdown-box">
+    <span class="shutdown-icon" id="sd-icon">⏻</span>
+    <div class="shutdown-title" id="sd-title">Encerrar Mission Control?</div>
+    <div class="shutdown-sub" id="sd-sub">
+      Todos os serviços serão encerrados graciosamente.<br>
+      Sessões de chat serão salvas automaticamente.
+    </div>
+    <div class="shutdown-countdown" id="sd-countdown"></div>
+    <div class="shutdown-done" id="sd-done">Servidor encerrado.<br>Pode fechar esta aba.</div>
+    <div class="shutdown-actions" id="sd-actions">
+      <button class="btn" onclick="closeShutdown()" style="padding:6px 18px">Cancelar</button>
+      <button class="btn" onclick="confirmShutdown()" style="padding:6px 18px;color:var(--accent-red);border-color:rgba(214,107,107,0.4)">⏻ Encerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Help Panel Overlay -->
 <div class="help-overlay" id="help-overlay" onclick="helpOverlayClick(event)">
   <div class="help-panel">
@@ -2550,6 +2612,9 @@ function connectWS() {
         break;
       case 'bus_updated':
         bbLoad();
+        break;
+      case 'shutdown':
+        onServerShutdown(msg.payload);
         break;
       case 'character_updated':
         // Re-render character data + organic growth flash
@@ -4115,6 +4180,85 @@ async function executeDelete() {
   cancelDelete();
   await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
   await loadData();
+}
+
+// ── Shutdown ──────────────────────────────────────────────────────────────────
+
+let _shuttingDown = false;
+let _shutdownTimer = null;
+
+function openShutdown() {
+  document.getElementById('shutdown-overlay').classList.add('open');
+}
+
+function closeShutdown() {
+  if (_shuttingDown) return;
+  document.getElementById('shutdown-overlay').classList.remove('open');
+}
+
+async function confirmShutdown() {
+  if (_shuttingDown) return;
+  _shuttingDown = true;
+
+  // Esconde botões, mostra countdown
+  document.getElementById('sd-actions').style.display = 'none';
+  document.getElementById('sd-sub').style.display = 'none';
+  document.getElementById('sd-title').textContent = 'Encerrando...';
+  document.getElementById('sd-icon').textContent = '⏻';
+  document.getElementById('sd-icon').style.animationDuration = '0.5s';
+
+  const cdEl = document.getElementById('sd-countdown');
+  cdEl.style.display = 'block';
+
+  let secs = 3;
+  cdEl.textContent = secs;
+  _shutdownTimer = setInterval(() => {
+    secs--;
+    if (secs > 0) { cdEl.textContent = secs; return; }
+    clearInterval(_shutdownTimer);
+    cdEl.style.display = 'none';
+    _doShutdown();
+  }, 1000);
+}
+
+async function _doShutdown() {
+  const icon = document.getElementById('sd-icon');
+  icon.textContent = '⏻';
+  icon.style.animation = 'none'; icon.style.opacity = '0.3';
+  document.getElementById('sd-title').textContent = 'Encerrando serviços...';
+
+  try {
+    await fetch(`${API}/shutdown`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ delay: 1500, reason: 'user_request' }),
+    });
+  } catch { /* servidor pode já ter encerrado */ }
+
+  // Aguarda desconexão do WS (o server vai enviar o evento 'shutdown')
+  // Se não chegar em 4s, exibe mensagem mesmo assim
+  setTimeout(() => _showShutdownDone(), 4000);
+}
+
+function _showShutdownDone() {
+  document.getElementById('sd-icon').textContent = '✓';
+  document.getElementById('sd-icon').style.color = 'var(--accent-green)';
+  document.getElementById('sd-icon').style.opacity = '1';
+  document.getElementById('sd-title').textContent = 'Mission Control Encerrado';
+  document.getElementById('sd-done').style.display = 'block';
+}
+
+// WS event: servidor avisando shutdown iminente (para clientes que não clicaram)
+function onServerShutdown(payload) {
+  if (document.getElementById('shutdown-overlay').classList.contains('open') && _shuttingDown) return;
+  _shuttingDown = true;
+  document.getElementById('shutdown-overlay').classList.add('open');
+  document.getElementById('sd-actions').style.display = 'none';
+  document.getElementById('sd-sub').style.display = 'none';
+  document.getElementById('sd-title').textContent = 'Servidor encerrando...';
+  document.getElementById('sd-icon').textContent = '⏻';
+  const ms = payload?.countdown_ms ?? 1500;
+  setTimeout(_showShutdownDone, ms + 500);
 }
 
 // ── Boot / Welcoming Scene ────────────────────────────────────────────────────
