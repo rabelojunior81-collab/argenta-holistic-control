@@ -5,6 +5,23 @@
 
 ---
 
+## [S9.7] — Licença MIT + Aprovação Sprint 9 — 2026-03-08 ✅
+**sprint:** S9.7 · **domínio:** legal · onboarding
+
+### Entregue
+- `LICENSE` — MIT License, copyright 2026 Adilson Rabel. Propagado para `master` e `generic`.
+- `package.json` — campo `"license": "MIT"` adicionado em ambas as branches.
+- `launch_roadmap.md` — Sprint 9 marcado Aprovado; Sprint 10 aberto.
+
+### Decisão
+- **Licença:** MIT (open source) — aprovado por Adilson ("MIT.").
+  Impacto: repositório público; contribuições externas habilitadas; Sprint 11 (plugin system) pode ser projetado como extensão pública.
+
+### Aprovação
+- Sprint 9 formalmente aprovado por Adilson: *"Compacte e vamos para os próximos passos."*
+
+---
+
 ## [Sprint 9] — Fork Agnóstico — 2026-03-08 ✅
 **sprint:** S9 · **domínio:** infra · config · onboarding · branching
 

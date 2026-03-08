@@ -28,7 +28,8 @@
 2026-03-07  Sprint 8  Start Infrastructure + Episodic Memory + Organic Growth
 2026-03-07  [BREAK]   Sessão de orquestração autônoma — experimento não supervisionado
 2026-03-08  [HOTFIX]  Post-mortem: 6 bugs críticos corrigidos + auditoria geral
-2026-03-08  [AGORA]   Abertura da fase de lançamento — Sprint 9 iniciado
+2026-03-08  Sprint 9   Fork Agnóstico — config externalizada, setup wizard, branch generic, licença MIT
+2026-03-08  [AGORA]   Sprint 10 aberto — integração runtime: MCP, consensus, delegation, Web CLI
 ```
 
 ---
@@ -163,7 +164,7 @@ Uma sessão de orquestração autônoma foi executada para implementar: MCP inte
 | Sprint 7 (S7.1–S7.5) | 2026-03-07 | Adilson | ✅ Aprovado |
 | Sprint 8 (S8.0–S8.4) | 2026-03-08 | Adilson (implícito via hotfix) | ✅ Aprovado |
 | Hotfix Post-mortem | 2026-03-08 | Adilson ("RESOLVEU") | ✅ Aprovado |
-| Sprint 9 | — | Adilson | 🟡 Pendente abertura |
+| Sprint 9 | 2026-03-08 | Adilson ("Compacte e vamos para os próximos passos") | ✅ Aprovado |
 
 ---
 
@@ -195,14 +196,14 @@ Um sistema de orquestração de agentes IA que qualquer equipe pode instalar, co
 - [ ] Pelo menos 3 provedores de IA suportados e documentados
 - [ ] Todos os fluxos principais com tratamento de erro visível
 - [ ] CHANGELOG completo e legível
-- [ ] Licença definida e incluída
+- [x] Licença definida e incluída — **MIT** (2026-03-08)
 
 ---
 
 ## 2.2 — SPRINT 9 — FORK AGNÓSTICO ✅
 ### *Tornar o sistema instalável por qualquer pessoa*
 
-> **Status:** ✅ ENTREGUE — 2026-03-08 · Aguardando aprovação formal
+> **Status:** ✅ APROVADO — 2026-03-08
 > **Branch master:** config externalizada, setup wizard, ops cleanup, soul paths padronizados
 > **Branch generic:** forkada — config neutra, agentes genéricos, providers em branco
 
@@ -214,15 +215,15 @@ Um sistema de orquestração de agentes IA que qualquer equipe pode instalar, co
 - [x] **S9.4 — Provider Config Externalizada** — `config/providers.json` com DISPLAY map; `GET /api/config` endpoint
 - [x] **S9.5 — Setup Wizard** — `setup.mjs`: wizard interativo + detecção automática de providers Kilo; `npm run setup`
 - [x] **S9.6 — Branch generic** — forkada de master; config genérica; agentes neutros (Coder/Planner/Debugger/Orchestrator/Researcher)
-- [ ] **S9.7 — Aprovação S9** — aguardando
+- [x] **S9.7 — Licença MIT + Aprovação S9** — `LICENSE` criada; `package.json` atualizado; propagado para `generic`
 
 ---
 
 ## 2.3 — SPRINT 10 — INTEGRAÇÃO REAL + WEB CLI
 ### *Runtime completo: MCP, consensus, delegation + terminal no browser*
 
-> **Status:** ⬜ BACKLOG
-> **Depende de:** Sprint 9 aprovado
+> **Status:** 🟢 ABERTO — 2026-03-08
+> **Depende de:** Sprint 9 ✅ Aprovado
 
 **Sub-sprints:**
 
@@ -306,13 +307,19 @@ Um sistema de orquestração de agentes IA que qualquer equipe pode instalar, co
 
 **start-mc.bat:** Ainda Windows-only. Um `start.sh` para macOS/Linux é necessário para o produto genérico — adicionado implicitamente ao escopo do Sprint 10.
 
-**Decisão pendente:** Licença do projeto — privada para uso da Argenta Fênix, ou open source? Impacta Sprints 11-12 significativamente.
+**Decisão resolvida:** Licença **MIT** — open source. `LICENSE` criada e propagada para `generic`. Impacto positivo em Sprints 11-12: repositório público, contribuições bem-vindas.
 
 **Descoberta:** Os módulos `consensus.mjs` e `delegation.mjs` foram implementados pela sessão autônoma mas nunca testados em runtime. Antes do Sprint 10, necessário validar que a lógica está correta.
 
 **Pivotada confirmada:** Providers vêm do Kilo (live), nunca de fallback estático. A decisão do Sprint 8 (rejeitada pelo usuário e revertida) é agora princípio permanente (A4).
 
-**Nota de arquitetura:** O `start-mc.bat` funciona em Windows mas não foi testado em macOS/Linux. Se a meta for produto agnóstico, um `start.sh` é necessário no Sprint 9.
+**Nota de arquitetura:** O `start-mc.bat` funciona em Windows mas não foi testado em macOS/Linux. `start.sh` está no escopo do Sprint 10 (S10.x).
+
+### 2026-03-08 — Sprint 10 aberto
+
+**Sprint 9 formalmente aprovado** por Adilson. MIT License entregue em ambas as branches.
+
+**Prioridade S10:** Antes de integrar MCP/consensus/delegation no runtime, validar que `consensus.mjs` e `delegation.mjs` estão funcionalmente corretos (foram escritos em sessão autônoma sem supervisão — risco de regressão).
 
 ---
 
