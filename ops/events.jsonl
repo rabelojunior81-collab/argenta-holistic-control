@@ -43,3 +43,85 @@
 {"ts":"2026-03-07T12:49:24.288Z","event":"loop_start","pid":121564}
 {"ts":"2026-03-07T12:57:04.846Z","event":"loop_stop","pid":121564}
 {"ts":"2026-03-07T12:57:16.418Z","event":"loop_start","pid":29604}
+{"ts":"2026-03-07T15:55:31.804Z","event":"loop_stop","pid":29604}
+{"ts":"2026-03-07T15:55:46.351Z","event":"loop_start","pid":129836}
+{"ts":"2026-03-07T17:01:35.583Z","event":"loop_start","pid":107064}
+{"ts":"2026-03-07T17:13:00.428Z","event":"loop_stop","pid":107064}
+{"ts":"2026-03-07T17:13:10.894Z","event":"loop_start","pid":74352}
+{"ts":"2026-03-07T18:20:34.499Z","event":"loop_stop","pid":74352}
+{"ts":"2026-03-07T18:21:05.937Z","event":"loop_start","pid":28720}
+{"ts":"2026-03-07T18:22:53.763Z","event":"loop_start","pid":63220}
+{"ts":"2026-03-07T18:24:51.802Z","event":"loop_stop","pid":63220}
+{"ts":"2026-03-07T18:45:45.717Z","event":"loop_start","pid":32216}
+{"ts":"2026-03-07T18:46:30.201Z","event":"loop_stop","pid":32216}
+{"ts":"2026-03-07T18:51:07.728Z","event":"loop_start","pid":101964}
+{"ts":"2026-03-07T19:06:53.564Z","event":"loop_start","pid":24480}
+{"ts":"2026-03-07T19:24:48.683Z","event":"loop_start","pid":97936}
+{"ts":"2026-03-07T19:38:09.523Z","event":"loop_start","pid":132104}
+{"ts":"2026-03-07T19:38:42.782Z","event":"loop_stop","pid":132104}
+{"ts":"2026-03-07T19:52:02.096Z","event":"loop_start","pid":62044}
+{"ts":"2026-03-07T20:16:22.088Z","event":"loop_start","pid":77740}
+{"ts":"2026-03-07T20:21:06.871Z","event":"manual_dispatch","decision_id":"a4b3050c","task_id":"84b66e0e","providerID":"kimi-for-coding","modelID":"k2p5","agent":"code"}
+{"ts":"2026-03-07T20:21:36.922Z","event":"manual_failed","task_id":"84b66e0e","error":"The operation was aborted due to timeout"}
+{"ts":"2026-03-07T20:37:45.535Z","event":"agent_spawned","agent_id":"zmb-aca1c940","agent_type":"zambia","soul":"souls/code.yaml","domain":"execution","creator":"The Forge (agt-code-native)","mission":"Implementar integração completa de MCP (Model Context Protocol) no Mission Control:\n    1. Mover con"}
+{"ts":"2026-03-07T20:37:45.542Z","event":"task_created","task_id":"e09293c4","agent_id":"zmb-aca1c940","domain":"execution","priority":"high"}
+{"ts":"2026-03-07T20:37:53.020Z","event":"dispatch","decision_id":"9ed08228","task_id":"e09293c4","domain":"execution","agent":"code","providerID":"kimi-for-coding","modelID":"k2p5"}
+{"ts":"2026-03-07T20:38:23.061Z","event":"failed","decision_id":"9ed08228","task_id":"e09293c4","providerID":"kimi-for-coding","modelID":"k2p5","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T20:57:15.239Z","event":"agent_spawned","agent_id":"zmb-a8e55c41","agent_type":"zambia","soul":"souls/code.yaml","domain":"execution","creator":"The Forge (agt-code-native)","mission":"Implementar integração completa de MCP (Model Context Protocol) no Mission Control:\n    1. Mover con"}
+{"ts":"2026-03-07T20:57:15.246Z","event":"task_created","task_id":"49d009f0","agent_id":"zmb-a8e55c41","domain":"execution","priority":"high"}
+{"ts":"2026-03-07T20:57:23.998Z","event":"dispatch","decision_id":"6b308e9c","task_id":"49d009f0","domain":"execution","agent":"code","providerID":"kimi-for-coding","modelID":"k2p5"}
+{"ts":"2026-03-07T20:57:54.017Z","event":"failed","decision_id":"6b308e9c","task_id":"49d009f0","providerID":"kimi-for-coding","modelID":"k2p5","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T20:58:04.019Z","event":"dispatch","decision_id":"efe975cc","task_id":"32602e1c","domain":"research","agent":"ask","providerID":"opencode","modelID":"gemini-3.1-pro"}
+{"ts":"2026-03-07T20:58:34.033Z","event":"failed","decision_id":"efe975cc","task_id":"32602e1c","providerID":"opencode","modelID":"gemini-3.1-pro","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:15:04.859Z","event":"dispatch","decision_id":"626bee3f","task_id":"84b66e0e","domain":"execution","agent":"code","providerID":"kimi-for-coding","modelID":"k2p5"}
+{"ts":"2026-03-07T21:15:11.305Z","event":"completed","decision_id":"626bee3f","task_id":"84b66e0e","providerID":"kimi-for-coding","modelID":"k2p5","outcome":"review","error":null,"result_length":0}
+{"ts":"2026-03-07T21:24:57.936Z","event":"proposal_created","proposal_id":"prop-d1c85515","proposer":"agt-code-native","title":"Teste: Implementar votação distribuída"}
+{"ts":"2026-03-07T21:25:11.294Z","event":"vote_cast","proposal_id":"prop-d1c85515","voter":"agt-plan-native","vote":"yes"}
+{"ts":"2026-03-07T21:25:11.298Z","event":"proposal_passed","proposal_id":"prop-d1c85515","votes":{"yes":1,"no":0,"abstain":0}}
+{"ts":"2026-03-07T21:29:41.834Z","event":"agent_spawned_recursive","agent_id":"zmb-17bd1c08","parent_id":"zmb-20ad976f","depth":2,"creator":"Zâmbia-Research-Orchestration"}
+{"ts":"2026-03-07T21:29:45.537Z","event":"dispatch","decision_id":"e04d88fa","task_id":"80dd50f8","domain":"research","agent":"ask","providerID":"opencode","modelID":"gemini-3.1-pro"}
+{"ts":"2026-03-07T21:30:05.185Z","event":"proposal_created","proposal_id":"prop-a18eae2e","proposer":"agt-code-native","title":"Aprovar nova arquitetura de delegação recursiva"}
+{"ts":"2026-03-07T21:30:05.187Z","event":"vote_cast","proposal_id":"prop-a18eae2e","voter":"agt-plan-native","vote":"yes"}
+{"ts":"2026-03-07T21:30:05.189Z","event":"proposal_passed","proposal_id":"prop-a18eae2e","votes":{"yes":1,"no":0,"abstain":0}}
+{"ts":"2026-03-07T21:30:15.564Z","event":"failed","decision_id":"e04d88fa","task_id":"80dd50f8","providerID":"opencode","modelID":"gemini-3.1-pro","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:30:23.115Z","event":"proposal_created","proposal_id":"prop-f68faab6","proposer":"agt-code-native","title":"Habilitar spawn de Zâmbias nível 3"}
+{"ts":"2026-03-07T21:30:23.119Z","event":"vote_cast","proposal_id":"prop-f68faab6","voter":"agt-plan-native","vote":"yes"}
+{"ts":"2026-03-07T21:30:23.120Z","event":"proposal_passed","proposal_id":"prop-f68faab6","votes":{"yes":1,"no":0,"abstain":0}}
+{"ts":"2026-03-07T21:51:56.482Z","event":"dispatch","decision_id":"b884089f","task_id":"plan-guzawr","domain":"planning","agent":"orchestrator","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus"}
+{"ts":"2026-03-07T21:52:26.500Z","event":"failed","decision_id":"b884089f","task_id":"plan-guzawr","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:53:09.385Z","event":"zambias_spawned_colony","count":3,"agents":["zmb-4f403cf3","zmb-90630772","zmb-470e145e"]}
+{"ts":"2026-03-07T21:53:16.552Z","event":"dispatch","decision_id":"1b1f38c7","task_id":"d7f93e37","domain":"execution","agent":"code","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus"}
+{"ts":"2026-03-07T21:53:26.559Z","event":"dispatch","decision_id":"4c2be29c","task_id":"68892aeb","domain":"execution","agent":"code","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus"}
+{"ts":"2026-03-07T21:53:36.571Z","event":"dispatch","decision_id":"29f024eb","task_id":"d102481d","domain":"audit","agent":"ask","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus"}
+{"ts":"2026-03-07T21:53:46.575Z","event":"failed","decision_id":"1b1f38c7","task_id":"d7f93e37","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:53:56.592Z","event":"failed","decision_id":"4c2be29c","task_id":"68892aeb","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:54:06.583Z","event":"failed","decision_id":"29f024eb","task_id":"d102481d","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:55:06.620Z","event":"dispatch","decision_id":"65d73dce","task_id":"plan-guzawr","domain":"planning","agent":"orchestrator","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus"}
+{"ts":"2026-03-07T21:55:16.622Z","event":"dispatch","decision_id":"8124bfe2","task_id":"d7f93e37","domain":"execution","agent":"code","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus"}
+{"ts":"2026-03-07T21:55:26.627Z","event":"dispatch","decision_id":"14915225","task_id":"68892aeb","domain":"execution","agent":"code","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus"}
+{"ts":"2026-03-07T21:55:36.638Z","event":"failed","decision_id":"65d73dce","task_id":"plan-guzawr","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:55:36.638Z","event":"dispatch","decision_id":"7fa3f441","task_id":"d102481d","domain":"audit","agent":"ask","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus"}
+{"ts":"2026-03-07T21:55:46.655Z","event":"failed","decision_id":"8124bfe2","task_id":"d7f93e37","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:55:56.644Z","event":"failed","decision_id":"14915225","task_id":"68892aeb","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T21:56:06.650Z","event":"failed","decision_id":"7fa3f441","task_id":"d102481d","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T22:08:57.274Z","event":"dispatch","decision_id":"0916cbbb","task_id":"d7f93e37","domain":"execution","agent":"code","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus"}
+{"ts":"2026-03-07T22:09:03.559Z","event":"completed","decision_id":"0916cbbb","task_id":"d7f93e37","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus","outcome":"review","error":null,"result_length":0}
+{"ts":"2026-03-07T22:09:07.281Z","event":"dispatch","decision_id":"094f3e42","task_id":"68892aeb","domain":"execution","agent":"code","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus"}
+{"ts":"2026-03-07T22:09:17.287Z","event":"dispatch","decision_id":"4f5fbe76","task_id":"d102481d","domain":"audit","agent":"ask","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus"}
+{"ts":"2026-03-07T22:09:37.304Z","event":"failed","decision_id":"094f3e42","task_id":"68892aeb","providerID":"bailian-coding-plan","modelID":"qwen3-coder-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T22:09:47.310Z","event":"failed","decision_id":"4f5fbe76","task_id":"d102481d","providerID":"bailian-coding-plan","modelID":"qwen3.5-plus","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T22:12:59.017Z","event":"loop_start","pid":143808}
+{"ts":"2026-03-07T22:12:59.023Z","event":"dispatch","decision_id":"0e099d60","task_id":"d7f93e37","domain":"execution","agent":"code","providerID":"kimi-for-coding","modelID":"k2p5"}
+{"ts":"2026-03-07T22:14:00.757Z","event":"failed","decision_id":"0e099d60","task_id":"d7f93e37","providerID":"kimi-for-coding","modelID":"k2p5","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T22:14:10.774Z","event":"dispatch","decision_id":"f5e41b93","task_id":"68892aeb","domain":"execution","agent":"code","providerID":"kimi-for-coding","modelID":"k2p5"}
+{"ts":"2026-03-07T22:14:20.779Z","event":"dispatch","decision_id":"95b28e72","task_id":"d102481d","domain":"audit","agent":"ask","providerID":"kimi-for-coding","modelID":"k2p5"}
+{"ts":"2026-03-07T22:15:10.789Z","event":"failed","decision_id":"f5e41b93","task_id":"68892aeb","providerID":"kimi-for-coding","modelID":"k2p5","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T22:15:20.796Z","event":"failed","decision_id":"95b28e72","task_id":"d102481d","providerID":"kimi-for-coding","modelID":"k2p5","outcome":"blocked","error":"The operation was aborted due to timeout","result_length":0}
+{"ts":"2026-03-07T22:33:11.999Z","event":"loop_start","pid":148036}
+{"ts":"2026-03-07T22:34:08.260Z","event":"loop_stop","pid":148036}
+{"ts":"2026-03-07T22:34:25.365Z","event":"loop_start","pid":129844}
+{"ts":"2026-03-07T22:34:34.945Z","event":"loop_stop","pid":129844}
+{"ts":"2026-03-07T22:34:44.064Z","event":"loop_start","pid":88808}
+{"ts":"2026-03-07T22:35:30.175Z","event":"loop_stop","pid":88808}
+{"ts":"2026-03-07T22:35:58.956Z","event":"loop_start","pid":11932}
+{"ts":"2026-03-07T22:36:18.397Z","event":"loop_stop","pid":11932}

@@ -1,0 +1,90 @@
+name: mcp-control
+display: "MCP Control"
+description: >
+  Permite o agente interagir com servidores MCP (Model Context Protocol) via API.
+  O agente pode listar servidores, descobrir ferramentas disponíveis e invocar
+  ferramentas MCP para estender suas capacidades.
+inject: >
+  ## SKILL: MCP CONTROL — Controle de Servidores MCP
+
+  Você tem acesso aos endpoints MCP do Mission Control para utilizar ferramentas
+  externas via Model Context Protocol. Os servidores MCP estendem suas capacidades
+  com acesso a filesystem, git, web fetch, e outros.
+
+  ### Endpoints MCP
+
+  **Listar servidores**
+  ```
+  GET http://127.0.0.1:3030/api/mcp/servers
+  ```
+  Retorna array de servidores MCP configurados com nome, tipo, status (enabled), e descrição.
+
+  **Status da integração**
+  ```
+  GET http://127.0.0.1:3030/api/mcp/status
+  ```
+  Retorna status completo: servidores ativos, config path, saúde do Kilo Serve.
+
+  **Listar ferramentas**
+  ```
+  GET http://127.0.0.1:3030/api/mcp/tools
+  GET http://127.0.0.1:3030/api/mcp/servers/{server}/tools
+  ```
+  Retorna ferramentas disponíveis com nome, descrição e parâmetros.
+
+  **Invocar ferramenta**
+  ```json
+  POST http://127.0.0.1:3030/api/mcp/invoke
+  {
+    "server": "filesystem",
+    "tool": "read_file",
+    "arguments": { "path": "./README.md" }
+  }
+  ```
+
+  ### Servidores MCP Padrão
+
+  | Servidor | Descrição | Ferramentas Principais |
+  |----------|-----------|------------------------|
+  | filesystem | Acesso seguro ao sistema de arquivos | read_file, write_file, list_directory, search_files |
+  | git | Operações Git | git_log, git_diff, git_status |
+  | fetch | Fetch de conteúdo web | fetch |
+  | sequential-thinking | Pensamento sequencial | think |
+
+  ### Exemplos de uso
+
+  **Ler um arquivo:**
+  ```json
+  POST /api/mcp/invoke
+  { "server": "filesystem", "tool": "read_file", "arguments": { "path": "./package.json" } }
+  ```
+
+  **Executar git log:**
+  ```json
+  POST /api/mcp/invoke
+  { "server": "git", "tool": "git_log", "arguments": { "repo_path": ".", "max_count": 10 } }
+  ```
+
+  **Fetch de URL:**
+  ```json
+  POST /api/mcp/invoke
+  { "server": "fetch", "tool": "fetch", "arguments": { "url": "https://api.github.com/repos/nodejs/node" } }
+  ```
+
+  ### Boas práticas
+
+  1. **Verifique antes de usar**: Liste ferramentas disponíveis antes de assumir que existe
+  2. **Trate erros**: Sempre verifique a resposta antes de prosseguir
+  3. **Use o mínimo necessário**: Prefira ferramentas nativas quando disponíveis
+  4. **Documente**: Se uma ferramenta MCP falhar, documente no board para o usuário
+  5. **Segurança**: Não exponha secrets ou credenciais em argumentos de ferramentas
+
+  ### Resposta de erro comum
+
+  ```json
+  {
+    "error": "Servidor MCP 'xyz' não encontrado"
+  }
+  ```
+
+  Ou HTTP 400 se a ferramenta não existir no servidor.

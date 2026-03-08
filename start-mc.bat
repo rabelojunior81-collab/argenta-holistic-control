@@ -1,12 +1,12 @@
 @echo off
-title Mission Control — Argenta Fênix
-color 2F
+chcp 65001 >nul 2>&1
+title Mission Control - Argenta Fenix
 cls
 
-:: ── Navega para o diretório do projeto ───────────────────────────────────────
+rem Navega para o diretorio do projeto
 cd /d "%~dp0"
 
-:: ── Verifica Node.js ──────────────────────────────────────────────────────────
+rem Verifica Node.js
 where node >nul 2>&1
 if %errorlevel% neq 0 (
     echo.
@@ -16,14 +16,14 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: ── Abre o browser após 3s (PowerShell em background, sem janela extra) ────────
+rem Abre o browser apos 3s em background (sem janela extra)
 start "" /b powershell -WindowStyle Hidden -File "%~dp0open-browser.ps1"
 
-:: ── Inicia o servidor no foreground desta janela ─────────────────────────────
-:: Quando o servidor encerrar (via [⏻] no dashboard ou Ctrl+C), esta janela fecha.
+rem Inicia o servidor no foreground desta janela
+rem Quando o servidor encerrar (via botao no dashboard ou Ctrl+C), continua aqui.
 node start.mjs
 
-:: ── Cleanup automático ao sair ────────────────────────────────────────────────
 echo.
 echo   Mission Control encerrado. Fechando em 2s...
 timeout /t 2 /nobreak >nul
+exit

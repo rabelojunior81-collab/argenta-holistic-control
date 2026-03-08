@@ -1,0 +1,34 @@
+{
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "."],
+      "enabled": true,
+      "description": "Acesso seguro ao sistema de arquivos local"
+    },
+    "git": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-git"],
+      "enabled": true,
+      "description": "Operações Git (log, diff, branches)"
+    },
+    "fetch": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-fetch"],
+      "enabled": true,
+      "description": "Fetch de conteúdo web"
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequentialthinking"],
+      "enabled": true,
+      "description": "Pensamento sequencial para resolução de problemas"
+    },
+    "memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "enabled": false,
+      "description": "Sistema de memória com knowledge graph (requer configuração adicional)"
+    }
+  }
+}

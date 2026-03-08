@@ -3,7 +3,7 @@
   "port": 4096,
   "base_url": "http://127.0.0.1:4096",
   "health_endpoint": "/global/health",
-  "timeout_ms": 30000,
+  "timeout_ms": 60000,
   "spawn": {
     "command": "kilo",
     "args": ["serve"],

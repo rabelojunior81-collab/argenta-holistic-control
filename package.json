@@ -15,7 +15,11 @@
     "serve":      "node kilo-adapter/server-manager.mjs start",
     "mc":         "node cli/mc.mjs",
     "sync:hmc":   "bash sync-hmc.sh",
-    "sync:hmc:msg": "bash sync-hmc.sh"
+    "sync:hmc:msg": "bash sync-hmc.sh",
+    "mcp":        "node kilo-adapter/mcp-manager.mjs",
+    "mcp:list":   "node kilo-adapter/mcp-manager.mjs list",
+    "mcp:status": "node kilo-adapter/mcp-manager.mjs status",
+    "mcp:tools":  "node kilo-adapter/mcp-manager.mjs tools"
   },
   "dependencies": {
     "eventsource": "^2.0.2",

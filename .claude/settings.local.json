@@ -28,7 +28,28 @@
       "Bash(powershell.exe -Command \"Get-NetTCPConnection -LocalPort 3030 2>$null | Select-Object -ExpandProperty OwningProcess | Sort-Object -Unique | ForEach-Object { Stop-Process -Id $_-Force -ErrorAction SilentlyContinue }; Write-Host ''Done''\")",
       "Bash(node --check \"c:/Users/rabel/.openclaw/workspace/sandbox/holistic-mission-control/ui/server.mjs\")",
       "Bash(git -C \"c:/Users/rabel/.openclaw/workspace/sandbox/holistic-mission-control\" rev-parse --show-toplevel)",
-      "Bash(grep -E \"\\\\.gitignore|\\\\.git$\")"
+      "Bash(grep -E \"\\\\.gitignore|\\\\.git$\")",
+      "Bash(git config --global user.email)",
+      "Bash(git config --global user.name)",
+      "Bash(git -C \"c:/Users/rabel/.openclaw/workspace\" config user.email)",
+      "Bash(git -C \"c:/Users/rabel/.openclaw/workspace\" config user.name)",
+      "Bash(gh repo create argenta-holistic-control --private --description \"Sistema nervoso central da colmeia Argenta Fênix — Mission Control com Hive Panel, Bulletin Board, Character Charts, Skills/Souls e argenta-CLI\" --source=. --remote=origin --push)",
+      "Bash(\"c:/Users/rabel/.openclaw/workspace/sandbox/holistic-mission-control/hive/memory/.gitkeep\")",
+      "Bash(cat skills/*.yaml)",
+      "Bash(timeout 6 node ui/server.mjs)",
+      "Bash(timeout 8 node ralph-loop/index.mjs)",
+      "Bash(timeout 5 node ui/server.mjs)",
+      "Bash(node --input-type=module:*)",
+      "Bash(node --check kilo-adapter/adapter.mjs)",
+      "Bash(node --check ui/server.mjs)",
+      "Bash(where kilo)",
+      "Bash(kilo --version)",
+      "Read(//c/Users/rabel/.openclaw/workspace/sandbox/holistic-mission-control/$APPDATA/**)",
+      "Read(//c/Users/rabel/.openclaw/workspace/sandbox/holistic-mission-control/$APPDATA/kilo/**)",
+      "Bash(kilo auth list)",
+      "Bash(node -e \"const d=JSON.parse\\(require\\(''fs''\\).readFileSync\\(''/dev/stdin'',''utf8''\\)\\); d.tasks.forEach\\(t=>console.log\\(t.status.padEnd\\(12\\), t.id, t.title?.slice\\(0,60\\)\\)\\)\")",
+      "Bash(node -e \"const d=JSON.parse\\(require\\(''fs''\\).readFileSync\\(''kanban/tasks.json'',''utf8''\\)\\); d.tasks.forEach\\(t=>console.log\\(t.status.padEnd\\(12\\), t.id, \\(t.title||''''\\).slice\\(0,60\\)\\)\\)\")",
+      "Bash(node -e \"const d=JSON.parse\\(require\\(''fs''\\).readFileSync\\(''hive/agents.json'',''utf8''\\)\\); console.log\\(''agents:'', d.agents?.length\\); d.agents?.forEach\\(a=>console.log\\('' '', a.id, ''|'', a.status, ''|'', a.providerID+''/''+a.modelID\\)\\)\")"
     ]
   }
 }

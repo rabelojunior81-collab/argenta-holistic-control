@@ -7,7 +7,7 @@
  *   MC_URL   Override server URL (default: http://127.0.0.1:3030)
  */
 
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join }  from "node:path";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -182,6 +182,16 @@ ${paint(C.bold, "Hive:")}
 ${paint(C.bold, "Chat (REPL):")}
   ${paint(C.lime, "mc chat <agent-id>")}                 Chat interativo com agente
 
+${paint(C.bold, "MCP (Model Context Protocol):")}
+  ${paint(C.lime, "mc mcp list")}                      Lista servidores MCP
+  ${paint(C.lime, "mc mcp status")}                    Status da integração MCP
+  ${paint(C.lime, "mc mcp add <nome>")}               Adiciona servidor MCP
+  ${paint(C.lime, "mc mcp remove <nome>")}            Remove servidor MCP
+  ${paint(C.lime, "mc mcp enable <nome>")}            Habilita servidor MCP
+  ${paint(C.lime, "mc mcp disable <nome>")}           Desabilita servidor MCP
+  ${paint(C.lime, "mc mcp tools [server]")}            Lista ferramentas MCP
+  ${paint(C.lime, "mc mcp invoke <srv> <tool>")}      Invoca ferramenta MCP
+
 ${paint(C.bold, "Flags globais:")}
   ${paint(C.gray, "--url <url>")}                        Override servidor (padrão: http://127.0.0.1:3030)
   ${paint(C.gray, "--topic <t>")}                        Filtrar por tópico (board read)
@@ -219,6 +229,9 @@ try {
       break;
     case "chat":
       mod = await import(`${__dir}/commands/chat.mjs`);
+      break;
+    case "mcp":
+      mod = await import(`${__dir}/commands/mcp.mjs`);
       break;
     default:
       console.error(`${paint(C.red, `✗ Comando desconhecido: "${command}"`)}  Execute ${paint(C.lime, "mc help")} para ver os comandos disponíveis.`);

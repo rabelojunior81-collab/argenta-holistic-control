@@ -1,12 +1,12 @@
 {
-  "status": "running",
-  "pid": 29604,
-  "loop_tick": "2026-03-07T13:39:38.255Z",
+  "status": "stopped",
+  "pid": 11932,
+  "loop_tick": "2026-03-07T22:36:08.971Z",
   "pending_count": 0,
   "kilo_serve": {
     "running": false,
     "last_check": null,
     "url": "http://127.0.0.1:4096"
   },
-  "updated": "2026-03-07T13:39:38.256Z"
+  "updated": "2026-03-07T22:36:18.400Z"
 }

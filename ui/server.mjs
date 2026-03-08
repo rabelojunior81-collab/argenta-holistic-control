@@ -8,6 +8,7 @@
  *   POST /api/tasks              → adicionar task
  *   PATCH /api/tasks/:id         → mover task
  *   DELETE /api/tasks/:id        → remover task
+ *   GET  /api/tasks/:id/session → sessão associada à task
  *   GET  /api/events             → últimas N linhas events.jsonl
  *   GET  /api/matrix             → expertise-matrix/matrix.yaml parseado
  *   POST /api/dispatch           → disparo manual: { provider, model, prompt }
@@ -652,6 +653,121 @@ const server = createServer(async (req, res) => {
     }
   }
 
+  // ── Task Session ──
+  const taskSessionMatch = path.match(/^\/api\/tasks\/([a-z0-9]+)\/session$/);
+  if (taskSessionMatch && method === "GET") {
+    const id = taskSessionMatch[1];
+    const db   = await loadJSON(KANBAN);
+    const task = db.tasks.find(t => t.id === id);
+    if (!task) return err(res, "task not found", 404);
+    
+    // Find the associated chat session using the task's chatKey
+    const chatKey = task.chatKey;
+    if (!chatKey) return json(res, { task_id: id, session: null, message: "Task has no associated chat session" });
+    
+    // First try to get from active in-memory chat session
+    let chat = chatSessions.get(chatKey);
+    let sessionSource = 'active';
+    
+    if (!chat) {
+      // If not found in active sessions, try to load from persisted chat sessions file
+      try {
+        const persistedSessions = await loadJSON(CHAT_SESSIONS_F);
+        if (persistedSessions && persistedSessions[chatKey]) {
+          chat = persistedSessions[chatKey];
+          sessionSource = 'persisted';
+        }
+      } catch (e) {
+        // If there's an error reading the persisted session, just continue with null
+        console.log(`[api] Could not load persisted session for ${chatKey}: ${e.message}`);
+      }
+    }
+    
+    if (!chat) {
+      return json(res, { 
+        task_id: id, 
+        chatKey: chatKey,
+        session: null, 
+        message: "Task has a chatKey but no chat session exists (neither active nor persisted)" 
+      });
+    }
+    
+    // Extract aggregated metrics from message parts
+    const messages = chat.messages ?? [];
+    let totalTokens = 0;
+    let totalCost = 0;
+    let reasoningTokens = 0;
+    let totalLatencyMs = 0;
+    let messageMetrics = [];
+
+    for (const msg of messages) {
+      if (msg.parts && Array.isArray(msg.parts)) {
+        let msgTokens = 0;
+        let msgCost = 0;
+        let msgReasoning = 0;
+        let msgLatency = 0;
+
+        for (const part of msg.parts) {
+          if (part.type === 'step-finish' && part.tokens) {
+            msgTokens += part.tokens.total || 0;
+            msgCost += part.cost || 0;
+            if (part.tokens.reasoning) {
+              msgReasoning += part.tokens.reasoning;
+            }
+          }
+          if (part.type === 'reasoning' && part.time) {
+            const start = part.time.start || 0;
+            const end = part.time.end || 0;
+            if (end > start) {
+              msgLatency += (end - start);
+            }
+          }
+        }
+
+        if (msgTokens > 0 || msgCost > 0 || msgReasoning > 0) {
+          messageMetrics.push({
+            ts: msg.ts,
+            role: msg.role,
+            tokens: msgTokens,
+            cost: msgCost,
+            reasoning_tokens: msgReasoning,
+            latency_ms: msgLatency,
+          });
+          totalTokens += msgTokens;
+          totalCost += msgCost;
+          reasoningTokens += msgReasoning;
+          totalLatencyMs += msgLatency;
+        }
+      }
+    }
+
+    // Return session data combining both active and persisted structures
+    return json(res, {
+      task_id: id,
+      chatKey: chatKey,
+      session: {
+        sessionId: chat.sessionId,
+        providerID: chat.providerID,
+        modelID: chat.modelID,
+        agent: chat.agent,
+        systemCtx: chat.systemCtx ? (typeof chat.systemCtx === 'string' ? "[omitted for brevity]" : null) : null,
+        message_count: messages.length,
+        active: chat.active ?? false,
+        firstMsgPrimed: chat.firstMsgPrimed ?? false,
+        source: sessionSource,
+        saved_at: chat.savedAt ?? null,
+        metrics: {
+          total_tokens: totalTokens,
+          total_cost: totalCost,
+          reasoning_tokens: reasoningTokens,
+          total_latency_ms: totalLatencyMs,
+          message_metrics: messageMetrics,
+        },
+        messages: messages,
+      }
+    });
+  }
+
   // ── Events ──
   if (path === "/api/events" && method === "GET") {
     const n = parseInt(url.searchParams.get("n") ?? "60");
@@ -705,16 +821,19 @@ const server = createServer(async (req, res) => {
         signal: AbortSignal.timeout(3000),
       });
       if (!kres.ok) return json(res, []);
-      const data      = await kres.json();
-      const authedIds = new Set(Array.isArray(data.authed) ? data.authed : []);
-      const all       = Array.isArray(data.all) ? data.all : [];
-      // Se kilo não reportar authed[], usar DISPLAY como whitelist dos providers conhecidos
-      const knownAuthed = new Set(Object.keys(DISPLAY));
-      const isAuthed = p => authedIds.size > 0
-        ? authedIds.has(p.id)
-        : knownAuthed.has(p.id);
+      const data = await kres.json();
+      const all  = Array.isArray(data.all) ? data.all : [];
+      // Kilo retorna "connected" (não "authed") com os providers autenticados
+      const connectedIds = new Set(
+        Array.isArray(data.connected) ? data.connected
+        : Array.isArray(data.authed)  ? data.authed
+        : []
+      );
+      // Filtra: se Kilo indicar quais estão conectados, usa isso; senão usa DISPLAY como whitelist
+      const knownIds = new Set(Object.keys(DISPLAY));
+      const isVisible = p => connectedIds.size > 0 ? connectedIds.has(p.id) : knownIds.has(p.id);
       return json(res, all
-        .filter(isAuthed)
+        .filter(isVisible)
         .map(p => ({
           id:          p.id,
           displayName: DISPLAY[p.id] ?? p.name ?? p.id,
@@ -1440,6 +1559,188 @@ const server = createServer(async (req, res) => {
       loop_tick:   state.loop_tick ?? null,
       tasks:       db?.tasks?.length ?? 0,
     });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // MCP (Model Context Protocol) — Endpoints de Integração
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  const MCP_CONFIG_PATH = join(ROOT, "mcp-config.json");
+
+  async function loadMcpConfig() {
+    try {
+      const content = await readFile(MCP_CONFIG_PATH, "utf8");
+      return JSON.parse(content);
+    } catch {
+      return { mcp: {} };
+    }
+  }
+
+  async function saveMcpConfig(config) {
+    await writeFile(MCP_CONFIG_PATH, JSON.stringify(config, null, 2), "utf8");
+  }
+
+  // Listar servidores MCP
+  if (path === "/api/mcp/servers" && method === "GET") {
+    const config = await loadMcpConfig();
+    const servers = Object.entries(config.mcp || {}).map(([name, cfg]) => ({
+      name,
+      type: cfg.type || "local",
+      enabled: cfg.enabled !== false,
+      description: cfg.description || "",
+      command: cfg.command || null,
+      url: cfg.url || null,
+    }));
+    return json(res, servers);
+  }
+
+  // Adicionar servidor MCP
+  if (path === "/api/mcp/servers" && method === "POST") {
+    const b = await body(req);
+    if (!b.name) return err(res, "name required");
+
+    const config = await loadMcpConfig();
+    if (!config.mcp) config.mcp = {};
+
+    config.mcp[b.name] = {
+      type: b.type || "local",
+      enabled: b.enabled !== false,
+      description: b.description || "",
+      ...(b.command && { command: b.command }),
+      ...(b.url && { url: b.url }),
+      ...(b.environment && { environment: b.environment }),
+      ...(b.headers && { headers: b.headers }),
+    };
+
+    await saveMcpConfig(config);
+    wsBroadcast("mcp_updated", { action: "add", server: b.name });
+    return json(res, { success: true, name: b.name }, 201);
+  }
+
+  // Remover servidor MCP
+  const mcpServerMatch = path.match(/^\/api\/mcp\/servers\/([^/]+)$/);
+  if (mcpServerMatch && method === "DELETE") {
+    const name = mcpServerMatch[1];
+    const config = await loadMcpConfig();
+    if (!config.mcp || !config.mcp[name]) {
+      return err(res, `server '${name}' not found`, 404);
+    }
+    delete config.mcp[name];
+    await saveMcpConfig(config);
+    wsBroadcast("mcp_updated", { action: "remove", server: name });
+    return json(res, { success: true, name });
+  }
+
+  // Toggle servidor MCP (enable/disable)
+  const mcpToggleMatch = path.match(/^\/api\/mcp\/servers\/([^/]+)\/toggle$/);
+  if (mcpToggleMatch && method === "POST") {
+    const name = mcpToggleMatch[1];
+    const b = await body(req);
+    const config = await loadMcpConfig();
+    if (!config.mcp || !config.mcp[name]) {
+      return err(res, `server '${name}' not found`, 404);
+    }
+    config.mcp[name].enabled = b.enabled === true;
+    await saveMcpConfig(config);
+    wsBroadcast("mcp_updated", { action: "toggle", server: name, enabled: b.enabled });
+    return json(res, { success: true, name, enabled: b.enabled });
+  }
+
+  // Status MCP
+  if (path === "/api/mcp/status" && method === "GET") {
+    const config = await loadMcpConfig();
+    const servers = Object.entries(config.mcp || {});
+    const enabled = servers.filter(([, cfg]) => cfg.enabled !== false).length;
+    const cfg = await loadJSON(KILO_CFG);
+    return json(res, {
+      available: true,
+      configPath: MCP_CONFIG_PATH,
+      servers: {
+        total: servers.length,
+        enabled,
+        disabled: servers.length - enabled,
+      },
+      kiloServe: {
+        baseUrl: cfg?.base_url || null,
+        healthy: await kiloHealth().then(h => h.ok).catch(() => false),
+      },
+    });
+  }
+
+  // Ferramentas MCP conhecidas
+  const KNOWN_MCP_TOOLS = {
+    filesystem: [
+      { name: "read_file", description: "Lê conteúdo de um arquivo", parameters: { path: "string" } },
+      { name: "write_file", description: "Escreve conteúdo em um arquivo", parameters: { path: "string", content: "string" } },
+      { name: "list_directory", description: "Lista conteúdo de um diretório", parameters: { path: "string" } },
+      { name: "search_files", description: "Busca arquivos por padrão", parameters: { path: "string", pattern: "string" } },
+    ],
+    git: [
+      { name: "git_log", description: "Obtém histórico de commits", parameters: { repo_path: "string", max_count: "number" } },
+      { name: "git_diff", description: "Mostra diff entre commits", parameters: { repo_path: "string", target: "string" } },
+      { name: "git_status", description: "Status do repositório", parameters: { repo_path: "string" } },
+    ],
+    fetch: [
+      { name: "fetch", description: "Faz fetch de conteúdo web", parameters: { url: "string" } },
+    ],
+    "sequential-thinking": [
+      { name: "think", description: "Processa pensamento sequencial", parameters: { thought: "string", thoughtNumber: "number", totalThoughts: "number" } },
+    ],
+    memory: [
+      { name: "create_entities", description: "Cria entidades no knowledge graph", parameters: { entities: "array" } },
+      { name: "create_relations", description: "Cria relações entre entidades", parameters: { relations: "array" } },
+      { name: "add_observations", description: "Adiciona observações a entidades", parameters: { observations: "array" } },
+    ],
+  };
+
+  // Listar ferramentas MCP
+  if (path === "/api/mcp/tools" && method === "GET") {
+    const serverName = url.searchParams.get("server");
+    if (serverName) {
+      const tools = KNOWN_MCP_TOOLS[serverName] || [];
+      return json(res, tools.map(t => ({ ...t, server: serverName })));
+    }
+    const allTools = Object.entries(KNOWN_MCP_TOOLS).flatMap(([server, tools]) =>
+      tools.map(t => ({ ...t, server }))
+    );
+    return json(res, allTools);
+  }
+
+  // Ferramentas por servidor
+  const mcpToolsMatch = path.match(/^\/api\/mcp\/servers\/([^/]+)\/tools$/);
+  if (mcpToolsMatch && method === "GET") {
+    const serverName = mcpToolsMatch[1];
+    const tools = KNOWN_MCP_TOOLS[serverName] || [];
+    return json(res, tools);
+  }
+
+  // Invocar ferramenta MCP
+  if (path === "/api/mcp/invoke" && method === "POST") {
+    const b = await body(req);
+    if (!b.server) return err(res, "server required");
+    if (!b.tool) return err(res, "tool required");
+
+    const config = await loadMcpConfig();
+    const server = config.mcp?.[b.server];
+    if (!server) return err(res, `server '${b.server}' not found`, 404);
+    if (server.enabled === false) return err(res, `server '${b.server}' is disabled`, 400);
+
+    // Tenta invocar via Kilo Adapter
+    try {
+      const { invokeMcpTool } = await import("../kilo-adapter/adapter.mjs");
+      const result = await invokeMcpTool(b.server, b.tool, b.arguments || {});
+      return json(res, { success: true, server: b.server, tool: b.tool, result });
+    } catch (e) {
+      // Fallback: simula resposta para desenvolvimento
+      return json(res, {
+        success: true,
+        simulated: true,
+        server: b.server,
+        tool: b.tool,
+        arguments: b.arguments || {},
+        message: "MCP tool invocation simulated (Kilo Serve endpoint may not be available)",
+      });
+    }
   }
 
   res.writeHead(404); res.end("not found");

@@ -1120,6 +1120,33 @@
     .tp-meta-sep { color: var(--text-muted); }
     .tp-history-hint { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: var(--accent-gold); margin-top: 4px; }
 
+    /* ── Task Session Modal (sessão completa da task) ─────────────────────── */
+    #modal-task-session .modal { max-width: 85vw; width: 85vw; max-height: 85vh; height: 85vh; display: flex; flex-direction: column; }
+    .session-modal { padding: 0; }
+    .session-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); }
+    .session-header #tsm-glyph { font-size: 24px; filter: drop-shadow(0 0 8px currentColor); }
+    .session-title { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; }
+    .session-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .session-tabs { display: flex; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.1); }
+    .session-tab { background: transparent; border: 1px solid transparent; color: var(--text-muted); padding: 6px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px; cursor: pointer; border-radius: 4px; transition: all 0.15s; }
+    .session-tab:hover { background: var(--glass-bg); color: var(--text-primary); }
+    .session-tab.active { background: rgba(196,214,107,0.15); border-color: var(--accent-lime); color: var(--accent-lime); }
+    .session-content { flex: 1; overflow-y: auto; padding: 16px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.6; }
+    .session-placeholder { color: var(--text-muted); text-align: center; padding: 40px; font-style: italic; }
+    .session-message { margin-bottom: 16px; padding: 12px; border-left: 3px solid var(--glass-border); background: rgba(0,0,0,0.15); }
+    .session-message.user { border-left-color: var(--accent-lime); }
+    .session-message.assistant { border-left-color: var(--accent-gold); }
+    .session-message-role { font-size: 9px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .session-message-text { color: var(--text-primary); white-space: pre-wrap; word-break: break-word; }
+    .session-reasoning-block { background: rgba(154,171,127,0.08); padding: 10px; margin: 8px 0; border-radius: 4px; border: 1px solid rgba(154,171,127,0.2); }
+    .session-code-block { background: rgba(0,0,0,0.4); padding: 12px; margin: 8px 0; border-radius: 4px; overflow-x: auto; }
+    .session-code-block pre { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-primary); }
+    .session-metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 20px; }
+    .metric-card { background: var(--glass-bg); border: 1px solid var(--glass-border); padding: 16px; text-align: center; border-radius: 6px; }
+    .metric-value { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--accent-lime); margin-bottom: 6px; }
+    .metric-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .session-footer { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
+
     /* ── Drag & Drop ─────────────────────────────────────────────────────── */
     .task-card[draggable="true"] { cursor: grab; }
     .task-card[draggable="true"]:active { cursor: grabbing; }
@@ -1987,6 +2014,67 @@
   </div>
 </div>
 
+<!-- Task Session Modal (mostra conversa completa da task) -->
+<div class="overlay" id="modal-task-session">
+  <div class="modal session-modal">
+    <div class="session-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="tsm-glyph">◈</span>
+        <div>
+          <div class="session-title" id="tsm-title">Sessão da Task</div>
+          <div class="session-subtitle" id="tsm-subtitle">#id · provider/model</div>
+        </div>
+      </div>
+      <button class="btn" onclick="closeModal('modal-task-session')">✕</button>
+    </div>
+
+    <div class="session-tabs">
+      <button class="session-tab active" onclick="showSessionTab('messages')" id="tab-messages">💬 Mensagens</button>
+      <button class="session-tab" onclick="showSessionTab('reasoning')" id="tab-reasoning">🧠 Reasoning</button>
+      <button class="session-tab" onclick="showSessionTab('code')" id="tab-code">📝 Código</button>
+      <button class="session-tab" onclick="showSessionTab('metrics')" id="tab-metrics">📊 Métricas</button>
+    </div>
+
+    <div class="session-content" id="session-messages">
+      <div class="session-placeholder">Carregando mensagens...</div>
+    </div>
+
+    <div class="session-content" id="session-reasoning" style="display:none">
+      <div class="session-placeholder">Carregando reasoning...</div>
+    </div>
+
+    <div class="session-content" id="session-code" style="display:none">
+      <div class="session-placeholder">Carregando código...</div>
+    </div>
+
+    <div class="session-content" id="session-metrics" style="display:none">
+      <div class="session-metrics-grid" id="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="metric-tokens">—</div>
+          <div class="metric-label">Tokens Totais</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-cost">—</div>
+          <div class="metric-label">Custo Estimado</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-messages">—</div>
+          <div class="metric-label">Mensagens</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-latency">—</div>
+          <div class="metric-label">Latência Total</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="session-footer">
+      <span id="tsm-status">Status: —</span>
+      <button class="btn" onclick="closeModal('modal-task-session')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Task Preview Modal (clique em card do kanban) -->
 <div class="overlay" id="modal-task-preview">
   <div class="modal" style="max-width:400px">
@@ -2012,6 +2100,7 @@
     <div class="modal-actions" style="margin-top:14px">
       <button class="btn" onclick="closeModal('modal-task-preview')">Fechar</button>
       <button class="btn" onclick="tpOpenDetails()" id="tp-details-btn">📋 Detalhes</button>
+      <button class="btn btn-primary" onclick="tpOpenSession()" id="tp-session-btn">🔍 Ver Sessão</button>
       <button class="btn btn-lime" onclick="tpOpenChat()" id="tp-chat-btn" style="display:none">💬 Abrir Chat</button>
     </div>
   </div>
@@ -3537,10 +3626,12 @@ async function loadData() {
   const p = Array.isArray(providers)    ? providers     : [];
 
   // Popula formulário de dispatch na primeira carga ou quando dados chegarem
+  // Sempre atualiza providers quando Kilo responder (independente de initialized)
+  if (p.length > 0) populateProviders(p);
+
   if (!initialized && (m.length > 0 || k.length > 0 || p.length > 0)) {
     if (m.length > 0) populateMatrixDomains(m);
     if (k.length > 0) populateAgentSelect(k);
-    if (p.length > 0) populateProviders(p);
     // Auto-fill com o primeiro domain
     if (m.length > 0) domainChanged();
     initialized = true;
@@ -3581,10 +3672,11 @@ document.getElementById('modal-event').addEventListener('click',    e => { if (e
 document.getElementById('modal-auth').addEventListener('click',      e => { if (e.target === e.currentTarget) closeModal('modal-auth'); });
 document.getElementById('modal-character').addEventListener('click',    e => { if (e.target === e.currentTarget) closeModal('modal-character'); });
 document.getElementById('modal-task-preview').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('modal-task-preview'); });
+document.getElementById('modal-task-session').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('modal-task-session'); });
 document.getElementById('modal-acp').addEventListener('click',          e => { if (e.target === e.currentTarget) closeModal('modal-acp'); });
 document.getElementById('modal-spawn').addEventListener('click',        e => { if (e.target === e.currentTarget) closeModal('modal-spawn'); });
 document.addEventListener('click',      () => hideCtxMenu());
-document.addEventListener('keydown',    e => { if (e.key === 'Escape') { hideCtxMenu(); cancelDelete(); closeModal('modal-task-preview'); } });
+document.addEventListener('keydown',    e => { if (e.key === 'Escape') { hideCtxMenu(); cancelDelete(); closeModal('modal-task-preview'); closeModal('modal-task-session'); } });
 document.addEventListener('contextmenu', e => { if (!e.target.closest('[data-taskid]')) hideCtxMenu(); });
 document.getElementById('chat-overlay').addEventListener('click',   e => { if (e.target === e.currentTarget) closeChat(); });
 document.getElementById('inp-title').addEventListener('keydown',    e => { if (e.key === 'Enter') addTask(); });
@@ -3979,6 +4071,186 @@ function tpOpenDetails() {
   const task = previewTask;
   closeModal('modal-task-preview');
   if (task) openTaskModal(task);
+}
+
+// ── Task Session Modal ───────────────────────────────────────────────────────
+
+let currentSessionTask = null;
+let currentSessionData = null;
+
+async function tpOpenSession() {
+  const task = previewTask;
+  if (!task) return;
+  
+  currentSessionTask = task;
+  closeModal('modal-task-preview');
+  
+  // Atualizar header
+  document.getElementById('tsm-title').textContent = `Sessão: ${task.title.slice(0, 40)}${task.title.length > 40 ? '...' : ''}`;
+  document.getElementById('tsm-subtitle').textContent = `#${task.id} · ${task.providerID || '—'}/${task.modelID || '—'}`;
+  document.getElementById('tsm-status').textContent = `Status: ${task.status}`;
+  
+  // Resetar abas
+  showSessionTab('messages');
+  
+  // Abrir modal
+  document.getElementById('modal-task-session').classList.add('open');
+  
+  // Carregar dados
+  await loadSessionData(task.id);
+}
+
+async function loadSessionData(taskId) {
+  try {
+    const response = await fetch(`${API}/tasks/${taskId}/session`);
+    const data = await response.json();
+    
+    currentSessionData = data;
+    
+    if (!data.session) {
+      document.getElementById('session-messages').innerHTML = '<div class="session-placeholder">Nenhuma sessão encontrada para esta task.</div>';
+      return;
+    }
+    
+    renderSessionMessages(data.session);
+    renderSessionReasoning(data.session);
+    renderSessionCode(data.session);
+    renderSessionMetrics(data.session);
+    
+  } catch (err) {
+    console.error('Erro ao carregar sessão:', err);
+    document.getElementById('session-messages').innerHTML = `<div class="session-placeholder">Erro ao carregar: ${err.message}</div>`;
+  }
+}
+
+function renderSessionMessages(session) {
+  const container = document.getElementById('session-messages');
+  const messages = session.messages || [];
+  
+  if (messages.length === 0) {
+    container.innerHTML = '<div class="session-placeholder">Nenhuma mensagem na sessão.</div>';
+    return;
+  }
+  
+  container.innerHTML = messages.map(msg => {
+    const role = msg.role || 'unknown';
+    const text = msg.text || '';
+    const ts = msg.ts ? new Date(msg.ts).toLocaleTimeString('pt-BR') : '';
+    
+    return `
+      <div class="session-message ${role}">
+        <div class="session-message-role">${role} · ${ts}</div>
+        <div class="session-message-text">${esc(text)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderSessionReasoning(session) {
+  const container = document.getElementById('session-reasoning');
+  const messages = session.messages || [];
+  
+  let reasoningBlocks = [];
+  
+  for (const msg of messages) {
+    if (msg.parts && Array.isArray(msg.parts)) {
+      for (const part of msg.parts) {
+        if (part.type === 'reasoning' && part.text) {
+          reasoningBlocks.push(part.text);
+        }
+      }
+    }
+  }
+  
+  if (reasoningBlocks.length === 0) {
+    container.innerHTML = '<div class="session-placeholder">Nenhum reasoning/pensamento registrado nesta sessão.</div>';
+    return;
+  }
+  
+  container.innerHTML = reasoningBlocks.map((text, i) => `
+    <div class="session-reasoning-block">
+      <div style="font-size:9px;color:var(--text-muted);margin-bottom:6px">Passo ${i + 1}</div>
+      <div style="white-space:pre-wrap">${esc(text)}</div>
+    </div>
+  `).join('');
+}
+
+function renderSessionCode(session) {
+  const container = document.getElementById('session-code');
+  const messages = session.messages || [];
+  
+  let codeBlocks = [];
+  
+  for (const msg of messages) {
+    if (msg.parts && Array.isArray(msg.parts)) {
+      for (const part of msg.parts) {
+        if (part.type === 'patch' && part.files) {
+          codeBlocks.push({
+            type: 'patch',
+            files: part.files,
+            hash: part.hash
+          });
+        }
+        if (part.type === 'text' && part.text && part.text.includes('```')) {
+          // Extrair blocos de código markdown
+          const matches = part.text.match(/```(\w+)?\n([\s\S]*?)```/g);
+          if (matches) {
+            matches.forEach(match => {
+              const lang = match.match(/```(\w+)?/)?.[1] || 'code';
+              const code = match.replace(/```\w*\n?/, '').replace(/```$/, '');
+              codeBlocks.push({ type: 'markdown', lang, code });
+            });
+          }
+        }
+      }
+    }
+  }
+  
+  if (codeBlocks.length === 0) {
+    container.innerHTML = '<div class="session-placeholder">Nenhum código gerado nesta sessão.</div>';
+    return;
+  }
+  
+  container.innerHTML = codeBlocks.map((block, i) => {
+    if (block.type === 'patch') {
+      return `
+        <div class="session-code-block">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:8px">📝 Patch · ${block.files.length} arquivo(s)</div>
+          <pre>${esc(block.files.join('\n'))}</pre>
+        </div>
+      `;
+    } else {
+      return `
+        <div class="session-code-block">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:8px">💻 ${block.lang}</div>
+          <pre>${esc(block.code)}</pre>
+        </div>
+      `;
+    }
+  }).join('');
+}
+
+function renderSessionMetrics(session) {
+  const metrics = session.metrics || {};
+  
+  document.getElementById('metric-tokens').textContent = metrics.total_tokens?.toLocaleString() || '—';
+  document.getElementById('metric-cost').textContent = metrics.total_cost ? `$${metrics.total_cost.toFixed(4)}` : '—';
+  document.getElementById('metric-messages').textContent = session.message_count?.toString() || '—';
+  document.getElementById('metric-latency').textContent = metrics.total_latency_ms ? `${Math.round(metrics.total_latency_ms / 1000)}s` : '—';
+}
+
+function showSessionTab(tabName) {
+  // Esconder todos os conteúdos
+  document.querySelectorAll('.session-content').forEach(el => el.style.display = 'none');
+  
+  // Remover active de todas as abas
+  document.querySelectorAll('.session-tab').forEach(el => el.classList.remove('active'));
+  
+  // Mostrar conteúdo selecionado
+  document.getElementById(`session-${tabName}`).style.display = 'block';
+  
+  // Ativar aba
+  document.getElementById(`tab-${tabName}`).classList.add('active');
 }
 
 function selectKanbanTask(task) {
@@ -4500,5 +4772,6 @@ setInterval(loadData,   8000);
 // Boot sequence — dispara na abertura
 runBootSequence();
 </script>
+
 </body>
 </html>

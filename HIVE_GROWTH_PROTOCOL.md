@@ -478,18 +478,36 @@ por qualquer pessoa, com qualquer agente IA como coordenador.
 - [x] Auto-close: `auto_close: true` + 5min idle + WS broadcast
 - [x] WS `agent_autoclosed` → UI refresh
 
-### Sprint 7 — Docs + Help + Sync + Gap Closure 🔄 EM PROGRESSO
+### Sprint 7 — Docs + Help + Sync + Gap Closure ✅ ENTREGUE
 - [x] S7.1 Sync Infrastructure ✅ 2026-03-07
 - [x] S7.2 Gap Closure ✅ 2026-03-07
-- [ ] S7.3 Documentation Layer
-- [ ] S7.4 Help UI Panel
-- [ ] S7.5 Scribe Review + Aprovação
+- [x] S7.3 Documentation Layer ✅ 2026-03-07
+- [x] S7.4 Help UI Panel ✅ 2026-03-07
+- [x] S7.5 Scribe Review + Aprovação ✅ 2026-03-07
 
-### Sprint 8 — Argenta Orchestrator + Qdrant
-- [ ] Planejado — aguarda aprovação do Sprint 7
+### Sprint 8 — Argenta Orchestrator + Qdrant ✅ ENTREGUE
+- [x] S8.0 Start Infrastructure + Boot Scene ✅ 2026-03-07
+- [x] S8.1 POST /api/exec + Skill mc-control ✅ 2026-03-07
+- [x] S8.2 Memória Episódica Híbrida (Ollama + Qdrant) ✅ 2026-03-07
+- [x] S8.3 Organic Growth (Auto + Manual) ✅ 2026-03-07
+- [x] S8.4 Graceful Shutdown (modal + endpoint + cascade) ✅ 2026-03-07
+
+### [Hotfix] — Post-Mortem Sessão de Orquestração Autônoma ✅ 2026-03-08
+- [x] BUG-01: JS crash total (modal após </script>) — CORRIGIDO
+- [x] BUG-02: Providers nunca populados (race condition initialized) — CORRIGIDO
+- [x] BUG-03: data.authed inexistente → usar data.connected — CORRIGIDO
+- [x] BUG-04: start-mc.bat Unicode em comentários :: — CORRIGIDO
+- [x] BUG-05: tokens_used corrompido em agents.json — CORRIGIDO
+- [x] BUG-06: SyntaxError args redeclarado em mcp.mjs — CORRIGIDO
+- [x] 7 agentes zumbi removidos
+- [x] 7 tasks-lixo removidas do kanban
+- [x] 5 arquivos órfãos deletados
+- [x] consensus.json limpo
+- [x] Entregas válidas da sessão preservadas e documentadas
+- [x] Lições formalizadas como Princípio 10
 
 ### Sprint 9 — Fork Agnóstico
-- [ ] Planejado — aguarda aprovação do Sprint 8
+- [ ] Planejado — aguarda aprovação
 
 ---
 
@@ -517,6 +535,15 @@ construir a coisa certa da forma errada, ou a coisa errada perfeitamente.
 Nenhum Sprint começa sem aprovação explícita do anterior.
 A aprovação é um gate humano (ou Argenta, quando operar autonomamente).
 "Parece certo" não é aprovação. "Critérios verificados: ✅" é aprovação.
+
+---
+
+**Princípio 10 — Limpeza como Obrigação, não Opção:**
+Toda orquestração autônoma que falha deixa dívida de estado:
+agentes zumbi, tasks-lixo, arquivos órfãos, dados corrompidos.
+Limpar esse estado é responsabilidade do agente que criou o caos —
+ou do arquiteto que o sucede. Estado sujo = colmeia comprometida.
+Um agente que não limpa o que quebra não pode ser confiado com autonomia.
 
 ---
 

@@ -5,6 +5,143 @@
 
 ---
 
+## [Hotfix + Auditoria] — Post-Mortem da Sessão de Orquestração Autônoma ✅
+**data:** 2026-03-08 · **sprint:** hotfix · **domínio:** infra · backend · frontend · docs
+
+### Contexto
+Entre os sprints 8 e 9, o usuário iniciou uma sessão de orquestração autônoma
+via colmeia (The Forge como orquestradora principal + zambias delegados) com o
+objetivo de testar a infraestrutura e implementar features incrementais.
+A sessão produziu entregas válidas e bugs críticos — documentados abaixo.
+
+---
+
+### Entregas válidas da sessão
+
+**Backend**
+- `GET /api/tasks/:id/session` — endpoint funcional que retorna sessão associada a uma task:
+  mensagens, reasoning blocks, blocos de código, métricas agregadas (tokens, custo, latência)
+- `GET /api/providers` corrigido: usa `data.connected` do Kilo (não `data.authed` que não existe)
+
+**Frontend**
+- Modal "Ver Sessão" (`#modal-task-session`) — abre do card do kanban, 4 abas:
+  💬 Mensagens · 🧠 Reasoning · 📝 Código · 📊 Métricas
+- Botão "🔍 Ver Sessão" integrado ao Task Preview Modal
+- `populateProviders()` movido para fora do guard `!initialized`:
+  providers agora sempre atualizam quando Kilo responder, independente do timing
+
+**MCP Integration**
+- `kilo-adapter/adapter.mjs` — funções `listMcpServers`, `addMcpServer`, `removeMcpServer`,
+  `toggleMcpServer`, `listMcpTools`, `invokeMcpTool`, `getMcpStatus` (239 linhas)
+- `kilo-adapter/mcp-manager.mjs` — CLI manager para MCP (290 linhas)
+- `cli/commands/mcp.mjs` — comandos `mc mcp list/status/add/remove/enable/disable/tools/invoke`
+- `mcp-config.json` — configuração base: filesystem, git, fetch, sequential-thinking, memory
+- Endpoints no server: `GET/POST /api/mcp/servers`, `DELETE /api/mcp/servers/:name`,
+  `POST /api/mcp/servers/:name/toggle`, `GET /api/mcp/status`, `GET /api/mcp/tools`,
+  `POST /api/mcp/invoke`
+- `mc mcp` registrado no help e no router do `cli/mc.mjs`
+
+**Orquestração Avançada (módulos prontos, não integrados ao runtime)**
+- `hive/consensus.mjs` — sistema de votação distribuída entre agentes (393 linhas)
+- `hive/delegation.mjs` — delegação recursiva com controle de profundidade (252 linhas)
+- `hive/heartbeat-colony.mjs` — heartbeat colony com detecção de quórum (117 linhas)
+- `docs/MCP.md` — documentação da integração MCP
+- `docs/RECURSIVE_DELEGATION_AND_CONSENSUS.md` — documentação de orquestração avançada
+
+**Expertise Matrix v4**
+- Prioridade atualizada: `kimi-for-coding` (K2.5) como provider primário em todos os domínios
+- Fallback: `bailian-coding-plan` (Qwen) → `github-copilot` como terceira opção
+- Alinhado com The Forge do workspace principal
+
+---
+
+### Bugs críticos introduzidos e corrigidos
+
+#### BUG-01 — JS crash total: modal após `</script>` [CRÍTICO]
+**Causa:** `#modal-task-session` inserido **depois** da tag `</script>` no HTML.
+Na linha 3612 o JS executava `document.getElementById('modal-task-session').addEventListener(...)`.
+O elemento não existia no DOM naquele momento → `null.addEventListener` → `TypeError`.
+**Efeito:** Todo o JavaScript parava. `loadData`, WebSocket, boot sequence, polling — tudo morto.
+**Fix:** Modal movido para antes do `<script>`, junto com os demais modals (linha ~2017).
+
+#### BUG-02 — Providers nunca populados: race condition com `initialized` flag [ALTO]
+**Causa:** `populateProviders()` estava dentro do bloco `if (!initialized)`. A `expertise-matrix`
+(arquivo local, rápido) carregava antes do Kilo subir (~2–3s). `initialized = true` era setado
+com `p.length === 0`. Nas iterações seguintes do polling (a cada 8s), o bloco era pulado.
+**Efeito:** Dropdowns de provider/model permaneciam vazios para sempre.
+**Fix:** `populateProviders(p)` movido para fora do guard `!initialized`.
+
+#### BUG-03 — `data.authed` inexistente: filtragem de providers baseada em campo errado [MÉDIO]
+**Causa:** Handler `/api/providers` checava `data.authed` do Kilo. Kilo retorna `{all, connected}`,
+não `{all, authed}`. `authedIds` sempre vazia → fallback ao `knownAuthed` (DISPLAY map).
+Funcionava por coincidência mas era frágil.
+**Fix:** Server atualizado para usar `data.connected` com fallback para `data.authed` e depois DISPLAY.
+
+#### BUG-04 — `start-mc.bat` executando comentários Unicode como comandos [ALTO]
+**Causa:** Arquivo `.bat` salvo em UTF-8 com comentários `:: ──────────────────────` (U+2500).
+Após `chcp 65001`, CMD tentava executar as linhas de comentário como comandos.
+**Efeito:** Erros `'──────────────────────' não é reconhecido...` ao iniciar o launcher.
+**Fix:** Todos os comentários reescritos com `rem` + ASCII puro. Zero Unicode no bat.
+
+#### BUG-05 — `tokens_used` corrompido em `hive/agents.json` [MÉDIO]
+**Causa:** Tracker de tokens usava concatenação de strings ao invés de soma numérica.
+`stats.tokens_used` virou `"0[object Object][object Object][object Object]..."`.
+**Fix:** Campo resetado para `0` nos agentes afetados (The Forge, The Lore Keeper).
+
+#### BUG-06 — `SyntaxError` em `cli/commands/mcp.mjs`: `args` redeclarado [MÉDIO]
+**Causa:** Função `cmdInvoke(args)` declarava `let args = {}` internamente — redeclaração
+do parâmetro `args` no mesmo escopo → `SyntaxError: Identifier 'args' already declared`.
+**Fix:** Variável local renomeada para `invokeArgs`.
+
+---
+
+### Danos de estado limpados
+
+| Item | Quantidade | Ação |
+|------|-----------|------|
+| Agentes zumbi (`zmb-*`) | 7 | Removidos de `hive/agents.json` |
+| Tasks-lixo no kanban | 7 de 9 | Removidas — 2 tasks originais preservadas |
+| Arquivos órfãos | 5 | `nul`, `chat-modal.html`, `modal-conversa.html`, `test_session_endpoint.js`, `examples/` deletados |
+| `hive/consensus.json` | 1 proposta de teste | Limpo → `{"proposals":[]}` |
+
+---
+
+### Diagnóstico da Falha de Orquestração
+
+A orquestradora (The Forge em modo autônomo + 7 zambias delegados) operou **sem metodologia
+molecular** e violou múltiplos Princípios de Design:
+
+1. **Violação P8 — Inflexão antes da Execução:** Nenhuma fase de Consolidação da Intenção.
+   Código escrito direto, sem alinhamento com o arquiteto.
+
+2. **Timeouts mascarados:** Zambias bloqueavam em 30s. "Fix" foi aumentar timeout para 60s
+   sem resolver a causa raiz. Zambias continuaram bloqueando. 7 zumbis deixados para trás.
+
+3. **Modificação destrutiva de arquivo crítico:** `ui/index.html` alterado sem verificar
+   posição DOM. Modal inserido depois do script → crash total da aplicação.
+
+4. **Não-limpeza de estado:** Após cada falha, a orquestradora criava novas delegações
+   sem limpar o estado anterior. Kanban acumulou 7 tasks-lixo. Hive acumulou 7 zumbis.
+
+5. **Violação P9 — Aprovação Explícita:** Features implementadas sem aprovação prévia do usuário.
+
+6. **Duplicação:** Mesma task criada 2x (MCP integration). Mesma feature implementada
+   em arquivos standalone (`chat-modal.html`, `modal-conversa.html`) E no app real.
+
+### Lição para futuros agentes
+> Antes de modificar `ui/index.html`: verificar posição DOM de qualquer elemento
+> referenciado no script. Elementos criados após `</script>` são invisíveis ao JS inline.
+>
+> Antes de criar zambias: garantir que o ambiente suporta a operação (timeout adequado,
+> provider disponível, task clara e completa).
+>
+> Sempre limpar estado após falha. Zombie = debt técnico de orquestração.
+
+### Status
+✅ hotfix entregue · auditado · documentado molecularmente · 2026-03-08
+
+---
+
 ## [Sprint 8] — Argenta Orchestrator + Memória Episódica + Organic Growth ✅
 **data:** 2026-03-07 · **sprint:** 8.0–8.4 · **domínio:** backend · infra · frontend · docs
 
