@@ -1,7 +1,7 @@
 # MANIFESTO — Holistic Mission Control
 ### Metodologia Canônica de Desenvolvimento
 
-> **Versão:** 2.0 — Inaugurada em 2026-03-08
+> **Versão:** 2.1 — 2026-03-08
 > **Status:** ◉ VIVO — Revisitado a cada sprint. Nunca congelado.
 > **Guardião:** Adilson (humano) + Argenta (IA orquestradora)
 > **Princípio-guia:** *Máxima sincronicidade entre intenção e entrega.*
@@ -61,6 +61,9 @@ Documentos evoluem com APPEND/EVOLVE/MARK — nunca com DELETE/OVERWRITE silenci
 ### P10 — Sincronicidade como Métrica Final
 A única métrica que importa: **quão próximo o que foi entregue está do que foi intencionado?** Velocidade, quantidade de features, linhas de código — secundários. Sincronicidade entre intenção e entrega é o norte.
 
+### P11 — Proveniência como Pré-requisito de Integração
+Todo código tem uma origem. Código escrito dentro do ciclo Molecular supervisionado tem proveniência conhecida. Código vindo de fora — sessão autônoma, contribuição externa, legado sem autor claro — tem proveniência desconhecida e **não pode ser integrado sem arqueologia prévia.** Integrar código de proveniência desconhecida sem auditoria é o equivalente a aceitar código sem revisão: pode funcionar, pode não funcionar, e quando falhar, o custo de diagnóstico será alto. O Protocolo Arqueologia define o procedimento.
+
 ---
 
 ## III. METODOLOGIA MOLECULAR — AS 8 FASES
@@ -94,6 +97,7 @@ A única métrica que importa: **quão próximo o que foi entregue está do que 
 - Identificar dependências e pontos de integração
 - Mapear riscos e ambiguidades
 - Documentar descobertas relevantes (podem mudar a intenção)
+- **Gate de proveniência:** Se qualquer código a integrar vier de fora do ciclo Molecular supervisionado → acionar **Protocolo Arqueologia** antes de prosseguir para a Fase 3
 
 ### Fase 3 — INFLEXÃO
 *O momento mais valioso do ciclo.*
@@ -183,6 +187,70 @@ O Protocolo Scribe define o mínimo de documentação para cada tipo de entrega:
 
 ---
 
+## IV-B. PROTOCOLO ARQUEOLOGIA
+
+> *"Código sem autor verificado é uma promessa sem assinatura."*
+
+O Protocolo Arqueologia é ativado quando um sprint precisa integrar código de **proveniência não-Molecular** — escrito fora do ciclo supervisionado. Substitui a Fase 2 (Pesquisa) padrão para esses módulos.
+
+### Gatilho
+
+Acionar quando o código a integrar se encaixa em qualquer categoria:
+
+| Categoria | Exemplos |
+|---|---|
+| **Sessão autônoma** | IA rodando sem supervisão humana (ex: `[BREAK]` no histórico) |
+| **Contribuição externa** | PR de terceiro, código de fork, snippet de fora do projeto |
+| **Legado sem rastreio** | Módulo sem entrada no CHANGELOG, sem autor identificável |
+| **IA sem revisão** | Código gerado por IA e aceito sem leitura linha a linha |
+
+### Procedimento
+
+**Etapa 1 — Inventário**
+- Listar todos os arquivos afetados pelo sprint que têm proveniência desconhecida
+- Confirmar que cada arquivo está no CHANGELOG ou explicar por que não está
+
+**Etapa 2 — Leitura Forense**
+- Ler cada arquivo linha a linha (não skimming)
+- Para cada função/método: o comportamento declarado no nome corresponde ao que o código faz?
+- Identificar: side effects não-óbvios, estado mutado silenciosamente, dependências ocultas, dead code
+
+**Etapa 3 — Teste de Isolamento**
+- Executar o módulo de forma isolada, sem conectar ao runtime principal
+- Verificar: entradas esperadas → saídas esperadas
+- Documentar qualquer comportamento que diverge do que o nome/comentário promete
+
+**Etapa 4 — Veredito**
+
+| Veredito | Critério | Próximo passo |
+|---|---|---|
+| ✅ **Cleared** | Comportamento confirmado, sem surpresas | Prosseguir com integração normal |
+| ⚠️ **Cleared com Observações** | Funciona, mas com edge cases ou código confuso | Integrar + documentar limitações conhecidas |
+| 🔁 **Refatorar Antes** | Lógica correta, estrutura problemática | Refatorar em sub-sprint dedicado antes da integração |
+| ❌ **Reescrever** | Comportamento incorreto ou lógica ininteligível | Descartar e reescrever dentro do ciclo Molecular |
+
+**Etapa 5 — Relatório**
+- Registrar veredito por módulo no CHANGELOG (entrada `[Arqueologia]`)
+- Atualizar `launch_roadmap.md` com o gate concluído
+- Somente após relatório: o sprint de integração pode iniciar (Fase 3 em diante)
+
+### Exemplo de entrada no CHANGELOG
+
+```markdown
+## [Arqueologia — consensus.mjs + delegation.mjs] — YYYY-MM-DD
+### Proveniência
+- Escritos em sessão autônoma [BREAK] 2026-03-07 — sem supervisão humana
+
+### Veredito
+- `consensus.mjs`: ⚠️ Cleared com Observações — lógica de votação correta, mas timeout não configurável
+- `delegation.mjs`: ✅ Cleared — comportamento conforme esperado
+
+### Limitações documentadas
+- `consensus.mjs` assume 3+ agentes; com 1-2 agentes, fallback não está implementado
+```
+
+---
+
 ## V. CRITÉRIOS DE QUALIDADE
 
 ### O que torna uma entrega ACEITÁVEL:
@@ -234,6 +302,7 @@ Este documento deve ser revisitado a cada **3 sprints** ou quando:
 | 1.0 | 2026-03-05 | Princípios P1–P9, Metodologia Molecular inicial | Sprint 1, blueprint original |
 | 1.x | 2026-03-07 | P10 adicionado (Limpeza como Obrigação) | Post-mortem sessão autônoma |
 | 2.0 | 2026-03-08 | Manifesto reescrito limpo, elevado como canônico | Abertura da fase de lançamento (Sprint 9+) |
+| 2.1 | 2026-03-08 | P11 adicionado; Protocolo Arqueologia (IV-B); gate na Fase 2 | Abertura Sprint 10: herança de código autônomo sem proveniência |
 
 ---
 
@@ -255,11 +324,14 @@ Este documento deve ser revisitado a cada **3 sprints** ou quando:
 | **Zombie** | Agente sem heartbeat por >2min — sinal de dívida técnica ou falha de orquestração |
 | **Consensus** | Sistema de votação distribuída entre agentes para decisões de alto impacto |
 | **Sincronicidade** | Grau de alinhamento entre intenção declarada e entrega realizada |
+| **Arqueologia** | Auditoria forense de código de proveniência desconhecida antes de integração |
+| **Proveniência** | Origem rastreável de um módulo: quem escreveu, quando, dentro de qual ciclo |
+| **Cleared** | Veredito do Protocolo Arqueologia: módulo aprovado para integração |
 
 ---
 
 *"Agentes ~ Humano. Quântico. Holístico."*
 
 ---
-> Manifesto Holistic Mission Control · v2.0 · 2026-03-08
+> Manifesto Holistic Mission Control · v2.1 · 2026-03-08
 > Próxima revisão recomendada: Sprint 12 ou primeiro fracasso documentado
