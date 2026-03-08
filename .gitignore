@@ -1,6 +1,29 @@
+# Dependencies
 node_modules/
+
+# Runtime state (generated, not versioned)
 ops/chat-sessions.json
 ops/events.jsonl
 ops/state.json
-*.log
+
+# Environment / secrets
 .env
+.env.*
+*.local
+*.local.json
+
+# Claude Code (IDE agent settings — private)
+.claude/
+
+# Editor
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
