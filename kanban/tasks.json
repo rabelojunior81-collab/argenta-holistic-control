@@ -1,30 +1,32 @@
 {
   "version": 1,
-  "updated": "2026-03-08T00:00:00.000Z",
+  "updated": "2026-03-08T14:47:55.129Z",
   "tasks": [
     {
-      "id": "978318af",
-      "title": "💬 ask: Olá. Quem é voce",
-      "domain": "audit",
+      "id": "a524837b",
+      "title": "Olá.",
+      "domain": "planning",
       "agent": "ask",
-      "priority": "low",
-      "status": "review",
-      "created": "2026-03-04T00:00:00.000Z",
-      "updated": "2026-03-04T00:00:00.000Z",
-      "result": null,
-      "events": []
-    },
-    {
-      "id": "4a09928f",
-      "title": "explore o repositorio e me passe seu entendimento",
-      "domain": "audit",
-      "agent": "ask",
-      "priority": "low",
-      "status": "review",
-      "created": "2026-03-04T00:00:00.000Z",
-      "updated": "2026-03-04T00:00:00.000Z",
-      "result": null,
-      "events": []
+      "providerID": "bailian-coding-plan",
+      "modelID": "qwen3.5-plus",
+      "chatKey": "ask",
+      "priority": "high",
+      "status": "done",
+      "created": "2026-03-08T14:47:49.122Z",
+      "updated": "2026-03-08T14:47:55.129Z",
+      "result": "Olá! Eu sou o Kilo, um assistente técnico especializado em desenvolvimento de software e tecnologia. Estou aqui para ajudar com dúvidas sobre programação, análise de código, arquitetura de sistemas, ou qualquer outro tópico relacionado ao desenvolvimento.\n\nComo posso ajudar você hoje?",
+      "events": [
+        {
+          "ts": "2026-03-08T14:47:49.122Z",
+          "from": "manual",
+          "to": "in_progress"
+        },
+        {
+          "ts": "2026-03-08T14:47:55.129Z",
+          "from": "in_progress",
+          "to": "done"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "hive_name":    "Argenta Fênix",
+  "orchestrator": "Argenta",
+  "operator":     "Adilson",
+  "tagline":      "Argenta Fênix · Hive Orchestration Platform",
+  "port":         3030,
+  "kilo_url":     "http://localhost:4096",
+  "locale":       "pt-BR"
+}

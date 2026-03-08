@@ -32,6 +32,7 @@ import { readFile, writeFile,
          appendFile, stat,
          readdir }                 from "node:fs/promises";
 import { existsSync }              from "node:fs";
+import { readFileSync }            from "node:fs";
 import { spawn }                   from "node:child_process";
 import yaml                        from "js-yaml";
 import {
@@ -45,7 +46,17 @@ import { randomUUID, createHash }  from "node:crypto";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT  = join(__dir, "..");
-const PORT  = 3030;
+
+// ── Config externa (config/orchestrator.json + config/providers.json) ─────────
+function loadJsonSync(path, fallback = {}) {
+  try { return JSON.parse(readFileSync(path, "utf8")); } catch { return fallback; }
+}
+const ORCH_CFG  = loadJsonSync(join(ROOT, "config/orchestrator.json"), {
+  hive_name: "Mission Control", orchestrator: "Argenta", operator: "Operator",
+  tagline: "Hive Orchestration Platform", port: 3030, kilo_url: "http://localhost:4096",
+});
+const PROV_CFG  = loadJsonSync(join(ROOT, "config/providers.json"), { display: {} });
+const PORT      = ORCH_CFG.port ?? 3030;
 
 const KANBAN          = join(ROOT, "kanban/tasks.json");
 const EVENTS          = join(ROOT, "ops/events.jsonl");
@@ -415,7 +426,7 @@ function buildAgentContext(char, agentName, soul = null, activeSkills = []) {
 
   let ctx = `[MISSION CONTROL — CONTEXTO DO SISTEMA]
 Data/Hora: ${now}
-Operação: Mission Control · Colmeia Argenta Fênix (orquestradora: Argenta)
+Operação: Mission Control · Colmeia ${ORCH_CFG.hive_name} (orquestradora: ${ORCH_CFG.orchestrator})
 
 [SUA IDENTIDADE — LEIA COM ATENÇÃO]
 Você é o agente "${agentName}", chamado: ${char.name ?? agentName}
@@ -578,6 +589,11 @@ const server = createServer(async (req, res) => {
     const html = await readFile(join(__dir, "index.html"), "utf8");
     res.writeHead(200, { "Content-Type": "text/html" });
     return res.end(html);
+  }
+
+  // ── Config pública (orchestrator + providers) ──
+  if (path === "/api/config" && method === "GET") {
+    return json(res, { ...ORCH_CFG, providers_display: PROV_CFG.display ?? {} });
   }
 
   // ── State ──
@@ -806,15 +822,8 @@ const server = createServer(async (req, res) => {
 
   // ── Kilo Providers autenticados ──
   if (path === "/api/providers" && method === "GET") {
-    const DISPLAY = {
-      "kilo":               "Kilo Gateway",
-      "opencode":           "OpenCode Zen",
-      "openai":             "OpenAI",
-      "github-copilot":     "GitHub Copilot",
-      "kimi-for-coding":    "Kimi For Coding",
-      "zai":                "Z.AI",
-      "bailian-coding-plan":"Model Studio (Alibaba)",
-    };
+    // DISPLAY map: lido de config/providers.json (editável sem tocar no código)
+    const DISPLAY = PROV_CFG.display ?? {};
     try {
       const cfg  = await loadJSON(KILO_CFG);
       const kres = await fetch(`${cfg.base_url}/provider`, {

@@ -1,0 +1,12 @@
+{
+  "_comment": "Display names for known Kilo providers. Add entries for any provider you have authenticated.",
+  "display": {
+    "kilo":                "Kilo Gateway",
+    "opencode":            "OpenCode Zen",
+    "openai":              "OpenAI",
+    "github-copilot":      "GitHub Copilot",
+    "kimi-for-coding":     "Kimi For Coding",
+    "zai":                 "Z.AI",
+    "bailian-coding-plan": "Model Studio (Alibaba)"
+  }
+}

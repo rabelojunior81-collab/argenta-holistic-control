@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mission Control — Argenta Fênix</title>
+  <title>Mission Control</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1574,7 +1574,7 @@
     </pre>
 
     <div class="boot-title">CONTROL</div>
-    <div class="boot-subtitle">Argenta Fênix · Hive Orchestration Platform</div>
+    <div class="boot-subtitle" id="boot-subtitle">Hive Orchestration Platform</div>
 
     <div class="boot-divider"></div>
 
@@ -4563,6 +4563,17 @@ function bootProgress(pct) {
 async function runBootSequence() {
   const screen = document.getElementById('boot-screen');
   if (!screen) return;
+
+  // Carrega config do orchestrator e aplica identidade
+  try {
+    const cfgRes = await fetch(`${API}/config`);
+    const cfg    = await cfgRes.json();
+    if (cfg.hive_name) {
+      document.title = `Mission Control — ${cfg.hive_name}`;
+      const sub = document.getElementById('boot-subtitle');
+      if (sub) sub.textContent = cfg.tagline ?? cfg.hive_name;
+    }
+  } catch { /* config opcional — continua com defaults */ }
 
   // Pequena pausa inicial para deixar fontes carregarem
   await new Promise(r => setTimeout(r, 300));

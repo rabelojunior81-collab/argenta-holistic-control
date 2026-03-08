@@ -1,12 +1,13 @@
 {
   "name": "holistic-mission-control",
   "version": "1.0.0",
-  "description": "Mission Control + Intelligent Routing via Kilo Code for Argenta Fênix",
+  "description": "Holistic Mission Control — Human-AI hive orchestration platform",
   "type": "module",
   "bin": {
     "mc": "./cli/mc.mjs"
   },
   "scripts": {
+    "setup":      "node setup.mjs",
     "start":      "node start.mjs",
     "ui":         "node ui/server.mjs",
     "loop":       "node ralph-loop/index.mjs",

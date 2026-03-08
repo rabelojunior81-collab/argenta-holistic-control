@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-03-08T00:00:00.000Z",
+  "updated": "2026-03-08T19:21:34.765Z",
   "agents": [
     {
       "id": "agt-code-native",
@@ -11,7 +11,7 @@
       "born": "2026-03-05T00:00:00Z",
       "status": "idle",
       "heartbeat": "2026-03-07T22:28:31.305Z",
-      "soul": "kilo-native",
+      "soul": "souls/kilo-native.yaml",
       "skills": [],
       "mission": null,
       "domain": "execution",
@@ -37,7 +37,7 @@
       "born": "2026-03-05T00:00:00Z",
       "status": "idle",
       "heartbeat": "2026-03-07T07:20:53.187Z",
-      "soul": "kilo-native",
+      "soul": "souls/kilo-native.yaml",
       "skills": [],
       "mission": null,
       "domain": "planning",
@@ -63,7 +63,7 @@
       "born": "2026-03-05T00:00:00Z",
       "status": "idle",
       "heartbeat": "2026-03-07T07:22:15.219Z",
-      "soul": "kilo-native",
+      "soul": "souls/kilo-native.yaml",
       "skills": [],
       "mission": null,
       "domain": "debug",
@@ -115,7 +115,7 @@
       "born": "2026-03-05T00:00:00Z",
       "status": "idle",
       "heartbeat": "2026-03-07T19:10:25.667Z",
-      "soul": "kilo-native",
+      "soul": "souls/kilo-native.yaml",
       "skills": [],
       "mission": null,
       "domain": "research",

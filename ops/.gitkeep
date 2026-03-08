@@ -1,0 +1,4 @@
+# Runtime files (gitignored — generated at runtime, not versioned):
+#   events.jsonl   — append-only event log
+#   state.json     — aggregated system state
+#   chat-sessions.json — active chat sessions

@@ -9,6 +9,17 @@
 
 import { spawn }     from "node:child_process";
 import { createInterface } from "node:readline";
+import { readFileSync }    from "node:fs";
+import { join, dirname }   from "node:path";
+import { fileURLToPath }   from "node:url";
+
+const __dir   = dirname(fileURLToPath(import.meta.url));
+function loadCfg(path, fb = {}) {
+  try { return JSON.parse(readFileSync(path, "utf8")); } catch { return fb; }
+}
+const ORCH = loadCfg(join(__dir, "config/orchestrator.json"), {
+  hive_name: "Mission Control", orchestrator: "Argenta",
+});
 
 // ── ANSI palette ──────────────────────────────────────────────────────────────
 const C = {
@@ -64,7 +75,7 @@ function log(svcColor, svcId, msg) {
 function banner() {
   console.log("");
   console.log(paint(C.lime, C.bold + "  ╔══════════════════════════════════════════╗"));
-  console.log(paint(C.lime, "  ║") + paint(C.white, C.bold + "   MISSION CONTROL — ARGENTA FÊNIX         ") + paint(C.lime, "║"));
+  console.log(paint(C.lime, "  ║") + paint(C.white, C.bold + `   MISSION CONTROL — ${ORCH.hive_name.toUpperCase().padEnd(21)}`) + paint(C.lime, "║"));
   console.log(paint(C.lime, "  ║") + paint(C.olive, "   Process Orchestrator  v1.0               ") + paint(C.lime, "║"));
   console.log(paint(C.lime, "  ╚══════════════════════════════════════════╝"));
   console.log("");
