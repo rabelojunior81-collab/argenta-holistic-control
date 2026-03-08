@@ -22,6 +22,7 @@
     "mcp:status": "node kilo-adapter/mcp-manager.mjs status",
     "mcp:tools":  "node kilo-adapter/mcp-manager.mjs tools"
   },
+  "license": "MIT",
   "dependencies": {
     "eventsource": "^2.0.2",
     "js-yaml": "^4.1.0"
