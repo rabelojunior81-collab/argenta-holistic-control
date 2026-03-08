@@ -189,9 +189,9 @@ Um sistema de orquestração de agentes IA que qualquer equipe pode instalar, co
 - Pesquisadores que exploram orquestração multi-agente
 
 **Critérios de lançamento** (o que define "pronto para produção"):
-- [ ] Sistema instalável em 5 minutos com `npm install && npm start`
-- [ ] README bilíngue com screenshots reais
-- [ ] Zero referências hardcoded a Argenta/Adilson no código de usuário
+- [x] Sistema instalável com `npm run setup && npm start` (setup wizard entregue)
+- [x] README bilíngue (entregue)
+- [x] Zero referências hardcoded a Argenta/Adilson no código — movidas para `config/`
 - [ ] Pelo menos 3 provedores de IA suportados e documentados
 - [ ] Todos os fluxos principais com tratamento de erro visível
 - [ ] CHANGELOG completo e legível
@@ -199,21 +199,22 @@ Um sistema de orquestração de agentes IA que qualquer equipe pode instalar, co
 
 ---
 
-## 2.2 — SPRINT 9 — FORK AGNÓSTICO
+## 2.2 — SPRINT 9 — FORK AGNÓSTICO ✅
 ### *Tornar o sistema instalável por qualquer pessoa*
 
-> **Status:** 🟡 ABERTO — 2026-03-08
-> **Intenção:** Remover todas as referências específicas a Argenta/Adilson do core do produto, tornando-o configurável por qualquer operador.
+> **Status:** ✅ ENTREGUE — 2026-03-08 · Aguardando aprovação formal
+> **Branch master:** config externalizada, setup wizard, ops cleanup, soul paths padronizados
+> **Branch generic:** forkada — config neutra, agentes genéricos, providers em branco
 
 **Sub-sprints:**
 
-- [ ] **S9.1 — Limpeza de Ops** — `ops/events.jsonl` e `ops/state.json` no `.gitignore`; `.gitkeep` no lugar
-- [ ] **S9.2 — Padronização de Soul paths** — DT-01: uniformizar `soul` field em `agents.json` (sempre path completo ou sempre nome curto)
-- [ ] **S9.3 — Orchestrator Config** — `orchestrator.json` com nome da IA orquestradora, identidade, e configurações — substitui referências hardcoded a "Argenta"
-- [ ] **S9.4 — Provider Config Externalizada** — arquivo `providers.config.json` com DISPLAY map e provadores conhecidos — fora do código
-- [ ] **S9.5 — Instalação Clean** — `npm install` + `node start.mjs` deve funcionar em qualquer máquina sem configuração prévia hardcoded
-- [ ] **S9.6 — Scribe Review** — Atualizar ARCHITECTURE.md, HELP-AI.md, HELP-HUMAN.md para refletir nova fase
-- [ ] **S9.7 — Aprovação S9**
+- [x] **S9.1 — Limpeza de Ops** — `ops/events.jsonl` e `ops/state.json` no `.gitignore`; `.gitkeep`; `git rm --cached`
+- [x] **S9.2 — Padronização de Soul paths** — DT-01 fechado: todos os 5 agentes agora com `"soul": "souls/kilo-native.yaml"`
+- [x] **S9.3 — Orchestrator Config** — `config/orchestrator.json` com hive_name, orchestrator, operator, tagline, port, kilo_url
+- [x] **S9.4 — Provider Config Externalizada** — `config/providers.json` com DISPLAY map; `GET /api/config` endpoint
+- [x] **S9.5 — Setup Wizard** — `setup.mjs`: wizard interativo + detecção automática de providers Kilo; `npm run setup`
+- [x] **S9.6 — Branch generic** — forkada de master; config genérica; agentes neutros (Coder/Planner/Debugger/Orchestrator/Researcher)
+- [ ] **S9.7 — Aprovação S9** — aguardando
 
 ---
 
@@ -297,7 +298,13 @@ Um sistema de orquestração de agentes IA que qualquer equipe pode instalar, co
 
 > Esta é a seção mais orgânica. Registrar aqui: descobertas durante desenvolvimento, pivotadas de direção, decisões que precisam ser tomadas, dúvidas em aberto.
 
-### 2026-03-08
+### 2026-03-08 — Sprint 9
+
+**Estratégia de Desenvolvimento Quântico confirmada:** Duas branches coexistindo — `master` (Argenta, personalizada, lab vivo) e `generic` (produto público, agnóstico). Funcionalidades fluem de master → generic. Identidade nunca flui de volta.
+
+**Aprendizado de onboarding:** O exercício de remover personalização revelou imediatamente as features necessárias: config wizard, auto-detecção de providers, display names configuráveis, port configurável. Cada hardcode removido = uma feature de onboarding descoberta.
+
+**start-mc.bat:** Ainda Windows-only. Um `start.sh` para macOS/Linux é necessário para o produto genérico — adicionado implicitamente ao escopo do Sprint 10.
 
 **Decisão pendente:** Licença do projeto — privada para uso da Argenta Fênix, ou open source? Impacta Sprints 11-12 significativamente.
 

@@ -1,7 +1,58 @@
 # CHANGELOG — Holistic Mission Control
 > Histórico append-only de entregas.
 > Nunca editar entradas anteriores — apenas adicionar.
-> Formato: HIVE_GROWTH_PROTOCOL.md §2.4
+> Formato: MANIFESTO.md §IV (Protocolo Scribe)
+
+---
+
+## [Sprint 9] — Fork Agnóstico — 2026-03-08 ✅
+**sprint:** S9 · **domínio:** infra · config · onboarding · branching
+
+### Entregue
+
+**Config externalizada (DT-01, DT-04 fechados)**
+- `config/orchestrator.json` — identidade da colmeia: hive_name, orchestrator, operator, tagline, port, kilo_url, locale. Editável sem tocar em código.
+- `config/providers.json` — DISPLAY map de providers. Adicionado/removido por qualquer usuário.
+- `ui/server.mjs`: lê configs via `readFileSync` no boot; expõe `GET /api/config`; usa `ORCH_CFG` e `PROV_CFG` em vez de valores inline.
+- `start.mjs`: banner lê `config/orchestrator.json` — exibe nome da colmeia corretamente.
+
+**UI config-driven**
+- `<title>` genérico "Mission Control" (antes: hardcoded "Mission Control — Argenta Fênix")
+- `#boot-subtitle` recebe `id` e é atualizado via `GET /api/config` no boot da SPA
+
+**Ops cleanup (DT-04)**
+- `ops/events.jsonl` e `ops/state.json` adicionados ao `.gitignore` (estado de runtime, não versionável)
+- `git rm --cached` aplicado — arquivos deixam de ser rastreados
+- `ops/.gitkeep` documenta o diretório
+
+**Soul paths padronizados (DT-01)**
+- `hive/agents.json`: todos os 5 agentes nativos agora usam `"soul": "souls/kilo-native.yaml"` (formato path completo consistente)
+
+**setup.mjs — Wizard de Primeiro Uso**
+- Wizard interativo de terminal: coleta hive_name, orchestrator, operator, tagline, port, kilo_url
+- Testa conexão com Kilo e detecta providers autenticados automaticamente
+- Configura display names para cada provider detectado
+- Grava `config/orchestrator.json` e `config/providers.json`
+- `npm run setup` adicionado ao `package.json`
+
+**Branch `generic` criada**
+- Forkada de `master` após todas as externalizações
+- `config/orchestrator.json`: valores genéricos (My Hive, Aria, Operator)
+- `config/providers.json`: display map vazio (auto-detect via setup)
+- `hive/agents.json`: agentes com nomes neutros (Coder, Planner, Debugger, Orchestrator, Researcher) e providerID null
+
+### Decisões
+
+- Estratégia de desenvolvimento quântico: `master` (Argenta) e `generic` evoluem em paralelo — funcionalidades sincronizadas, identidade divergente.
+- `master` nunca recebe merge de `generic` (protege identidade da Argenta).
+- `config/` não vai para `.gitignore` — é versionado intencionalmente (valores diferentes por branch).
+- `setup.mjs` testa Kilo live; se offline, lista providers sugeridos como base para configuração.
+- `package.json`: descrição atualizada para genérica.
+
+### Dívidas técnicas fechadas
+
+- DT-01 (Soul path inconsistência): ✅ FECHADO
+- DT-04 (Ops files no git): ✅ FECHADO
 
 ---
 
