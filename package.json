@@ -13,6 +13,7 @@
     "loop":       "node ralph-loop/index.mjs",
     "kanban":     "node kanban/cli.mjs",
     "health":     "node ops/healthcheck.mjs",
+    "subscription": "node ops/openai-subscription-snapshot.mjs --persist",
     "serve":      "node kilo-adapter/server-manager.mjs start",
     "mc":         "node cli/mc.mjs",
     "sync:hmc":   "bash sync-hmc.sh",

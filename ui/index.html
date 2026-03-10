@@ -131,7 +131,7 @@
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       background: var(--glass-bg);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--glass-border);
@@ -161,6 +161,26 @@
       letter-spacing: 0.1em;
       margin-top: 4px;
     }
+
+    .subscription-box {
+      margin: 10px 12px 8px;
+      padding: 12px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      border-radius: 8px;
+      backdrop-filter: blur(12px);
+    }
+    .subscription-box.sub-ok { border-color: rgba(154,171,127,0.45); }
+    .subscription-box.sub-warn { border-color: rgba(214,168,107,0.45); }
+    .subscription-box.sub-degraded { border-color: rgba(214,107,107,0.45); }
+    .subscription-title { display:flex; justify-content:space-between; gap:8px; font-family:'JetBrains Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-secondary); margin-bottom:8px; }
+    .subscription-model { font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--accent-lime); margin-bottom:8px; word-break:break-word; }
+    .subscription-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:8px; }
+    .subscription-metric { padding:8px; border:1px solid var(--glass-border); border-radius:6px; background:rgba(0,0,0,0.08); }
+    .subscription-metric .k { font-family:'JetBrains Mono', monospace; font-size:9px; color:var(--text-muted); text-transform:uppercase; }
+    .subscription-metric .v { font-family:'JetBrains Mono', monospace; font-size:14px; color:var(--text-primary); margin-top:4px; }
+    .subscription-alerts { font-family:'JetBrains Mono', monospace; font-size:9px; color:var(--accent-orange); line-height:1.5; word-break:break-word; }
+    .subscription-meta { font-family:'JetBrains Mono', monospace; font-size:9px; color:var(--text-muted); margin-top:6px; }
 
     /* ── Workspace ──────────────────────────────────────────────────────────── */
     .workspace {
@@ -1656,6 +1676,10 @@
     <div class="stat-value" id="s-agents">0</div>
     <div class="stat-label">Agentes</div>
   </div>
+  <div class="stat-item">
+    <div class="stat-value" id="s-sub5h">—</div>
+    <div class="stat-label">Codex 5h</div>
+  </div>
 </div>
 
 <!-- Workspace -->
@@ -1733,6 +1757,21 @@
       <span class="panel-hdr-title">Bulletin Board</span>
       <span class="panel-hdr-count" id="bb-count">—</span>
       <button class="btn btn-lime" onclick="bbToggleCompose()" style="padding:2px 8px;font-size:9px;margin-left:auto">+ Post</button>
+    </div>
+    <div class="subscription-box" id="subscription-box">
+      <div class="subscription-title">
+        <span>OpenAI / Codex</span>
+        <span id="sub-health">—</span>
+      </div>
+      <div class="subscription-model" id="sub-model">carregando...</div>
+      <div class="subscription-grid">
+        <div class="subscription-metric"><div class="k">5h restante</div><div class="v" id="sub-5h">—</div></div>
+        <div class="subscription-metric"><div class="k">Semana restante</div><div class="v" id="sub-week">—</div></div>
+        <div class="subscription-metric"><div class="k">Provider</div><div class="v" id="sub-provider">—</div></div>
+        <div class="subscription-metric"><div class="k">Auth</div><div class="v" id="sub-auth">—</div></div>
+      </div>
+      <div class="subscription-alerts" id="sub-alerts">sem alertas</div>
+      <div class="subscription-meta" id="sub-meta">—</div>
     </div>
     <div class="bb-toolbar">
       <label>Tópico</label>
@@ -2752,6 +2791,26 @@ function renderStats(tasks, kiloAgents, events) {
   document.getElementById('s-agents').textContent  = kiloAgents.length;
 }
 
+function renderSubscription(sub) {
+  const box = document.getElementById('subscription-box');
+  const health = sub?.health || 'unknown';
+  box.classList.remove('sub-ok','sub-warn','sub-degraded');
+  box.classList.add(health === 'ok' ? 'sub-ok' : (health === 'warn' ? 'sub-warn' : 'sub-degraded'));
+
+  document.getElementById('sub-health').textContent = health.toUpperCase();
+  document.getElementById('sub-model').textContent = sub?.model?.effective || sub?.model?.configured || 'indisponível';
+  document.getElementById('sub-5h').textContent = sub?.usage?.fiveHour?.remainingPercent != null ? `${sub.usage.fiveHour.remainingPercent}%` : '—';
+  document.getElementById('sub-week').textContent = sub?.usage?.week?.remainingPercent != null ? `${sub.usage.week.remainingPercent}%` : '—';
+  document.getElementById('sub-provider').textContent = sub?.provider?.effective || '—';
+  document.getElementById('sub-auth').textContent = sub?.provider?.authMode || '—';
+  document.getElementById('sub-alerts').textContent = sub?.alerts?.items?.length ? sub.alerts.items.join(' · ') : 'sem alertas';
+  document.getElementById('sub-meta').textContent = [
+    sub?.provider?.plan ? `plan: ${sub.provider.plan}` : null,
+    sub?.timestamp ? `snapshot: ${fmtTs(sub.timestamp)}` : null,
+  ].filter(Boolean).join(' · ') || '—';
+  document.getElementById('s-sub5h').textContent = sub?.usage?.fiveHour?.remainingPercent != null ? `${sub.usage.fiveHour.remainingPercent}%` : '—';
+}
+
 // ── Hive Panel ────────────────────────────────────────────────────────────────
 
 const HIVE_STATUS_DOT = {
@@ -3603,7 +3662,7 @@ async function removeTask() {
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 async function loadData() {
-  const [tasks, matrixAgents, events, kiloAgents, providers, chars, hive, skills, souls] = await Promise.all([
+  const [tasks, matrixAgents, events, kiloAgents, providers, chars, hive, skills, souls, subscription] = await Promise.all([
     fetch(`${API}/tasks`).then(r => r.json()).catch(() => []),
     fetch(`${API}/matrix`).then(r => r.json()).catch(() => []),
     fetch(`${API}/events?n=80`).then(r => r.json()).catch(() => []),
@@ -3613,6 +3672,7 @@ async function loadData() {
     fetch(`${API}/hive/agents`).then(r => r.json()).catch(() => []),
     fetch(`${API}/skills`).then(r => r.json()).catch(() => ({})),
     fetch(`${API}/souls`).then(r => r.json()).catch(() => ({})),
+    fetch(`${API}/subscription`).then(r => r.json()).catch(() => ({})),
   ]);
   if (chars   && typeof chars === 'object')   charactersData = chars;
   if (skills  && typeof skills === 'object')  skillsData = skills;
@@ -3638,6 +3698,7 @@ async function loadData() {
   }
 
   renderStats(t, k, e);
+  renderSubscription(subscription);
   renderHivePanel(hiveAgents.length ? hiveAgents : k.map(a => ({ id: `agt-${a.name}-native`, name: a.name, type: 'native', status: 'idle', chatKey: a.name, domain: '', stats: { messages_sent: 0 } })), t);
   renderKanban(t);
   renderEvents(e);

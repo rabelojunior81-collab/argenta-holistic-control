@@ -33,7 +33,8 @@ import { readFile, writeFile,
          readdir }                 from "node:fs/promises";
 import { existsSync }              from "node:fs";
 import { readFileSync }            from "node:fs";
-import { spawn }                   from "node:child_process";
+import { spawn, execFile }         from "node:child_process";
+import { promisify }               from "node:util";
 import yaml                        from "js-yaml";
 import {
   initEpisodic, upsertSession,
@@ -46,6 +47,7 @@ import { randomUUID, createHash }  from "node:crypto";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT  = join(__dir, "..");
+const execFileAsync = promisify(execFile);
 
 // ── Config externa (config/orchestrator.json + config/providers.json) ─────────
 function loadJsonSync(path, fallback = {}) {
@@ -64,6 +66,7 @@ const STATE           = join(ROOT, "ops/state.json");
 const KILO_CFG        = join(ROOT, "kilo-adapter/config.json");
 const MATRIX          = join(ROOT, "expertise-matrix/matrix.yaml");
 const CHARACTERS      = join(ROOT, "expertise-matrix/characters");
+const SUBSCRIPTION    = join(ROOT, "ops/openai-subscription-state.json");
 const CHAT_SESSIONS_F = join(ROOT, "ops/chat-sessions.json");
 const HIVE_AGENTS_F   = join(ROOT, "hive/agents.json");
 const HIVE_BEATS_F    = join(ROOT, "hive/heartbeats.jsonl");
@@ -195,6 +198,25 @@ async function kiloHealth() {
   } catch (e) {
     return { ok: false, error: e.message };
   }
+}
+
+async function subscriptionState({ refresh = false } = {}) {
+  const maxAgeMs = 15 * 60_000;
+  let current = await loadJSON(SUBSCRIPTION);
+  const stale = !current?.timestamp || (Date.now() - new Date(current.timestamp).getTime()) > maxAgeMs;
+  if (refresh || stale) {
+    try {
+      const { stdout } = await execFileAsync(process.execPath, [join(ROOT, 'ops/openai-subscription-snapshot.mjs'), '--persist'], {
+        cwd: ROOT,
+        windowsHide: true,
+        maxBuffer: 10 * 1024 * 1024,
+      });
+      current = JSON.parse(stdout);
+    } catch (e) {
+      return current ?? { health: 'degraded', error: e.message, timestamp: new Date().toISOString() };
+    }
+  }
+  return current ?? { health: 'unknown', timestamp: null };
 }
 
 // Parse rápido do YAML da expertise matrix (v3: agent + providerID + modelID)
@@ -601,6 +623,12 @@ const server = createServer(async (req, res) => {
     const state = await loadJSON(STATE) ?? {};
     const kilo  = await kiloHealth();
     return json(res, { ...state, kilo_serve: kilo });
+  }
+
+  // ── OpenAI/Codex Subscription ──
+  if (path === "/api/subscription" && method === "GET") {
+    const refresh = url.searchParams.get('refresh') === '1';
+    return json(res, await subscriptionState({ refresh }));
   }
 
   // ── Tasks ──

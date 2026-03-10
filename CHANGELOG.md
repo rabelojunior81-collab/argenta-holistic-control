@@ -5,6 +5,35 @@
 
 ---
 
+## [S10.0 — Arqueologia] — 2026-03-10 ✅
+**sprint:** S10.0 · **protocolo:** Arqueologia (MANIFESTO §IV-B)
+
+### Proveniência
+- `hive/consensus.mjs`, `hive/delegation.mjs` — escritos em sessão autônoma [BREAK] 2026-03-07, sem supervisão
+- `ops/openai-subscription-snapshot.mjs`, diffs em `ui/server.mjs`, `ui/index.html`, `ops/healthcheck.mjs` — presentes no working tree sem entrada no CHANGELOG nem commit rastreável
+
+### Vereditos
+
+| Módulo | Veredito | Justificativa |
+|---|---|---|
+| `hive/consensus.mjs` | ⚠️ Cleared com Observações | Lógica de votação correta; `QUORUM_TYPES.WEIGHTED` é placeholder silencioso (usa simple internamente); `CONSENSUS` com 1 agente ativo fecha com 1 voto do proponente — semanticamente questionável mas não quebra nada |
+| `hive/delegation.mjs` | ✅ Cleared | Ancestry e depth corretos; safety limit em `calculateDepth`; `providerID` fallback hardcoded é aceitável como default |
+| `ops/openai-subscription-snapshot.mjs` | ✅ Cleared | Leitura de `~/.openclaw/openclaw.json` + `openclaw status --json --usage`; delta correto; thresholds explícitos (60/85% 5h, 65/90% semana); graceful em falhas |
+| `ui/server.mjs` (diff) | ✅ Cleared | `subscriptionState()` com stale-check de 15min; fallback para estado anterior se refresh falhar; `GET /api/subscription` correto |
+| `ui/index.html` (diff) | ✅ Cleared | `renderSubscription()` defensivo (`?.` + `\|\| '—'`); `loadData()` com `.catch(() => ({}))` — degrada sem quebrar |
+| `ops/healthcheck.mjs` (diff) | ✅ Cleared | Check 5 integrado corretamente; re-executa snapshot se stale; classifica OK/WARN/FAIL por `sub.health` |
+| `kanban/tasks.json` | ✅ Cleared | Cleanup de runtime data (1 task de teste removida) |
+| `ops/openai-subscription-state.json` | ❌ Não commitar | Estado runtime gerado pelo snapshot — adicionado ao `.gitignore` |
+
+### Limitações documentadas
+- `consensus.mjs` — `WEIGHTED` quorum usa maioria simples sem aviso; se implementar pesos reais no futuro, requer S10.2 refatoração
+- `consensus.mjs` — `CONSENSUS` quorum com colmeia de 1 agente: o proponente pode aprovar a própria proposta sem resistência
+
+### Gate liberado
+S10.2 (Consensus Runtime) e S10.3 (Delegation Runtime) podem prosseguir.
+
+---
+
 ## [S9.7] — Licença MIT + Aprovação Sprint 9 — 2026-03-08 ✅
 **sprint:** S9.7 · **domínio:** legal · onboarding
 

@@ -227,10 +227,10 @@ Um sistema de orquestração de agentes IA que qualquer equipe pode instalar, co
 
 **Sub-sprints:**
 
-- [ ] **S10.0 — Arqueologia** *(gate obrigatório — P11 + Protocolo Arqueologia)* — Auditar `consensus.mjs` e `delegation.mjs`; veredito por módulo; entrada no CHANGELOG; **bloqueia S10.2 e S10.3**
+- [x] **S10.0 — Arqueologia** — 7 módulos auditados; 6 ✅ Cleared, 1 ⚠️ Cleared com Observações, 1 ❌ não commitado (state json); `ops/openai-subscription-state.json` → `.gitignore`; gate liberado
 - [ ] **S10.1 — MCP Runtime Integration** — Conectar `mcp-manager.mjs` ao loop de runtime; UI para gerenciar servidores MCP ativos
-- [ ] **S10.2 — Consensus Runtime** — Acionar `consensus.mjs` para decisões de alto impacto (ex: spawn em cascata, redirect de agente) *(depende de S10.0 Cleared)*
-- [ ] **S10.3 — Delegation Runtime** — Conectar `delegation.mjs` ao Commander para delegação recursiva real *(depende de S10.0 Cleared)*
+- [ ] **S10.2 — Consensus Runtime** — Acionar `consensus.mjs` para decisões de alto impacto (ex: spawn em cascata, redirect de agente)
+- [ ] **S10.3 — Delegation Runtime** — Conectar `delegation.mjs` ao Commander para delegação recursiva real
 - [ ] **S10.4 — Web CLI** — Terminal xterm.js embedado no dashboard; executa `mc` commands via browser
 - [ ] **S10.5 — Memory Endpoint** — Wiring real de `memory/episodic.mjs` com endpoint `/api/agents/:id/memory`
 - [ ] **S10.6 — Scribe + Aprovação S10**

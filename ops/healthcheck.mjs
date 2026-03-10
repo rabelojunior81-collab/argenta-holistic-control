@@ -7,6 +7,7 @@
  *   2. ops/events.jsonl tem eventos recentes (< 1h)
  *   3. kanban/tasks.json é válido e legível
  *   4. ralph-loop está rodando (via ops/state.json)
+ *   5. snapshot da subscription OpenAI/Codex recente e saudável
  *
  * Exit codes:
  *   0 = tudo OK
@@ -17,6 +18,7 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { execFileSync } from "node:child_process";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dir, "..");
@@ -109,6 +111,38 @@ if (!existsSync(statePath)) {
   } else {
     warn("ralph-loop", `status=${state.status}`);
   }
+}
+
+// ─── Check 5: OpenAI/Codex subscription snapshot ────────────────────────────
+
+const subscriptionPath = join(ROOT, "ops/openai-subscription-state.json");
+try {
+  let sub = null;
+  if (existsSync(subscriptionPath)) {
+    sub = JSON.parse(await readFile(subscriptionPath, "utf8"));
+  }
+
+  const staleMin = sub?.timestamp ? Math.round((Date.now() - new Date(sub.timestamp).getTime()) / 60_000) : null;
+  if (!sub || staleMin === null || staleMin > 15) {
+    const raw = execFileSync(process.execPath, [join(ROOT, "ops/openai-subscription-snapshot.mjs"), "--persist"], {
+      encoding: "utf8",
+      timeout: 15000,
+      windowsHide: true,
+    });
+    sub = JSON.parse(raw);
+  }
+
+  if (!sub) {
+    warn("subscription", "snapshot unavailable");
+  } else if (sub.health === "degraded") {
+    fail("subscription", `${sub.model?.effective ?? "unknown"}  alerts=${(sub.alerts?.items ?? []).join(",") || "n/a"}`);
+  } else if (sub.health === "warn") {
+    warn("subscription", `${sub.model?.effective ?? "unknown"}  5h=${sub.usage?.fiveHour?.remainingPercent ?? "?"}%  week=${sub.usage?.week?.remainingPercent ?? "?"}%`);
+  } else {
+    ok("subscription", `${sub.model?.effective ?? "unknown"}  5h=${sub.usage?.fiveHour?.remainingPercent ?? "?"}%  week=${sub.usage?.week?.remainingPercent ?? "?"}%`);
+  }
+} catch (e) {
+  warn("subscription", `snapshot error: ${e.message}`);
 }
 
 // ─── Output ──────────────────────────────────────────────────────────────────

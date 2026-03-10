@@ -5,6 +5,7 @@ node_modules/
 ops/chat-sessions.json
 ops/events.jsonl
 ops/state.json
+ops/openai-subscription-state.json
 
 # Environment / secrets
 .env

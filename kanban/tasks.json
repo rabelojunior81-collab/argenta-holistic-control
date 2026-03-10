@@ -1,32 +1,5 @@
 {
   "version": 1,
-  "updated": "2026-03-08T14:47:55.129Z",
-  "tasks": [
-    {
-      "id": "a524837b",
-      "title": "Olá.",
-      "domain": "planning",
-      "agent": "ask",
-      "providerID": "bailian-coding-plan",
-      "modelID": "qwen3.5-plus",
-      "chatKey": "ask",
-      "priority": "high",
-      "status": "done",
-      "created": "2026-03-08T14:47:49.122Z",
-      "updated": "2026-03-08T14:47:55.129Z",
-      "result": "Olá! Eu sou o Kilo, um assistente técnico especializado em desenvolvimento de software e tecnologia. Estou aqui para ajudar com dúvidas sobre programação, análise de código, arquitetura de sistemas, ou qualquer outro tópico relacionado ao desenvolvimento.\n\nComo posso ajudar você hoje?",
-      "events": [
-        {
-          "ts": "2026-03-08T14:47:49.122Z",
-          "from": "manual",
-          "to": "in_progress"
-        },
-        {
-          "ts": "2026-03-08T14:47:55.129Z",
-          "from": "in_progress",
-          "to": "done"
-        }
-      ]
-    }
-  ]
+  "updated": "2026-03-10T01:32:05.151Z",
+  "tasks": []
 }
